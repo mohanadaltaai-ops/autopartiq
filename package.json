@@ -1,0 +1,14 @@
+{
+  "name": "autopartiq-production",
+  "private": true,
+  "version": "1.0.0",
+  "description": "AutoPartIQ production-ready MVP monorepo",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prettier": "^3.3.3"
+  }
+}
