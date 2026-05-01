@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  SUPPLIER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum RequestStatus {
+  WAITING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+enum OfferStatus {
+  ACTIVE
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
+enum OrderStatus {
+  WAITING_PICKUP
+  DELIVERING
+  COMPLETED
+  CANCELLED
+}
+
+enum PartCondition {
+  NEW
+  USED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  supplier  Supplier?
+  requests  PartRequest[]
+  notifications Notification[]
+}
+
+model Supplier {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  phone     String
+  location  String
+  supportedMakesJson String
+  createdAt DateTime @default(now())
+  offers    Offer[]
+  orders    Order[]
+}
+
+model PartRequest {
+  id          String   @id @default(cuid())
+  customerId  String
+  customer    User     @relation(fields: [customerId], references: [id])
+  origin      String
+  make        String
+  model       String
+  year        Int
+  partName    String
+  description String?
+  partNumber  String?
+  vin         String?
+  location    String?
+  customerPhone String?
+  status      RequestStatus @default(WAITING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  offers      Offer[]
+}
+
+model Offer {
+  id              String   @id @default(cuid())
+  requestId       String
+  request         PartRequest @relation(fields: [requestId], references: [id])
+  supplierId      String
+  supplier        Supplier @relation(fields: [supplierId], references: [id])
+  supplierPrice   Int
+  customerPrice   Int
+  platformRevenue Int
+  condition       PartCondition
+  notes           String?
+  photoUrl        String?
+  status          OfferStatus @default(ACTIVE)
+  createdAt       DateTime @default(now())
+  order           Order?
+}
+
+model Order {
+  id              String @id @default(cuid())
+  orderNumber     String @unique
+  offerId         String @unique
+  offer           Offer @relation(fields: [offerId], references: [id])
+  supplierId      String
+  supplier        Supplier @relation(fields: [supplierId], references: [id])
+  customerId      String
+  supplierPrice   Int
+  customerPrice   Int
+  deliveryFee     Int @default(6000)
+  platformRevenue Int
+  status          OrderStatus @default(WAITING_PICKUP)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Notification {
+  id        String @id @default(cuid())
+  userId    String
+  user      User @relation(fields: [userId], references: [id])
+  message   String
+  read      Boolean @default(false)
+  createdAt DateTime @default(now())
+}
