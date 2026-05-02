@@ -28,7 +28,15 @@ const translations = {
     confirmCancel: 'Confirm cancel',
     keepRequest: 'Keep request',
     adminDashboard: 'AutoPartIQ Admin',
-    platformOverview: 'Platform overview'
+    platformOverview: 'Platform overview',
+    welcomeBack: 'Welcome back',
+    enterOtp: 'Enter OTP',
+    phoneNumber: 'Phone number',
+    sendCode: 'Send Code',
+    verifySignIn: 'Verify & Sign In',
+    changeNumber: 'Change number',
+    iraqiPartsMarket: 'Iraqi spare parts marketplace',
+    demoLoginNumbers: 'Demo login numbers'
   },
   ar: {
     appName: 'أوتو بارتس IQ',
@@ -57,7 +65,15 @@ const translations = {
     confirmCancel: 'تأكيد الإلغاء',
     keepRequest: 'الاحتفاظ بالطلب',
     adminDashboard: 'إدارة أوتو بارت IQ',
-    platformOverview: 'نظرة عامة على المنصة'
+    platformOverview: 'نظرة عامة على المنصة',
+    welcomeBack: 'مرحباً بعودتك',
+    enterOtp: 'أدخل رمز التحقق',
+    phoneNumber: 'رقم الهاتف',
+    sendCode: 'إرسال الرمز',
+    verifySignIn: 'تحقق وتسجيل الدخول',
+    changeNumber: 'تغيير الرقم',
+    iraqiPartsMarket: 'سوق قطع الغيار العراقي',
+    demoLoginNumbers: 'أرقام الدخول التجريبية'
   }
 };
 
