@@ -39,6 +39,20 @@ export const orderStatusSchema = z.object({
   status: z.enum(['WAITING_PICKUP', 'DELIVERING', 'COMPLETED', 'CANCELLED'])
 });
 
+export const paymentUpdateSchema = z.object({
+  paymentMethod: z.enum(['CASH_ON_DELIVERY', 'CARD', 'WALLET', 'BANK_TRANSFER']).optional(),
+  paymentStatus: z.enum(['PENDING', 'PAID', 'FAILED', 'REFUNDED']).optional()
+});
+
+export const deliveryAssignmentSchema = z.object({
+  driverName: z.string().max(120).optional().nullable(),
+  driverPhone: z.string().max(30).optional().nullable(),
+  pickupEta: z.string().max(120).optional().nullable(),
+  deliveryEta: z.string().max(120).optional().nullable(),
+  proofOfDeliveryUrl: z.string().url().optional().nullable(),
+  deliveryNotes: z.string().max(500).optional().nullable()
+});
+
 export const supplierSchema = z.object({
   name: z.string().min(2).max(120),
   phone,
