@@ -49,6 +49,7 @@ model User {
   supplier  Supplier?
   requests  PartRequest[]
   notifications Notification[]
+  auditLogs AuditLog[]
 }
 
 model Supplier {
@@ -130,4 +131,15 @@ model Notification {
   message   String
   read      Boolean @default(false)
   createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorUserId String?
+  actor       User?    @relation(fields: [actorUserId], references: [id])
+  action      String
+  entityType  String
+  entityId    String?
+  metadataJson String  @default("{}")
+  createdAt   DateTime @default(now())
 }
