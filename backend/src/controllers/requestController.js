@@ -2,13 +2,21 @@ import { prisma } from '../db.js';
 
 function normalizePhotoUrls(value) {
   if (!Array.isArray(value)) return [];
-  return value.filter(item => typeof item === 'string' && item.trim()).slice(0, 5);
+  return value.filter(item => typeof item === 'string' && item.trim()).slice(0, 4);
+}
+
+function sanitizeRequestForSupplier(request) {
+  const { customerPhone, location, customer, ...safeRequest } = request;
+  return safeRequest;
 }
 
 export async function createRequest(req, res) {
   const data = req.body;
   if (!data.origin || !data.make || !data.model || !data.year || !data.partName) {
     return res.status(400).json({ message: 'Car details and part name are required' });
+  }
+  if (!data.customerPhone || !data.location) {
+    return res.status(400).json({ message: 'Customer phone and detailed location are required' });
   }
 
   const request = await prisma.partRequest.create({
@@ -22,8 +30,8 @@ export async function createRequest(req, res) {
       description: data.description || null,
       partNumber: data.partNumber || null,
       vin: data.vin || null,
-      location: data.location || null,
-      customerPhone: data.customerPhone || null,
+      location: data.location,
+      customerPhone: data.customerPhone,
       photoUrlsJson: JSON.stringify(normalizePhotoUrls(data.photoUrls))
     }
   });
@@ -46,9 +54,11 @@ export async function cancelRequest(req, res) {
   if (existing.status !== 'WAITING') return res.status(400).json({ message: 'Only waiting requests can be cancelled' });
 
   const reason = typeof req.body.reason === 'string' ? req.body.reason.trim().slice(0, 500) : '';
+  if (!reason) return res.status(400).json({ message: 'Cancellation reason is required' });
+
   const request = await prisma.partRequest.update({
     where: { id: req.params.id },
-    data: { status: 'CANCELLED', cancellationReason: reason || null }
+    data: { status: 'CANCELLED', cancellationReason: reason }
   });
   res.json({ request });
 }
@@ -60,8 +70,8 @@ export async function supplierLeads(req, res) {
   const supportedMakes = JSON.parse(supplier.supportedMakesJson || '[]');
   const requests = await prisma.partRequest.findMany({
     where: { origin: { in: supportedMakes }, status: 'WAITING' },
-    include: { offers: true, customer: true },
+    include: { offers: true },
     orderBy: { createdAt: 'desc' }
   });
-  res.json({ requests });
+  res.json({ requests: requests.map(sanitizeRequestForSupplier) });
 }
