@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { api, formatIQD } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { carData, years } from '../data/carData';
+import OfferCard from '../components/customer/OfferCard';
 
 function parseJsonArray(value) {
   try {
@@ -80,20 +81,7 @@ function RequestCard({ req, token, reload }) {
     {req.cancellationReason && <div className="text-xs bg-red-50 text-red-700 rounded-xl p-2">Cancelled reason: {req.cancellationReason}</div>}
     {requestPhotos.length > 0 && <div className="flex gap-2 overflow-x-auto">{requestPhotos.map(url => <img key={url} src={url} alt="Request" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
     <div className="space-y-2">
-      {req.offers?.filter(o => o.status === 'ACTIVE').map(o => {
-        const offerPhotos = parseJsonArray(o.photoUrlsJson);
-        return <div key={o.id} className="bg-slate-50 rounded-xl p-3 space-y-2">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <div className="text-xs text-slate-400">Supplier {o.supplier?.id?.slice(-1).toUpperCase()}</div>
-              <div className="font-bold">{formatIQD(o.customerPrice)}</div>
-              <div className="text-xs">Delivery: 6,000 IQD • {o.condition}</div>
-            </div>
-            <button onClick={async () => { await api(`/offers/${o.id}/accept`, { method:'POST', token }); reload(); }} className="px-4 py-2 rounded-xl bg-orange-600 text-white text-sm font-bold">Accept</button>
-          </div>
-          {offerPhotos.length > 0 && <div className="flex gap-2 overflow-x-auto">{offerPhotos.map(url => <img key={url} src={url} alt="Offer" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
-        </div>;
-      })}
+      {req.offers?.filter(o => o.status === 'ACTIVE').map(o => <OfferCard key={o.id} offer={o} token={token} reload={reload} />)}
     </div>
     {canCancel && <div className="border-t pt-3 space-y-2">
       {!showCancel ? <button onClick={() => setShowCancel(true)} className="text-xs font-bold text-red-600">Cancel request</button> : <>
