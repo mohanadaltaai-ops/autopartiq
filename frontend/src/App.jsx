@@ -20,14 +20,15 @@ function AppInner() {
   }, []);
 
   useEffect(() => {
-    setTab('home');
-  }, [user?.id, user?.role]);
+    setTab(user?.role === 'ADMIN' && user?.adminPermission === 'ORDERS_ONLY' ? 'orders' : 'home');
+  }, [user?.id, user?.role, user?.adminPermission]);
 
   if (loading) return <div className="min-h-screen bg-slate-600 text-white flex items-center justify-center">Loading...</div>;
   if (!user && path === '/super-access') return <div dir={direction} className="min-h-screen flex items-center justify-center bg-slate-600 p-5"><div className="phone-frame bg-white rounded-[40px] border-8 border-slate-900 overflow-hidden shadow-2xl flex flex-col p-6 justify-center gap-4"><SuperAdminAccess onBack={() => { window.location.href = '/'; }} /></div></div>;
   if (!user) return <div dir={direction}><Login /></div>;
-  const page = tab === 'profile' ? <Profile /> : user.role === 'CUSTOMER' ? <Customer tab={tab} /> : user.role === 'SUPPLIER' ? <Supplier tab={tab} /> : <Admin tab={tab} />;
-  return <div dir={direction}><Layout tab={tab} setTab={setTab}>{page}</Layout></div>;
+  const safeTab = user?.role === 'ADMIN' && user?.adminPermission === 'ORDERS_ONLY' && !['orders', 'profile'].includes(tab) ? 'orders' : tab;
+  const page = safeTab === 'profile' ? <Profile /> : user.role === 'CUSTOMER' ? <Customer tab={safeTab} /> : user.role === 'SUPPLIER' ? <Supplier tab={safeTab} /> : <Admin tab={safeTab} />;
+  return <div dir={direction}><Layout tab={safeTab} setTab={setTab}>{page}</Layout></div>;
 }
 
 export default function App() {
