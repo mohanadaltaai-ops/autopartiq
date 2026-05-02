@@ -6,7 +6,6 @@ import AdminSupplierList from '../components/admin/AdminSupplierList';
 import AuditLogViewer from '../components/admin/AuditLogViewer';
 import OrderPaymentControls from '../components/admin/OrderPaymentControls';
 import OrderDeliveryControls from '../components/admin/OrderDeliveryControls';
-import SuperAdminEnroll from '../components/admin/SuperAdminEnroll';
 
 function StatCard({ label, value }) {
   return <div className="bg-white rounded-2xl border p-4 shadow-sm">
@@ -126,7 +125,7 @@ export default function Admin({ tab }) {
   if (!data) return <div className="p-4 text-slate-500">Loading dashboard...</div>;
 
   if (tab === 'audit') {
-    return <div className="p-4 space-y-4"><h1 className="font-black text-xl text-slate-900">Audit Logs</h1>{user?.role === 'SUPER_ADMIN' && <SuperAdminEnroll token={token} />}<AuditLogViewer token={token} /></div>;
+    return <div className="p-4 space-y-4"><h1 className="font-black text-xl text-slate-900">Audit Logs</h1><AuditLogViewer token={token} /></div>;
   }
 
   if (tab === 'suppliers') {
@@ -137,12 +136,12 @@ export default function Admin({ tab }) {
         <input className="w-full p-3 rounded-xl border" placeholder="Phone" value={supplierForm.phone} onChange={e => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
         <input className="w-full p-3 rounded-xl border" placeholder="Location" value={supplierForm.location} onChange={e => setSupplierForm({ ...supplierForm, location: e.target.value })} />
         <div className="grid grid-cols-2 gap-2">
-          {Object.keys(carData).map(origin => <label key={origin} className="text-xs bg-slate-50 rounded-xl p-2 flex gap-2 items-center">
+          {Object.keys(carData).map(origin => <label key={origin} className="text-xs bg-slate-50 rounded-xl p-2 flex gap-2 items-center text-slate-700">
             <input type="checkbox" checked={supplierForm.supportedMakes.includes(origin)} onChange={e => setSupplierForm(current => ({
               ...current,
               supportedMakes: e.target.checked ? [...current.supportedMakes, origin] : current.supportedMakes.filter(item => item !== origin)
             }))} />
-            {origin}
+            <span>{origin}</span>
           </label>)}
         </div>
         <button onClick={addSupplier} disabled={!supplierForm.name || !supplierForm.phone} className="w-full py-3 rounded-2xl bg-purple-600 text-white font-black disabled:opacity-40">Add Supplier</button>
@@ -172,9 +171,9 @@ export default function Admin({ tab }) {
           <option value="COMPLETED">Completed</option>
           <option value="CANCELLED">Cancelled</option>
         </select>
-        <div className="grid grid-cols-2 gap-2">
-          <label className="text-[10px] font-bold text-slate-500 space-y-1">From<input type="date" className="w-full p-3 rounded-xl border text-sm font-normal" value={dateFrom} onChange={e => setDateFrom(e.target.value)} /></label>
-          <label className="text-[10px] font-bold text-slate-500 space-y-1">To<input type="date" className="w-full p-3 rounded-xl border text-sm font-normal" value={dateTo} onChange={e => setDateTo(e.target.value)} /></label>
+        <div className="grid grid-cols-1 gap-2">
+          <label className="text-[10px] font-bold text-slate-500 space-y-1">From<input type="date" className="w-full min-w-0 p-3 rounded-xl border text-sm font-normal" value={dateFrom} onChange={e => setDateFrom(e.target.value)} /></label>
+          <label className="text-[10px] font-bold text-slate-500 space-y-1">To<input type="date" className="w-full min-w-0 p-3 rounded-xl border text-sm font-normal" value={dateTo} onChange={e => setDateTo(e.target.value)} /></label>
         </div>
         {(orderSearch || statusFilter !== 'ALL' || dateFrom || dateTo) && <button onClick={() => { setOrderSearch(''); setStatusFilter('ALL'); setDateFrom(''); setDateTo(''); }} className="w-full py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold">Clear filters</button>}
         <div className="text-[10px] text-slate-400 font-bold">Showing {filteredOrders.length} of {data.orders.length} orders</div>
