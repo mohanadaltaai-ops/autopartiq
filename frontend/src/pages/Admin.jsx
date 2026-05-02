@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { api, formatIQD } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { carData } from '../data/carData';
+import AdminSupplierList from '../components/admin/AdminSupplierList';
 
 function StatCard({ label, value }) {
   return <div className="bg-white rounded-2xl border p-4 shadow-sm">
@@ -75,11 +76,7 @@ export default function Admin({ tab }) {
         </div>
         <button onClick={addSupplier} disabled={!supplierForm.name || !supplierForm.phone} className="w-full py-3 rounded-2xl bg-purple-600 text-white font-black disabled:opacity-40">Add Supplier</button>
       </div>
-      {data.suppliers.map(supplier => <div key={supplier.id} className="bg-white rounded-2xl border p-4 shadow-sm">
-        <div className="font-bold text-slate-900">{supplier.name}</div>
-        <div className="text-xs text-slate-500">{supplier.phone} • {supplier.location}</div>
-        <div className="text-xs text-slate-400 mt-1">Makes: {JSON.parse(supplier.supportedMakesJson || '[]').join(', ')}</div>
-      </div>)}
+      <AdminSupplierList suppliers={data.suppliers} token={token} reload={load} />
     </div>;
   }
 
@@ -123,9 +120,6 @@ export default function Admin({ tab }) {
       <StatCard label="Supplier Earnings" value={formatIQD(data.summary.supplierEarnings)} />
     </div>
     <h2 className="font-black text-slate-900">Suppliers</h2>
-    {data.suppliers.map(supplier => <div key={supplier.id} className="bg-white rounded-2xl border p-4 shadow-sm">
-      <div className="font-bold text-slate-900">{supplier.name}</div>
-      <div className="text-xs text-slate-500">{supplier.location}</div>
-    </div>)}
+    <AdminSupplierList suppliers={data.suppliers.slice(0, 3)} token={token} reload={load} />
   </div>;
 }
