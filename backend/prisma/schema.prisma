@@ -78,6 +78,7 @@ model PartRequest {
   vin           String?
   location      String?
   customerPhone String?
+  photoUrlsJson String  @default("[]")
   status        RequestStatus @default(WAITING)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -96,6 +97,7 @@ model Offer {
   condition       PartCondition
   notes           String?
   photoUrl        String?
+  photoUrlsJson   String @default("[]")
   status          OfferStatus @default(ACTIVE)
   createdAt       DateTime @default(now())
   order           Order?
