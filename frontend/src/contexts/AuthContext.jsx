@@ -9,8 +9,20 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(Boolean(token));
 
   useEffect(() => {
-    if (!token) return;
-    api('/auth/me', { token }).then(r => setUser(r.user)).finally(() => setLoading(false));
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    api('/auth/me', { token })
+      .then(r => setUser(r.user))
+      .catch(() => {
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+      })
+      .finally(() => setLoading(false));
   }, [token]);
 
   async function login(phone, otp) {
@@ -24,6 +36,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    setLoading(false);
   }
 
   return <AuthContext.Provider value={{ token, user, loading, login, logout, setUser }}>{children}</AuthContext.Provider>;
