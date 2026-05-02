@@ -6,6 +6,7 @@ import AdminSupplierList from '../components/admin/AdminSupplierList';
 import AuditLogViewer from '../components/admin/AuditLogViewer';
 import OrderPaymentControls from '../components/admin/OrderPaymentControls';
 import OrderDeliveryControls from '../components/admin/OrderDeliveryControls';
+import SuperAdminEnroll from '../components/admin/SuperAdminEnroll';
 
 function StatCard({ label, value }) {
   return <div className="bg-white rounded-2xl border p-4 shadow-sm">
@@ -65,7 +66,7 @@ export default function Admin({ tab }) {
   if (!data) return <div className="p-4 text-slate-500">Loading dashboard...</div>;
 
   if (tab === 'audit') {
-    return <div className="p-4 space-y-4"><h1 className="font-black text-xl text-slate-900">Audit Logs</h1><AuditLogViewer token={token} /></div>;
+    return <div className="p-4 space-y-4"><h1 className="font-black text-xl text-slate-900">Audit Logs</h1>{user?.role === 'SUPER_ADMIN' && <SuperAdminEnroll token={token} />}<AuditLogViewer token={token} /></div>;
   }
 
   if (tab === 'suppliers') {
