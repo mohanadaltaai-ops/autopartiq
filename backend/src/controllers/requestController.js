@@ -2,6 +2,10 @@ import { prisma } from '../db.js';
 
 export async function createRequest(req, res) {
   const data = req.body;
+  if (!data.origin || !data.make || !data.model || !data.year || !data.partName) {
+    return res.status(400).json({ message: 'Car details and part name are required' });
+  }
+
   const request = await prisma.partRequest.create({
     data: {
       customerId: req.user.id,
@@ -30,6 +34,11 @@ export async function myRequests(req, res) {
 }
 
 export async function cancelRequest(req, res) {
+  const existing = await prisma.partRequest.findUnique({ where: { id: req.params.id } });
+  if (!existing) return res.status(404).json({ message: 'Request not found' });
+  if (existing.customerId !== req.user.id) return res.status(403).json({ message: 'Forbidden' });
+  if (existing.status !== 'WAITING') return res.status(400).json({ message: 'Only waiting requests can be cancelled' });
+
   const request = await prisma.partRequest.update({ where: { id: req.params.id }, data: { status: 'CANCELLED' } });
   res.json({ request });
 }
