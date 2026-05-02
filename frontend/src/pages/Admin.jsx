@@ -46,6 +46,44 @@ function isDateInRange(value, fromDate, toDate) {
   return true;
 }
 
+function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token, reload }) {
+  const [open, setOpen] = useState(false);
+  return <div className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
+    <button onClick={() => setOpen(value => !value)} className="w-full text-left flex items-start justify-between gap-3">
+      <div>
+        <div className="font-black text-orange-600">{order.orderNumber}</div>
+        <div className="font-bold text-slate-900">{order.offer.request.partName}</div>
+        <div className="text-xs text-slate-400">Created: {toDateInputValue(order.createdAt) || 'N/A'}</div>
+        <div className="text-xs text-slate-500">Supplier: {order.offer.supplier.name}</div>
+        <div className="text-xs text-slate-500">Customer phone: {order.offer.request.customerPhone || 'N/A'}</div>
+      </div>
+      <div className="text-right">
+        <StatusBadge status={order.status} />
+        <div className="text-[10px] text-slate-400 mt-2">{open ? 'Hide' : 'Details'}</div>
+      </div>
+    </button>
+
+    {open && <>
+      <div className="text-xs text-slate-500 grid grid-cols-2 gap-1 rounded-xl bg-slate-50 p-3">
+        {user?.role === 'SUPER_ADMIN' && <><span>Supplier: {formatIQD(order.supplierPrice)}</span><span>Customer: {formatIQD(order.customerPrice)}</span><span>Revenue: {formatIQD(order.platformRevenue)}</span></>}
+        <span>Delivery: {formatIQD(order.deliveryFee)}</span>
+        <span>Payment: {order.paymentMethod}</span>
+        <span>Status: {order.paymentStatus}</span>
+        <span>Driver: {order.driverName || 'Not assigned'}</span>
+        <span>ETA: {order.deliveryEta || 'Pending'}</span>
+        <span className="col-span-2">Location: {order.offer.request.location || 'N/A'}</span>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'DELIVERING')} className="text-[11px] py-2 rounded-xl bg-blue-50 text-blue-700 font-bold disabled:opacity-40">Delivering</button>
+        <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'COMPLETED')} className="text-[11px] py-2 rounded-xl bg-green-50 text-green-700 font-bold disabled:opacity-40">Completed</button>
+        <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'CANCELLED')} className="text-[11px] py-2 rounded-xl bg-red-50 text-red-700 font-bold disabled:opacity-40">Cancel</button>
+      </div>
+      <OrderPaymentControls order={order} token={token} reload={reload} />
+      <OrderDeliveryControls order={order} token={token} reload={reload} />
+    </>}
+  </div>;
+}
+
 export default function Admin({ tab }) {
   const { token, user } = useAuth();
   const [data, setData] = useState(null);
@@ -142,34 +180,7 @@ export default function Admin({ tab }) {
         <div className="text-[10px] text-slate-400 font-bold">Showing {filteredOrders.length} of {data.orders.length} orders</div>
       </div>
       {filteredOrders.length === 0 && <div className="bg-white border border-dashed rounded-2xl p-6 text-center text-sm text-slate-400">No matching orders.</div>}
-      {filteredOrders.map(order => <div key={order.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="font-black text-orange-600">{order.orderNumber}</div>
-            <div className="font-bold text-slate-900">{order.offer.request.partName}</div>
-            <div className="text-xs text-slate-400">Created: {toDateInputValue(order.createdAt) || 'N/A'}</div>
-            <div className="text-xs text-slate-500">Supplier: {order.offer.supplier.name}</div>
-            <div className="text-xs text-slate-500">Customer phone: {order.offer.request.customerPhone || 'N/A'}</div>
-            <div className="text-xs text-slate-500">Location: {order.offer.request.location || 'N/A'}</div>
-          </div>
-          <StatusBadge status={order.status} />
-        </div>
-        <div className="text-xs text-slate-500 grid grid-cols-2 gap-1">
-          {user?.role === 'SUPER_ADMIN' && <><span>Supplier: {formatIQD(order.supplierPrice)}</span><span>Customer: {formatIQD(order.customerPrice)}</span><span>Revenue: {formatIQD(order.platformRevenue)}</span></>}
-          <span>Delivery: {formatIQD(order.deliveryFee)}</span>
-          <span>Payment: {order.paymentMethod}</span>
-          <span>Status: {order.paymentStatus}</span>
-          <span>Driver: {order.driverName || 'Not assigned'}</span>
-          <span>ETA: {order.deliveryEta || 'Pending'}</span>
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'DELIVERING')} className="text-[11px] py-2 rounded-xl bg-blue-50 text-blue-700 font-bold disabled:opacity-40">Delivering</button>
-          <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'COMPLETED')} className="text-[11px] py-2 rounded-xl bg-green-50 text-green-700 font-bold disabled:opacity-40">Completed</button>
-          <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'CANCELLED')} className="text-[11px] py-2 rounded-xl bg-red-50 text-red-700 font-bold disabled:opacity-40">Cancel</button>
-        </div>
-        <OrderPaymentControls order={order} token={token} reload={load} />
-        <OrderDeliveryControls order={order} token={token} reload={load} />
-      </div>)}
+      {filteredOrders.map(order => <AdminOrderCard key={order.id} order={order} user={user} updatingOrderId={updatingOrderId} changeOrderStatus={changeOrderStatus} token={token} reload={load} />)}
     </div>;
   }
 
