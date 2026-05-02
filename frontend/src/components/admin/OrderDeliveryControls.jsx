@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { api } from '../../lib/api';
 
+function cleanPayload(form) {
+  return Object.fromEntries(
+    Object.entries(form).map(([key, value]) => [key, typeof value === 'string' && !value.trim() ? null : value])
+  );
+}
+
 export default function OrderDeliveryControls({ order, token, reload }) {
   const [form, setForm] = useState({
     driverName: order.driverName || '',
@@ -17,7 +23,7 @@ export default function OrderDeliveryControls({ order, token, reload }) {
     setSaving(true);
     setError('');
     try {
-      await api(`/orders/${order.id}/delivery`, { method: 'PATCH', token, body: form });
+      await api(`/orders/${order.id}/delivery`, { method: 'PATCH', token, body: cleanPayload(form) });
       await reload();
     } catch (e) {
       setError(e.message);
@@ -35,7 +41,7 @@ export default function OrderDeliveryControls({ order, token, reload }) {
         <input className="p-2 rounded-xl border text-xs" placeholder="Pickup ETA" value={form.pickupEta} onChange={e => setForm({ ...form, pickupEta: e.target.value })} />
         <input className="p-2 rounded-xl border text-xs" placeholder="Delivery ETA" value={form.deliveryEta} onChange={e => setForm({ ...form, deliveryEta: e.target.value })} />
       </div>
-      <input className="w-full p-2 rounded-xl border text-xs" placeholder="Proof of delivery URL" value={form.proofOfDeliveryUrl} onChange={e => setForm({ ...form, proofOfDeliveryUrl: e.target.value })} />
+      <input className="w-full p-2 rounded-xl border text-xs" placeholder="Proof of delivery URL optional" value={form.proofOfDeliveryUrl} onChange={e => setForm({ ...form, proofOfDeliveryUrl: e.target.value })} />
       <textarea className="w-full p-2 rounded-xl border text-xs" placeholder="Delivery notes" value={form.deliveryNotes} onChange={e => setForm({ ...form, deliveryNotes: e.target.value })} />
       {error && <div className="text-xs text-red-600">{error}</div>}
       <button onClick={save} disabled={saving} className="w-full py-2 rounded-xl bg-blue-600 text-white text-xs font-bold disabled:opacity-40">
