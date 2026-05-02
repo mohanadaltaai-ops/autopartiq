@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { carData } from '../data/carData';
 import AdminSupplierList from '../components/admin/AdminSupplierList';
 import AuditLogViewer from '../components/admin/AuditLogViewer';
+import OrderPaymentControls from '../components/admin/OrderPaymentControls';
+import OrderDeliveryControls from '../components/admin/OrderDeliveryControls';
 
 function StatCard({ label, value }) {
   return <div className="bg-white rounded-2xl border p-4 shadow-sm">
@@ -89,7 +91,7 @@ export default function Admin({ tab }) {
     return <div className="p-4 space-y-3">
       <h1 className="font-black text-xl text-slate-900">All Orders</h1>
       {data.orders.length === 0 && <div className="bg-white border border-dashed rounded-2xl p-6 text-center text-sm text-slate-400">No orders yet.</div>}
-      {data.orders.map(order => <div key={order.id} className="bg-white rounded-2xl border p-4 shadow-sm">
+      {data.orders.map(order => <div key={order.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="font-black text-orange-600">{order.orderNumber}</div>
@@ -98,17 +100,23 @@ export default function Admin({ tab }) {
           </div>
           <StatusBadge status={order.status} />
         </div>
-        <div className="text-xs text-slate-500 mt-3 grid grid-cols-2 gap-1">
+        <div className="text-xs text-slate-500 grid grid-cols-2 gap-1">
           <span>Supplier: {formatIQD(order.supplierPrice)}</span>
           <span>Customer: {formatIQD(order.customerPrice)}</span>
           <span>Revenue: {formatIQD(order.platformRevenue)}</span>
           <span>Delivery: {formatIQD(order.deliveryFee)}</span>
+          <span>Payment: {order.paymentMethod}</span>
+          <span>Status: {order.paymentStatus}</span>
+          <span>Driver: {order.driverName || 'Not assigned'}</span>
+          <span>ETA: {order.deliveryEta || 'Pending'}</span>
         </div>
-        <div className="mt-3 grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'DELIVERING')} className="text-[11px] py-2 rounded-xl bg-blue-50 text-blue-700 font-bold disabled:opacity-40">Delivering</button>
           <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'COMPLETED')} className="text-[11px] py-2 rounded-xl bg-green-50 text-green-700 font-bold disabled:opacity-40">Completed</button>
           <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'CANCELLED')} className="text-[11px] py-2 rounded-xl bg-red-50 text-red-700 font-bold disabled:opacity-40">Cancel</button>
         </div>
+        <OrderPaymentControls order={order} token={token} reload={load} />
+        <OrderDeliveryControls order={order} token={token} reload={load} />
       </div>)}
     </div>;
   }
