@@ -4,20 +4,24 @@ const DEFAULT_API_URL = isLocalhost ? 'http://localhost:4000/api' : 'https://aut
 const API_URL = import.meta.env.VITE_API_URL || DEFAULT_API_URL;
 
 export async function api(path, { method = 'GET', body, token } = {}) {
+  let res;
+
   try {
-    const res = await fetch(`${API_URL}${path}`, {
+    res = await fetch(`${API_URL}${path}`, {
       method,
       headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: body ? JSON.stringify(body) : undefined
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || 'API request failed');
-    }
-    return res.json();
   } catch (error) {
     throw new Error(`Failed to reach API at ${API_URL}. ${error.message}`);
   }
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `API request failed with status ${res.status}`);
+  }
+
+  return res.json();
 }
 
 export function formatIQD(value) {
