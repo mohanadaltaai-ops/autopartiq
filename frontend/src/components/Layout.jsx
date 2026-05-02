@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Bell, Home, Package, User, BarChart3, Users, Languages, ShieldCheck } from 'lucide-react';
+import { Bell, Home, Package, User, BarChart3, Users, Languages, ShieldCheck, UserPlus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../lib/api';
@@ -13,11 +13,16 @@ export default function Layout({ tab, setTab, children }) {
   const roleColor = { CUSTOMER: 'text-orange-600', SUPPLIER: 'text-blue-600', ADMIN: 'text-purple-600', SUPER_ADMIN: 'text-red-600' }[user?.role] || 'text-slate-800';
   const activeColor = user?.role === 'SUPPLIER' ? 'text-blue-600' : ['ADMIN','SUPER_ADMIN'].includes(user?.role) ? 'text-purple-600' : 'text-orange-600';
   const roleLabel = user?.role === 'CUSTOMER' ? t('roleCustomer') : user?.role === 'SUPPLIER' ? t('roleSupplier') : t('roleAdmin');
+  const adminTabs = user?.role === 'SUPER_ADMIN'
+    ? [['home', BarChart3, t('dashboard')], ['suppliers', Users, t('suppliers')], ['orders', Package, t('orders')], ['audit', ShieldCheck, 'Audit'], ['manage', UserPlus, 'Users'], ['profile', User, 'Profile']]
+    : user?.adminPermission === 'ORDERS_ONLY'
+      ? [['orders', Package, t('orders')], ['profile', User, 'Profile']]
+      : [['home', BarChart3, t('dashboard')], ['suppliers', Users, t('suppliers')], ['orders', Package, t('orders')], ['audit', ShieldCheck, 'Audit'], ['profile', User, 'Profile']];
   const tabs = user?.role === 'CUSTOMER'
     ? [['home', Home, t('home')], ['orders', Package, t('orders')], ['profile', User, 'Profile']]
     : user?.role === 'SUPPLIER'
       ? [['home', Home, t('leads')], ['orders', Package, t('orders')], ['earnings', BarChart3, t('earnings')], ['profile', User, 'Profile']]
-      : [['home', BarChart3, t('dashboard')], ['suppliers', Users, t('suppliers')], ['orders', Package, t('orders')], ['audit', ShieldCheck, 'Audit'], ['profile', User, 'Profile']];
+      : adminTabs;
 
   async function loadNotifications() {
     if (!token || user?.role !== 'CUSTOMER') return;
@@ -42,14 +47,14 @@ export default function Layout({ tab, setTab, children }) {
     <div className="phone-frame bg-slate-100 rounded-[40px] border-8 border-slate-900 shadow-2xl overflow-hidden flex flex-col relative">
       <header className="shrink-0 bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => setTab('home')} className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black">AIQ</button>
+          <button onClick={() => setTab(user?.adminPermission === 'ORDERS_ONLY' ? 'orders' : 'home')} className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black">AIQ</button>
           <div>
             <div className="font-black text-slate-900 leading-tight">{t('appName')}</div>
             <div className={`text-[10px] font-bold ${roleColor}`}>{roleLabel}</div>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {tab !== 'home' && <button onClick={() => setTab('home')} className="px-3 h-9 rounded-xl bg-slate-50 border text-xs font-bold">Home</button>}
+          {tab !== 'home' && user?.adminPermission !== 'ORDERS_ONLY' && <button onClick={() => setTab('home')} className="px-3 h-9 rounded-xl bg-slate-50 border text-xs font-bold">Home</button>}
           <button onClick={toggleLanguage} className="w-9 h-9 rounded-xl bg-slate-50 border flex items-center justify-center text-xs font-black" title="Language">
             <Languages size={16}/>
             <span className="sr-only">{language}</span>
