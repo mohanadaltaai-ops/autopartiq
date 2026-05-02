@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Bell, Home, Package, User, BarChart3, Users } from 'lucide-react';
+import { Bell, Home, Package, User, BarChart3, Users, Languages } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../lib/api';
 
 export default function Layout({ tab, setTab, children }) {
   const { user, token, logout } = useAuth();
+  const { language, t, toggleLanguage } = useLanguage();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const roleColor = { CUSTOMER: 'text-orange-600', SUPPLIER: 'text-blue-600', ADMIN: 'text-purple-600', SUPER_ADMIN: 'text-red-600' }[user?.role] || 'text-slate-800';
   const activeColor = user?.role === 'SUPPLIER' ? 'text-blue-600' : ['ADMIN','SUPER_ADMIN'].includes(user?.role) ? 'text-purple-600' : 'text-orange-600';
+  const roleLabel = user?.role === 'CUSTOMER' ? t('roleCustomer') : user?.role === 'SUPPLIER' ? t('roleSupplier') : t('roleAdmin');
   const tabs = user?.role === 'CUSTOMER'
-    ? [['home', Home, 'Home'], ['orders', Package, 'Orders'], ['profile', User, 'Profile']]
+    ? [['home', Home, t('home')], ['orders', Package, t('orders')], ['profile', User, t('logout')]]
     : user?.role === 'SUPPLIER'
-      ? [['home', Home, 'Leads'], ['orders', Package, 'Orders'], ['earnings', BarChart3, 'Earnings'], ['profile', User, 'Profile']]
-      : [['home', BarChart3, 'Dashboard'], ['suppliers', Users, 'Suppliers'], ['orders', Package, 'Orders'], ['profile', User, 'Profile']];
+      ? [['home', Home, t('leads')], ['orders', Package, t('orders')], ['earnings', BarChart3, t('earnings')], ['profile', User, t('logout')]]
+      : [['home', BarChart3, t('dashboard')], ['suppliers', Users, t('suppliers')], ['orders', Package, t('orders')], ['profile', User, t('logout')]];
 
   async function loadNotifications() {
     if (!token || user?.role !== 'CUSTOMER') return;
@@ -41,23 +44,29 @@ export default function Layout({ tab, setTab, children }) {
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black">AIQ</div>
           <div>
-            <div className="font-black text-slate-900 leading-tight">AutoParts IQ</div>
-            <div className={`text-[10px] font-bold ${roleColor}`}>{user?.role?.replace('_',' ')}</div>
+            <div className="font-black text-slate-900 leading-tight">{t('appName')}</div>
+            <div className={`text-[10px] font-bold ${roleColor}`}>{roleLabel}</div>
           </div>
         </div>
-        {user?.role === 'CUSTOMER' && <button onClick={toggleNotifications} className="relative w-9 h-9 rounded-xl bg-slate-50 border flex items-center justify-center">
-          <Bell size={17}/>
-          {unreadCount > 0 && <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">{unreadCount}</span>}
-        </button>}
+        <div className="flex items-center gap-2">
+          <button onClick={toggleLanguage} className="w-9 h-9 rounded-xl bg-slate-50 border flex items-center justify-center text-xs font-black" title="Language">
+            <Languages size={16}/>
+            <span className="sr-only">{language}</span>
+          </button>
+          {user?.role === 'CUSTOMER' && <button onClick={toggleNotifications} className="relative w-9 h-9 rounded-xl bg-slate-50 border flex items-center justify-center">
+            <Bell size={17}/>
+            {unreadCount > 0 && <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">{unreadCount}</span>}
+          </button>}
+        </div>
       </header>
       {showNotifications && <div className="absolute top-16 right-4 left-4 z-20 bg-white rounded-2xl border shadow-xl p-4 space-y-2">
-        <div className="flex items-center justify-between"><h3 className="font-black text-slate-900">Notifications</h3><button onClick={() => setShowNotifications(false)} className="text-slate-400 text-sm">Close</button></div>
-        {notifications.length === 0 && <div className="text-sm text-slate-400 py-4 text-center">No notifications yet.</div>}
+        <div className="flex items-center justify-between"><h3 className="font-black text-slate-900">{t('notifications')}</h3><button onClick={() => setShowNotifications(false)} className="text-slate-400 text-sm">{t('close')}</button></div>
+        {notifications.length === 0 && <div className="text-sm text-slate-400 py-4 text-center">{t('noNotifications')}</div>}
         {notifications.map(item => <div key={item.id} className="text-sm bg-slate-50 rounded-xl p-3 text-slate-700">{item.message}</div>)}
       </div>}
       <main className="flex-1 overflow-y-auto">{children}</main>
       <nav className="bg-white border-t border-slate-200 flex">
-        {tabs.map(([id, Icon, label]) => <button key={id} onClick={() => id === 'profile' ? logout() : setTab(id)} className={`flex-1 py-3 text-[10px] font-bold flex flex-col items-center gap-1 ${tab===id?activeColor:'text-slate-400'}`}><Icon size={18}/>{id==='profile'?'Logout':label}</button>)}
+        {tabs.map(([id, Icon, label]) => <button key={id} onClick={() => id === 'profile' ? logout() : setTab(id)} className={`flex-1 py-3 text-[10px] font-bold flex flex-col items-center gap-1 ${tab===id?activeColor:'text-slate-400'}`}><Icon size={18}/>{label}</button>)}
       </nav>
     </div>
   </div>;
