@@ -1,9 +1,13 @@
 import { prisma } from '../db.js';
 
+function normalizeSupportedMakes(value) {
+  return Array.isArray(value) ? value.filter(Boolean) : [];
+}
+
 export async function dashboard(req, res) {
   const [orders, suppliers, requests] = await Promise.all([
     prisma.order.findMany({ include: { offer: { include: { request: true, supplier: true } } } }),
-    prisma.supplier.findMany({ include: { user: true, orders: true } }),
+    prisma.supplier.findMany({ include: { user: true, orders: true }, orderBy: { createdAt: 'desc' } }),
     prisma.partRequest.count()
   ]);
   const completed = orders.filter(o => o.status === 'COMPLETED');
@@ -14,6 +18,8 @@ export async function dashboard(req, res) {
 
 export async function createSupplier(req, res) {
   const { name, phone, location, supportedMakes } = req.body;
+  if (!name || !phone || !location) return res.status(400).json({ message: 'Name, phone, and location are required' });
+
   const user = await prisma.user.upsert({
     where: { phone },
     update: { name, role: 'SUPPLIER' },
@@ -21,8 +27,38 @@ export async function createSupplier(req, res) {
   });
   const supplier = await prisma.supplier.upsert({
     where: { userId: user.id },
-    update: { name, phone, location, supportedMakesJson: JSON.stringify(supportedMakes || []) },
-    create: { userId: user.id, name, phone, location, supportedMakesJson: JSON.stringify(supportedMakes || []) }
+    update: { name, phone, location, isActive: true, supportedMakesJson: JSON.stringify(normalizeSupportedMakes(supportedMakes)) },
+    create: { userId: user.id, name, phone, location, supportedMakesJson: JSON.stringify(normalizeSupportedMakes(supportedMakes)) }
   });
   res.status(201).json({ supplier });
+}
+
+export async function updateSupplier(req, res) {
+  const { name, phone, location, supportedMakes, isActive } = req.body;
+  const existing = await prisma.supplier.findUnique({ where: { id: req.params.id } });
+  if (!existing) return res.status(404).json({ message: 'Supplier not found' });
+
+  const supplier = await prisma.supplier.update({
+    where: { id: existing.id },
+    data: {
+      name: name ?? existing.name,
+      phone: phone ?? existing.phone,
+      location: location ?? existing.location,
+      isActive: typeof isActive === 'boolean' ? isActive : existing.isActive,
+      supportedMakesJson: supportedMakes ? JSON.stringify(normalizeSupportedMakes(supportedMakes)) : existing.supportedMakesJson
+    }
+  });
+
+  if (name || phone) {
+    await prisma.user.update({ where: { id: existing.userId }, data: { name: name ?? existing.name, phone: phone ?? existing.phone } });
+  }
+
+  res.json({ supplier });
+}
+
+export async function disableSupplier(req, res) {
+  const existing = await prisma.supplier.findUnique({ where: { id: req.params.id } });
+  if (!existing) return res.status(404).json({ message: 'Supplier not found' });
+  const supplier = await prisma.supplier.update({ where: { id: existing.id }, data: { isActive: false } });
+  res.json({ supplier });
 }
