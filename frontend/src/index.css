@@ -18,9 +18,15 @@ body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sa
 .dark .text-slate-600, .dark .text-slate-500, .dark .text-slate-400 { color: #cbd5e1 !important; }
 .dark input, .dark textarea, .dark select { background-color: #0f172a !important; color: #f8fafc !important; border-color: #334155 !important; }
 .dark input::placeholder, .dark textarea::placeholder { color: #94a3b8 !important; }
+.dark label { color: #e2e8f0 !important; }
+.dark label span, .dark label div { color: #e2e8f0 !important; }
+.dark input[type="checkbox"] + *, .dark input[type="checkbox"] ~ * { color: #f8fafc !important; }
 .dark header button.bg-slate-50 { background-color: #334155 !important; color: #f8fafc !important; border-color: #64748b !important; }
 .dark header button.bg-slate-50 svg { color: #f8fafc !important; stroke: #f8fafc !important; }
 .dark header button.bg-slate-900 { background-color: #2563eb !important; color: #ffffff !important; }
 .dark .shadow-sm, .dark .shadow, .dark .shadow-xl, .dark .shadow-2xl { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important; }
+
+input[type="date"] { min-width: 0; width: 100%; max-width: 100%; box-sizing: border-box; }
+input[type="date"]::-webkit-date-and-time-value { text-align: left; min-height: 1.5em; }
 
 @media (max-width: 420px) { .phone-frame { width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0 !important; border: none !important; } }
