@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Bell, Home, Package, User, BarChart3, Users, Languages } from 'lucide-react';
+import { Bell, Home, Package, User, BarChart3, Users, Languages, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../lib/api';
@@ -17,7 +17,7 @@ export default function Layout({ tab, setTab, children }) {
     ? [['home', Home, t('home')], ['orders', Package, t('orders')], ['profile', User, t('logout')]]
     : user?.role === 'SUPPLIER'
       ? [['home', Home, t('leads')], ['orders', Package, t('orders')], ['earnings', BarChart3, t('earnings')], ['profile', User, t('logout')]]
-      : [['home', BarChart3, t('dashboard')], ['suppliers', Users, t('suppliers')], ['orders', Package, t('orders')], ['profile', User, t('logout')]];
+      : [['home', BarChart3, t('dashboard')], ['suppliers', Users, t('suppliers')], ['orders', Package, t('orders')], ['audit', ShieldCheck, 'Audit'], ['profile', User, t('logout')]];
 
   async function loadNotifications() {
     if (!token || user?.role !== 'CUSTOMER') return;
@@ -65,8 +65,8 @@ export default function Layout({ tab, setTab, children }) {
         {notifications.map(item => <div key={item.id} className="text-sm bg-slate-50 rounded-xl p-3 text-slate-700">{item.message}</div>)}
       </div>}
       <main className="flex-1 overflow-y-auto">{children}</main>
-      <nav className="bg-white border-t border-slate-200 flex">
-        {tabs.map(([id, Icon, label]) => <button key={id} onClick={() => id === 'profile' ? logout() : setTab(id)} className={`flex-1 py-3 text-[10px] font-bold flex flex-col items-center gap-1 ${tab===id?activeColor:'text-slate-400'}`}><Icon size={18}/>{label}</button>)}
+      <nav className="bg-white border-t border-slate-200 flex overflow-x-auto">
+        {tabs.map(([id, Icon, label]) => <button key={id} onClick={() => id === 'profile' ? logout() : setTab(id)} className={`min-w-[64px] flex-1 py-3 text-[10px] font-bold flex flex-col items-center gap-1 ${tab===id?activeColor:'text-slate-400'}`}><Icon size={18}/>{label}</button>)}
       </nav>
     </div>
   </div>;
