@@ -1,28 +1,63 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Bell, Home, Package, User, BarChart3, Users } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { api } from '../lib/api';
 
 export default function Layout({ tab, setTab, children }) {
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotifications, setShowNotifications] = useState(false);
   const roleColor = { CUSTOMER: 'text-orange-600', SUPPLIER: 'text-blue-600', ADMIN: 'text-purple-600', SUPER_ADMIN: 'text-red-600' }[user?.role] || 'text-slate-800';
+  const activeColor = user?.role === 'SUPPLIER' ? 'text-blue-600' : ['ADMIN','SUPER_ADMIN'].includes(user?.role) ? 'text-purple-600' : 'text-orange-600';
   const tabs = user?.role === 'CUSTOMER'
     ? [['home', Home, 'Home'], ['orders', Package, 'Orders'], ['profile', User, 'Profile']]
     : user?.role === 'SUPPLIER'
       ? [['home', Home, 'Leads'], ['orders', Package, 'Orders'], ['earnings', BarChart3, 'Earnings'], ['profile', User, 'Profile']]
       : [['home', BarChart3, 'Dashboard'], ['suppliers', Users, 'Suppliers'], ['orders', Package, 'Orders'], ['profile', User, 'Profile']];
 
+  async function loadNotifications() {
+    if (!token || user?.role !== 'CUSTOMER') return;
+    const result = await api('/notifications/mine', { token });
+    setNotifications(result.notifications || []);
+    setUnreadCount(result.unreadCount || 0);
+  }
+
+  async function toggleNotifications() {
+    const next = !showNotifications;
+    setShowNotifications(next);
+    if (next) {
+      await loadNotifications();
+      await api('/notifications/read', { method: 'PATCH', token });
+      setUnreadCount(0);
+    }
+  }
+
+  useEffect(() => { loadNotifications().catch(() => {}); }, [token, user?.role]);
+
   return <div className="min-h-screen flex items-center justify-center p-5 bg-slate-600">
-    <div className="phone-frame bg-slate-100 rounded-[40px] border-8 border-slate-900 shadow-2xl overflow-hidden flex flex-col">
+    <div className="phone-frame bg-slate-100 rounded-[40px] border-8 border-slate-900 shadow-2xl overflow-hidden flex flex-col relative">
       <header className="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
-        <div>
-          <div className="font-black text-slate-900">AutoParts IQ</div>
-          <div className={`text-[10px] font-bold ${roleColor}`}>{user?.role?.replace('_',' ')}</div>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black">AIQ</div>
+          <div>
+            <div className="font-black text-slate-900 leading-tight">AutoParts IQ</div>
+            <div className={`text-[10px] font-bold ${roleColor}`}>{user?.role?.replace('_',' ')}</div>
+          </div>
         </div>
-        <button className="w-9 h-9 rounded-xl bg-slate-50 border flex items-center justify-center"><Bell size={17}/></button>
+        {user?.role === 'CUSTOMER' && <button onClick={toggleNotifications} className="relative w-9 h-9 rounded-xl bg-slate-50 border flex items-center justify-center">
+          <Bell size={17}/>
+          {unreadCount > 0 && <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">{unreadCount}</span>}
+        </button>}
       </header>
+      {showNotifications && <div className="absolute top-16 right-4 left-4 z-20 bg-white rounded-2xl border shadow-xl p-4 space-y-2">
+        <div className="flex items-center justify-between"><h3 className="font-black text-slate-900">Notifications</h3><button onClick={() => setShowNotifications(false)} className="text-slate-400 text-sm">Close</button></div>
+        {notifications.length === 0 && <div className="text-sm text-slate-400 py-4 text-center">No notifications yet.</div>}
+        {notifications.map(item => <div key={item.id} className="text-sm bg-slate-50 rounded-xl p-3 text-slate-700">{item.message}</div>)}
+      </div>}
       <main className="flex-1 overflow-y-auto">{children}</main>
       <nav className="bg-white border-t border-slate-200 flex">
-        {tabs.map(([id, Icon, label]) => <button key={id} onClick={() => id === 'profile' ? logout() : setTab(id)} className={`flex-1 py-3 text-[10px] font-bold flex flex-col items-center gap-1 ${tab===id?'text-orange-600':'text-slate-400'}`}><Icon size={18}/>{id==='profile'?'Logout':label}</button>)}
+        {tabs.map(([id, Icon, label]) => <button key={id} onClick={() => id === 'profile' ? logout() : setTab(id)} className={`flex-1 py-3 text-[10px] font-bold flex flex-col items-center gap-1 ${tab===id?activeColor:'text-slate-400'}`}><Icon size={18}/>{id==='profile'?'Logout':label}</button>)}
       </nav>
     </div>
   </div>;
