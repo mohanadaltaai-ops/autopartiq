@@ -19,7 +19,7 @@ export default function Customer({ tab }) {
   const { token, user } = useAuth();
   const [requests, setRequests] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [showForm, setShowForm] = useState(false);
+  const [homeTab, setHomeTab] = useState('new');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -47,11 +47,15 @@ export default function Customer({ tab }) {
       <div className="text-sm opacity-80">Hello {user?.name}</div>
       <div className="text-xl font-black">Find car parts faster</div>
     </div>
-    <button onClick={() => setShowForm(true)} className="w-full py-4 rounded-2xl bg-orange-600 text-white font-black">+ New Part Request</button>
-    {showForm && <RequestForm token={token} onDone={() => { setShowForm(false); load(); }} />}
-    <h2 className="font-black text-slate-900">My Requests</h2>
-    {requests.length === 0 && <Empty text="No part requests yet." />}
-    {requests.map(req => <RequestCard key={req.id} req={req} token={token} reload={load} />)}
+    <div className="grid grid-cols-2 gap-2 bg-white rounded-2xl border p-2">
+      <button onClick={() => setHomeTab('new')} className={`py-2 rounded-xl text-sm font-bold ${homeTab === 'new' ? 'bg-orange-600 text-white' : 'text-slate-500'}`}>+ New Request</button>
+      <button onClick={() => setHomeTab('requests')} className={`py-2 rounded-xl text-sm font-bold ${homeTab === 'requests' ? 'bg-orange-600 text-white' : 'text-slate-500'}`}>My Requests</button>
+    </div>
+    {homeTab === 'new' ? <RequestForm token={token} onDone={async () => { await load(); setHomeTab('requests'); }} /> : <div className="space-y-3">
+      <h2 className="font-black text-slate-900">My Requests</h2>
+      {requests.length === 0 && <Empty text="No part requests yet." />}
+      {requests.map(req => <RequestCard key={req.id} req={req} token={token} reload={load} />)}
+    </div>}
   </div>;
 }
 
@@ -77,6 +81,7 @@ function RequestCard({ req, token, reload }) {
       <div>
         <div className="font-bold">{req.partName}</div>
         <div className="text-xs text-slate-500">{req.make} {req.model} ({req.year})</div>
+        {(req.partNumber || req.vin) && <div className="text-[11px] text-slate-400 mt-1">{req.partNumber && `Part No: ${req.partNumber}`} {req.vin && `VIN: ${req.vin}`}</div>}
       </div>
       <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full h-fit">{req.status}</span>
     </div>
@@ -87,9 +92,9 @@ function RequestCard({ req, token, reload }) {
     </div>
     {canCancel && <div className="border-t pt-3 space-y-2">
       {!showCancel ? <button onClick={() => setShowCancel(true)} className="text-xs font-bold text-red-600">Cancel request</button> : <>
-        <textarea className="w-full p-3 rounded-xl border text-sm" placeholder="Reason for cancellation optional" value={reason} onChange={e => setReason(e.target.value)} />
+        <textarea className="w-full p-3 rounded-xl border text-sm" placeholder="Reason for cancellation required" value={reason} onChange={e => setReason(e.target.value)} />
         {error && <div className="text-xs text-red-600">{error}</div>}
-        <div className="flex gap-2"><button onClick={cancel} className="flex-1 py-2 rounded-xl bg-red-600 text-white text-sm font-bold">Confirm cancel</button><button onClick={() => setShowCancel(false)} className="flex-1 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-bold">Keep request</button></div>
+        <div className="flex gap-2"><button onClick={cancel} disabled={!reason.trim()} className="flex-1 py-2 rounded-xl bg-red-600 text-white text-sm font-bold disabled:opacity-40">Confirm cancel</button><button onClick={() => setShowCancel(false)} className="flex-1 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-bold">Keep request</button></div>
       </>}
     </div>}
   </div>;
@@ -100,7 +105,7 @@ function Empty({ text }) {
 }
 
 function RequestForm({ token, onDone }) {
-  const [form, setForm] = useState({ origin:'Japanese', make:'Toyota', model:'Camry', year: years[0], partName:'', description:'', customerPhone:'', location:'', photoUrls: [] });
+  const [form, setForm] = useState({ origin:'Japanese', make:'Toyota', model:'Camry', year: years[0], partName:'', description:'', partNumber:'', vin:'', customerPhone:'', location:'', photoUrls: [] });
   const [photoUrl, setPhotoUrl] = useState('');
   const [uploadNote, setUploadNote] = useState('');
   const [problem, setProblem] = useState('');
@@ -124,7 +129,7 @@ function RequestForm({ token, onDone }) {
 
   function addPhotoUrl() {
     if (!photoUrl.trim()) return;
-    setForm(f => ({ ...f, photoUrls: [...f.photoUrls, photoUrl.trim()].slice(0, 5) }));
+    setForm(f => ({ ...f, photoUrls: [...f.photoUrls, photoUrl.trim()].slice(0, 4) }));
     setPhotoUrl('');
   }
 
@@ -160,16 +165,20 @@ function RequestForm({ token, onDone }) {
       <button onClick={ai} disabled={loading || !problem.trim()} className="w-full py-2 rounded-xl bg-orange-600 text-white font-bold disabled:opacity-40">{loading ? 'Analyzing...' : 'AI Identify Part'}</button>
     </div>
     <input className="w-full p-3 rounded-xl border" placeholder="Part name" value={form.partName} onChange={e => setForm({...form, partName:e.target.value})}/>
+    <div className="grid grid-cols-2 gap-2">
+      <input className="w-full p-3 rounded-xl border" placeholder="Part number optional" value={form.partNumber} onChange={e => setForm({...form, partNumber:e.target.value})}/>
+      <input className="w-full p-3 rounded-xl border" placeholder="VIN / chassis optional" value={form.vin} onChange={e => setForm({...form, vin:e.target.value})}/>
+    </div>
     <textarea className="w-full p-3 rounded-xl border" placeholder="Description" value={form.description} onChange={e => setForm({...form, description:e.target.value})}/>
     <div className="bg-slate-50 rounded-2xl p-3 space-y-2">
-      <div className="text-xs font-bold text-slate-500">Request photos structure</div>
-      <div className="flex gap-2"><input className="flex-1 p-3 rounded-xl border" placeholder="Photo URL optional" value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} /><button onClick={addPhotoUrl} type="button" className="px-3 rounded-xl bg-slate-900 text-white text-sm font-bold">Add</button></div>
+      <div className="text-xs font-bold text-slate-500">Request photos optional — up to 4</div>
+      <div className="flex gap-2"><input className="flex-1 p-3 rounded-xl border" placeholder="Photo URL optional" value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} /><button onClick={addPhotoUrl} disabled={form.photoUrls.length >= 4} type="button" className="px-3 rounded-xl bg-slate-900 text-white text-sm font-bold disabled:opacity-40">Add</button></div>
       <button onClick={checkUploadPlaceholder} type="button" className="w-full py-2 rounded-xl bg-slate-200 text-slate-700 text-xs font-bold">Check upload placeholder</button>
       {uploadNote && <div className="text-xs text-slate-500">{uploadNote}</div>}
       {form.photoUrls.length > 0 && <div className="flex gap-2 overflow-x-auto">{form.photoUrls.map(url => <img key={url} src={url} alt="Request preview" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
     </div>
-    <input className="w-full p-3 rounded-xl border" placeholder="Your phone" value={form.customerPhone} onChange={e => setForm({...form, customerPhone:e.target.value})}/>
-    <input className="w-full p-3 rounded-xl border" placeholder="Detailed location" value={form.location} onChange={e => setForm({...form, location:e.target.value})}/>
+    <input className="w-full p-3 rounded-xl border" placeholder="Your phone required" value={form.customerPhone} onChange={e => setForm({...form, customerPhone:e.target.value})}/>
+    <input className="w-full p-3 rounded-xl border" placeholder="Detailed location required" value={form.location} onChange={e => setForm({...form, location:e.target.value})}/>
     {error && <div className="text-xs text-red-600">{error}</div>}
     <button onClick={submit} disabled={!form.partName || !form.customerPhone || !form.location || saving} className="w-full py-3 rounded-2xl bg-slate-900 text-white font-black disabled:opacity-40">{saving ? 'Submitting...' : 'Submit Request'}</button>
   </div>;
