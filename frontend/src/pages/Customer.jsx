@@ -3,6 +3,7 @@ import { api, formatIQD } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { carData, years } from '../data/carData';
 import OfferCard from '../components/customer/OfferCard';
+import DeliveryWorkflow from '../components/orders/DeliveryWorkflow';
 
 function parseJsonArray(value) {
   try {
@@ -162,5 +163,5 @@ function RequestForm({ token, onDone }) {
 }
 
 function OrderList({ orders }) {
-  return <div className="p-4 space-y-3"><h1 className="font-black text-xl">Orders</h1>{orders.length === 0 && <Empty text="No orders yet." />}{orders.map(o => <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm"><div className="font-black text-orange-600">{o.orderNumber}</div><div className="font-bold">{o.offer.request.partName}</div><div className="text-xs text-slate-500">{o.offer.request.make} {o.offer.request.model}</div><div className="text-sm mt-2">Total: {formatIQD(o.customerPrice + o.deliveryFee)}</div><span className="inline-block mt-2 text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{o.status}</span></div>)}</div>;
+  return <div className="p-4 space-y-3"><h1 className="font-black text-xl">Orders</h1>{orders.length === 0 && <Empty text="No orders yet." />}{orders.map(o => <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3"><div><div className="font-black text-orange-600">{o.orderNumber}</div><div className="font-bold">{o.offer.request.partName}</div><div className="text-xs text-slate-500">{o.offer.request.make} {o.offer.request.model}</div><div className="text-sm mt-2">Total: {formatIQD(o.customerPrice + o.deliveryFee)}</div><span className="inline-block mt-2 text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{o.status}</span></div><DeliveryWorkflow status={o.status} /></div>)}</div>;
 }
