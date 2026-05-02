@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 
 export function signToken(user) {
   return jwt.sign(
-    { id: user.id, role: user.role, phone: user.phone },
+    { id: user.id, role: user.role, phone: user.phone, adminPermission: user.adminPermission || 'FULL_ADMIN' },
     process.env.JWT_SECRET || 'dev-only-secret',
     { expiresIn: '7d' }
   );
@@ -25,4 +25,10 @@ export function requireRole(...roles) {
     if (!roles.includes(req.user?.role)) return res.status(403).json({ message: 'Forbidden' });
     next();
   };
+}
+
+export function requireFullAdmin(req, res, next) {
+  if (req.user?.role === 'SUPER_ADMIN') return next();
+  if (req.user?.role === 'ADMIN' && (req.user?.adminPermission || 'FULL_ADMIN') === 'FULL_ADMIN') return next();
+  return res.status(403).json({ message: 'Full admin permission is required' });
 }
