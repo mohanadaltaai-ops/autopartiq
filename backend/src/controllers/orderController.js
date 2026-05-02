@@ -40,3 +40,39 @@ export async function updateOrderStatus(req, res) {
   await writeAuditLog({ actorUserId: req.user.id, action: 'ORDER_STATUS_UPDATED', entityType: 'Order', entityId: order.id, metadata: { from: existing.status, to: status } });
   res.json({ order });
 }
+
+export async function updatePayment(req, res) {
+  const existing = await prisma.order.findUnique({ where: { id: req.params.id } });
+  if (!existing) return res.status(404).json({ message: 'Order not found' });
+
+  const order = await prisma.order.update({
+    where: { id: existing.id },
+    data: {
+      paymentMethod: req.body.paymentMethod ?? existing.paymentMethod,
+      paymentStatus: req.body.paymentStatus ?? existing.paymentStatus
+    }
+  });
+
+  await writeAuditLog({ actorUserId: req.user.id, action: 'ORDER_PAYMENT_UPDATED', entityType: 'Order', entityId: order.id, metadata: { paymentMethod: order.paymentMethod, paymentStatus: order.paymentStatus } });
+  res.json({ order });
+}
+
+export async function updateDelivery(req, res) {
+  const existing = await prisma.order.findUnique({ where: { id: req.params.id } });
+  if (!existing) return res.status(404).json({ message: 'Order not found' });
+
+  const order = await prisma.order.update({
+    where: { id: existing.id },
+    data: {
+      driverName: req.body.driverName ?? existing.driverName,
+      driverPhone: req.body.driverPhone ?? existing.driverPhone,
+      pickupEta: req.body.pickupEta ?? existing.pickupEta,
+      deliveryEta: req.body.deliveryEta ?? existing.deliveryEta,
+      proofOfDeliveryUrl: req.body.proofOfDeliveryUrl ?? existing.proofOfDeliveryUrl,
+      deliveryNotes: req.body.deliveryNotes ?? existing.deliveryNotes
+    }
+  });
+
+  await writeAuditLog({ actorUserId: req.user.id, action: 'ORDER_DELIVERY_UPDATED', entityType: 'Order', entityId: order.id });
+  res.json({ order });
+}
