@@ -15,8 +15,21 @@ import auditRoutes from './routes/auditRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 
 const app = express();
+const allowedOrigins = (process.env.FRONTEND_URL || '')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
+
 app.use(helmet());
-app.use(cors({ origin: process.env.FRONTEND_URL?.split(',') || '*' }));
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    if (origin.endsWith('.vercel.app')) return callback(null, true);
+    if (origin.includes('localhost')) return callback(null, true);
+    return callback(null, false);
+  }
+}));
 app.use(express.json({ limit: '5mb' }));
 app.use(morgan('dev'));
 app.use(rateLimit({ windowMs: 60_000, limit: 120 }));
