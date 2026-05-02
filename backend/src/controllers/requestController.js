@@ -45,13 +45,18 @@ export async function cancelRequest(req, res) {
   if (existing.customerId !== req.user.id) return res.status(403).json({ message: 'Forbidden' });
   if (existing.status !== 'WAITING') return res.status(400).json({ message: 'Only waiting requests can be cancelled' });
 
-  const request = await prisma.partRequest.update({ where: { id: req.params.id }, data: { status: 'CANCELLED' } });
+  const reason = typeof req.body.reason === 'string' ? req.body.reason.trim().slice(0, 500) : '';
+  const request = await prisma.partRequest.update({
+    where: { id: req.params.id },
+    data: { status: 'CANCELLED', cancellationReason: reason || null }
+  });
   res.json({ request });
 }
 
 export async function supplierLeads(req, res) {
   const supplier = await prisma.supplier.findUnique({ where: { userId: req.user.id } });
   if (!supplier) return res.status(404).json({ message: 'Supplier profile not found' });
+  if (!supplier.isActive) return res.status(403).json({ message: 'Supplier account is disabled' });
   const supportedMakes = JSON.parse(supplier.supportedMakesJson || '[]');
   const requests = await prisma.partRequest.findMany({
     where: { origin: { in: supportedMakes }, status: 'WAITING' },
