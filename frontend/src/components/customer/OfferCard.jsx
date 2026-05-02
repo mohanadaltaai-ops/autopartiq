@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { api, formatIQD } from '../../lib/api';
 import CheckoutPreview from './CheckoutPreview';
+import Toast from '../ui/Toast';
 
 function parseJsonArray(value) {
   try {
@@ -15,24 +16,29 @@ export default function OfferCard({ offer, token, reload }) {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [toast, setToast] = useState(null);
   const offerPhotos = parseJsonArray(offer.photoUrlsJson);
 
   async function confirmOrder() {
     setConfirming(true);
     try {
       await api(`/offers/${offer.id}/accept`, { method: 'POST', token });
+      setToast({ message: 'Offer accepted successfully. Your order has been created.', type: 'success' });
       await reload();
+    } catch (e) {
+      setToast({ message: e.message, type: 'error' });
     } finally {
       setConfirming(false);
     }
   }
 
   if (checkoutOpen) {
-    return <CheckoutPreview offer={offer} onConfirm={confirmOrder} loading={confirming} />;
+    return <><Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} /><CheckoutPreview offer={offer} onConfirm={confirmOrder} loading={confirming} /></>;
   }
 
   return (
     <div className="bg-slate-50 rounded-xl p-3 space-y-2">
+      <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
       <div className="flex items-center justify-between gap-3">
         <div>
           <div className="text-xs text-slate-400">Supplier {offer.supplier?.id?.slice(-1).toUpperCase()}</div>
