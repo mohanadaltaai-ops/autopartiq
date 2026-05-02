@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 * { -webkit-tap-highlight-color: transparent; }
-body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-.phone-frame { width: 375px; min-height: 720px; max-height: 90vh; }
-@media (max-width: 420px) { .phone-frame { width: 100vw; min-height: 100vh; max-height: 100vh; border-radius: 0 !important; border: none !important; } }
+html, body, #root { min-height: 100%; }
+body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; overflow: hidden; }
+.phone-frame { width: 375px; height: min(720px, 90vh); max-height: 90vh; }
+@media (max-width: 420px) { .phone-frame { width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0 !important; border: none !important; } }
