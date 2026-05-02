@@ -1,4 +1,5 @@
 import { prisma } from '../db.js';
+import { writeAuditLog } from '../services/auditService.js';
 
 const ALLOWED_STATUSES = ['WAITING_PICKUP', 'DELIVERING', 'COMPLETED', 'CANCELLED'];
 
@@ -36,5 +37,6 @@ export async function updateOrderStatus(req, res) {
   }
 
   const order = await prisma.order.update({ where: { id: req.params.id }, data: { status } });
+  await writeAuditLog({ actorUserId: req.user.id, action: 'ORDER_STATUS_UPDATED', entityType: 'Order', entityId: order.id, metadata: { from: existing.status, to: status } });
   res.json({ order });
 }
