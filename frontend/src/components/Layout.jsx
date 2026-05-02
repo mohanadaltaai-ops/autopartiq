@@ -38,9 +38,9 @@ export default function Layout({ tab, setTab, children }) {
 
   useEffect(() => { loadNotifications().catch(() => {}); }, [token, user?.role]);
 
-  return <div className="min-h-screen flex items-center justify-center p-5 bg-slate-600">
+  return <div className="min-h-screen h-screen flex items-center justify-center p-5 bg-slate-600 overflow-hidden">
     <div className="phone-frame bg-slate-100 rounded-[40px] border-8 border-slate-900 shadow-2xl overflow-hidden flex flex-col relative">
-      <header className="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+      <header className="shrink-0 bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button onClick={() => setTab('home')} className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black">AIQ</button>
           <div>
@@ -65,8 +65,8 @@ export default function Layout({ tab, setTab, children }) {
         {notifications.length === 0 && <div className="text-sm text-slate-400 py-4 text-center">{t('noNotifications')}</div>}
         {notifications.map(item => <div key={item.id} className="text-sm bg-slate-50 rounded-xl p-3 text-slate-700">{item.message}</div>)}
       </div>}
-      <main className="flex-1 overflow-y-auto">{children}</main>
-      <nav className="bg-white border-t border-slate-200 flex overflow-x-auto">
+      <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain pb-2">{children}</main>
+      <nav className="shrink-0 bg-white border-t border-slate-200 flex overflow-x-auto">
         {tabs.map(([id, Icon, label]) => <button key={id} onClick={() => setTab(id)} className={`min-w-[64px] flex-1 py-3 text-[10px] font-bold flex flex-col items-center gap-1 ${tab===id?activeColor:'text-slate-400'}`}><Icon size={18}/>{label}</button>)}
       </nav>
     </div>
