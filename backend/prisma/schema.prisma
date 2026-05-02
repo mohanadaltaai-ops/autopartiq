@@ -62,7 +62,6 @@ model User {
   username  String?  @unique
   password  String?
   role      Role     @default(CUSTOMER)
-  adminPermission String @default("FULL_ADMIN")
   createdAt DateTime @default(now())
   supplier  Supplier?
   requests  PartRequest[]
