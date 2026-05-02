@@ -4,6 +4,11 @@ import { generateOrderNumber } from '../utils/orderNumber.js';
 
 const ALLOWED_CONDITIONS = ['NEW', 'USED'];
 
+function normalizePhotoUrls(value) {
+  if (!Array.isArray(value)) return [];
+  return value.filter(item => typeof item === 'string' && item.trim()).slice(0, 5);
+}
+
 export async function createOffer(req, res) {
   const supplier = await prisma.supplier.findUnique({ where: { userId: req.user.id } });
   if (!supplier) return res.status(404).json({ message: 'Supplier profile not found' });
@@ -19,6 +24,7 @@ export async function createOffer(req, res) {
   if (!Number.isFinite(supplierPrice) || supplierPrice <= 0) return res.status(400).json({ message: 'Valid supplier price is required' });
   if (!ALLOWED_CONDITIONS.includes(req.body.condition)) return res.status(400).json({ message: 'Invalid part condition' });
 
+  const photoUrls = normalizePhotoUrls(req.body.photoUrls);
   const pricing = calculatePricing(supplierPrice);
   const offer = await prisma.offer.create({
     data: {
@@ -29,7 +35,8 @@ export async function createOffer(req, res) {
       platformRevenue: pricing.platformRevenue,
       condition: req.body.condition,
       notes: req.body.notes || null,
-      photoUrl: req.body.photoUrl || null
+      photoUrl: photoUrls[0] || req.body.photoUrl || null,
+      photoUrlsJson: JSON.stringify(photoUrls)
     },
     include: { request: true, supplier: true }
   });
