@@ -16,6 +16,10 @@ function AppInner() {
   const path = window.location.pathname;
 
   useEffect(() => {
+    document.documentElement.classList.toggle('dark', localStorage.getItem('theme') === 'dark');
+  }, []);
+
+  useEffect(() => {
     setTab('home');
   }, [user?.id, user?.role]);
 
