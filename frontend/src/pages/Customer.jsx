@@ -3,6 +3,15 @@ import { api, formatIQD } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { carData, years } from '../data/carData';
 
+function parseJsonArray(value) {
+  try {
+    const parsed = JSON.parse(value || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 export default function Customer({ tab }) {
   const { token, user } = useAuth();
   const [requests, setRequests] = useState([]);
@@ -39,25 +48,37 @@ export default function Customer({ tab }) {
     {showForm && <RequestForm token={token} onDone={() => { setShowForm(false); load(); }} />}
     <h2 className="font-black text-slate-900">My Requests</h2>
     {requests.length === 0 && <Empty text="No part requests yet." />}
-    {requests.map(req => <div key={req.id} className="bg-white rounded-2xl border p-4 space-y-3">
-      <div className="flex justify-between">
-        <div>
-          <div className="font-bold">{req.partName}</div>
-          <div className="text-xs text-slate-500">{req.make} {req.model} ({req.year})</div>
-        </div>
-        <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full h-fit">{req.status}</span>
+    {requests.map(req => <RequestCard key={req.id} req={req} token={token} reload={load} />)}
+  </div>;
+}
+
+function RequestCard({ req, token, reload }) {
+  const requestPhotos = parseJsonArray(req.photoUrlsJson);
+  return <div className="bg-white rounded-2xl border p-4 space-y-3 shadow-sm">
+    <div className="flex justify-between">
+      <div>
+        <div className="font-bold">{req.partName}</div>
+        <div className="text-xs text-slate-500">{req.make} {req.model} ({req.year})</div>
       </div>
-      <div className="space-y-2">
-        {req.offers?.filter(o => o.status === 'ACTIVE').map(o => <div key={o.id} className="bg-slate-50 rounded-xl p-3 flex items-center justify-between">
-          <div>
-            <div className="text-xs text-slate-400">Supplier {o.supplier?.id?.slice(-1).toUpperCase()}</div>
-            <div className="font-bold">{formatIQD(o.customerPrice)}</div>
-            <div className="text-xs">Delivery: 6,000 IQD • {o.condition}</div>
+      <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full h-fit">{req.status}</span>
+    </div>
+    {requestPhotos.length > 0 && <div className="flex gap-2 overflow-x-auto">{requestPhotos.map(url => <img key={url} src={url} alt="Request" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
+    <div className="space-y-2">
+      {req.offers?.filter(o => o.status === 'ACTIVE').map(o => {
+        const offerPhotos = parseJsonArray(o.photoUrlsJson);
+        return <div key={o.id} className="bg-slate-50 rounded-xl p-3 space-y-2">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-xs text-slate-400">Supplier {o.supplier?.id?.slice(-1).toUpperCase()}</div>
+              <div className="font-bold">{formatIQD(o.customerPrice)}</div>
+              <div className="text-xs">Delivery: 6,000 IQD • {o.condition}</div>
+            </div>
+            <button onClick={async () => { await api(`/offers/${o.id}/accept`, { method:'POST', token }); reload(); }} className="px-4 py-2 rounded-xl bg-orange-600 text-white text-sm font-bold">Accept</button>
           </div>
-          <button onClick={async () => { await api(`/offers/${o.id}/accept`, { method:'POST', token }); load(); }} className="px-4 py-2 rounded-xl bg-orange-600 text-white text-sm font-bold">Accept</button>
-        </div>)}
-      </div>
-    </div>)}
+          {offerPhotos.length > 0 && <div className="flex gap-2 overflow-x-auto">{offerPhotos.map(url => <img key={url} src={url} alt="Offer" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
+        </div>;
+      })}
+    </div>
   </div>;
 }
 
@@ -66,7 +87,8 @@ function Empty({ text }) {
 }
 
 function RequestForm({ token, onDone }) {
-  const [form, setForm] = useState({ origin:'Japanese', make:'Toyota', model:'Camry', year: years[0], partName:'', description:'', customerPhone:'', location:'' });
+  const [form, setForm] = useState({ origin:'Japanese', make:'Toyota', model:'Camry', year: years[0], partName:'', description:'', customerPhone:'', location:'', photoUrls: [] });
+  const [photoUrl, setPhotoUrl] = useState('');
   const [problem, setProblem] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -86,6 +108,12 @@ function RequestForm({ token, onDone }) {
     } finally { setLoading(false); }
   }
 
+  function addPhotoUrl() {
+    if (!photoUrl.trim()) return;
+    setForm(f => ({ ...f, photoUrls: [...f.photoUrls, photoUrl.trim()].slice(0, 5) }));
+    setPhotoUrl('');
+  }
+
   async function submit() {
     try {
       setSaving(true);
@@ -99,7 +127,7 @@ function RequestForm({ token, onDone }) {
     }
   }
 
-  return <div className="bg-white rounded-3xl border p-4 space-y-3">
+  return <div className="bg-white rounded-3xl border p-4 space-y-3 shadow-sm">
     <select className="w-full p-3 rounded-xl border" value={form.origin} onChange={e => { const origin = e.target.value; const make = Object.keys(carData[origin].makes)[0]; setForm({...form, origin, make, model: carData[origin].makes[make][0]}); }}>{Object.keys(carData).map(o => <option key={o}>{o}</option>)}</select>
     <select className="w-full p-3 rounded-xl border" value={form.make} onChange={e => setForm({...form, make:e.target.value, model: carData[form.origin].makes[e.target.value][0]})}>{makes.map(m => <option key={m}>{m}</option>)}</select>
     <select className="w-full p-3 rounded-xl border" value={form.model} onChange={e => setForm({...form, model:e.target.value})}>{models.map(m => <option key={m}>{m}</option>)}</select>
@@ -110,6 +138,11 @@ function RequestForm({ token, onDone }) {
     </div>
     <input className="w-full p-3 rounded-xl border" placeholder="Part name" value={form.partName} onChange={e => setForm({...form, partName:e.target.value})}/>
     <textarea className="w-full p-3 rounded-xl border" placeholder="Description" value={form.description} onChange={e => setForm({...form, description:e.target.value})}/>
+    <div className="bg-slate-50 rounded-2xl p-3 space-y-2">
+      <div className="text-xs font-bold text-slate-500">Request photos structure</div>
+      <div className="flex gap-2"><input className="flex-1 p-3 rounded-xl border" placeholder="Photo URL optional" value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} /><button onClick={addPhotoUrl} type="button" className="px-3 rounded-xl bg-slate-900 text-white text-sm font-bold">Add</button></div>
+      {form.photoUrls.length > 0 && <div className="flex gap-2 overflow-x-auto">{form.photoUrls.map(url => <img key={url} src={url} alt="Request preview" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
+    </div>
     <input className="w-full p-3 rounded-xl border" placeholder="Your phone" value={form.customerPhone} onChange={e => setForm({...form, customerPhone:e.target.value})}/>
     <input className="w-full p-3 rounded-xl border" placeholder="Detailed location" value={form.location} onChange={e => setForm({...form, location:e.target.value})}/>
     {error && <div className="text-xs text-red-600">{error}</div>}
@@ -118,5 +151,5 @@ function RequestForm({ token, onDone }) {
 }
 
 function OrderList({ orders }) {
-  return <div className="p-4 space-y-3"><h1 className="font-black text-xl">Orders</h1>{orders.length === 0 && <Empty text="No orders yet." />}{orders.map(o => <div key={o.id} className="bg-white rounded-2xl border p-4"><div className="font-black text-orange-600">{o.orderNumber}</div><div className="font-bold">{o.offer.request.partName}</div><div className="text-xs text-slate-500">{o.offer.request.make} {o.offer.request.model}</div><div className="text-sm mt-2">Total: {formatIQD(o.customerPrice + o.deliveryFee)}</div><span className="inline-block mt-2 text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{o.status}</span></div>)}</div>;
+  return <div className="p-4 space-y-3"><h1 className="font-black text-xl">Orders</h1>{orders.length === 0 && <Empty text="No orders yet." />}{orders.map(o => <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm"><div className="font-black text-orange-600">{o.orderNumber}</div><div className="font-bold">{o.offer.request.partName}</div><div className="text-xs text-slate-500">{o.offer.request.make} {o.offer.request.model}</div><div className="text-sm mt-2">Total: {formatIQD(o.customerPrice + o.deliveryFee)}</div><span className="inline-block mt-2 text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{o.status}</span></div>)}</div>;
 }
