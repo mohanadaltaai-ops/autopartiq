@@ -114,6 +114,7 @@ model Offer {
   platformRevenue Int
   condition       PartCondition
   notes           String?
+  cancellationReason String?
   photoUrl        String?
   photoUrlsJson   String @default("[]")
   status          OfferStatus @default(ACTIVE)
