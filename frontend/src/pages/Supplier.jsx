@@ -13,6 +13,16 @@ function parseJsonArray(value) {
   }
 }
 
+function isValidUrl(value) {
+  if (!value?.trim()) return false;
+  try {
+    const url = new URL(value.trim());
+    return ['http:', 'https:'].includes(url.protocol);
+  } catch {
+    return false;
+  }
+}
+
 export default function Supplier({ tab }) {
   const { token } = useAuth();
   const [leads, setLeads] = useState([]);
@@ -53,7 +63,7 @@ export default function Supplier({ tab }) {
       <button onClick={() => setHomeTab('leads')} className={`py-2 rounded-xl text-sm font-bold ${homeTab === 'leads' ? 'bg-blue-600 text-white' : 'text-slate-500'}`}>Leads</button>
       <button onClick={() => setHomeTab('sent')} className={`py-2 rounded-xl text-sm font-bold ${homeTab === 'sent' ? 'bg-blue-600 text-white' : 'text-slate-500'}`}>Sent Offers</button>
     </div>
-    {homeTab === 'leads' ? <>{visibleLeads.length === 0 && <Empty text="No matching leads yet." />}{visibleLeads.map(req => <Lead key={req.id} req={req} token={token} reload={load} />)}</> : <SentOffers offers={offers} token={token} reload={load} />}
+    {homeTab === 'leads' ? <>{visibleLeads.length === 0 && <Empty text="No matching leads yet." />}{visibleLeads.map(req => <Lead key={req.id} req={req} token={token} reload={load} onSubmitted={() => setHomeTab('sent')} />)}</> : <SentOffers offers={offers} token={token} reload={load} />}
   </div>;
 }
 
@@ -130,8 +140,7 @@ function SentOffers({ offers, token, reload }) {
   </div>;
 }
 
-function Lead({ req, token, reload }) {
-  const [queue, setQueue] = useState([]);
+function Lead({ req, token, reload, onSubmitted }) {
   const [price, setPrice] = useState('');
   const [condition, setCondition] = useState('NEW');
   const [notes, setNotes] = useState('');
@@ -140,27 +149,20 @@ function Lead({ req, token, reload }) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
 
-  function addToQueue() {
-    setError('');
-    if (!price || Number(price) <= 0) return setError('Valid supplier price is required');
-    if (!photoUrl.trim()) return setError('At least one offer photo is required');
-    setQueue(current => [...current, { supplierPrice: Number(price), condition, notes, photoUrls: [photoUrl.trim()] }]);
-    setPrice('');
-    setNotes('');
-    setPhotoUrl('');
-  }
-
-  async function sendQueued() {
+  async function submitOffer() {
     try {
       setSending(true);
       setError('');
-      const items = queue.length ? queue : [];
-      if (!items.length) return setError('Add at least one offer to the queue first');
-      for (const item of items) {
-        await api(`/offers/request/${req.id}`, { method:'POST', token, body:item });
-      }
-      setQueue([]);
+      if (!price || Number(price) <= 0) return setError('Valid supplier price is required');
+      if (photoUrl.trim() && !isValidUrl(photoUrl)) return setError('Photo must be a valid URL, or leave it empty for now.');
+
+      const photoUrls = photoUrl.trim() ? [photoUrl.trim()] : [];
+      await api(`/offers/request/${req.id}`, { method:'POST', token, body: { supplierPrice: Number(price), condition, notes, photoUrls } });
+      setPrice('');
+      setNotes('');
+      setPhotoUrl('');
       await reload();
+      onSubmitted?.();
     } catch (e) {
       setError(e.message);
     } finally {
@@ -181,14 +183,12 @@ function Lead({ req, token, reload }) {
     <div><div className="font-bold">{req.partName}</div><div className="text-xs text-slate-500">{req.make} {req.model} ({req.year})</div><p className="text-xs text-slate-500 mt-1">{req.description}</p></div>
     <input className="w-full p-3 rounded-xl border" placeholder="Net price IQD" value={price} onChange={e => setPrice(e.target.value)} inputMode="numeric" />
     <select className="w-full p-3 rounded-xl border" value={condition} onChange={e => setCondition(e.target.value)}><option value="NEW">New</option><option value="USED">Used</option></select>
-    <input className="w-full p-3 rounded-xl border" placeholder="Photo URL required" value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} />
+    <input className="w-full p-3 rounded-xl border" placeholder="Photo URL optional for MVP" value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} />
     <button onClick={checkUploadPlaceholder} type="button" className="w-full py-2 rounded-xl bg-slate-200 text-slate-700 text-xs font-bold">Check upload placeholder</button>
     {uploadNote && <div className="text-xs text-slate-500">{uploadNote}</div>}
-    {photoUrl && <img src={photoUrl} alt="Offer preview" className="w-full h-28 object-cover rounded-xl border" onError={event => { event.currentTarget.style.display = 'none'; }} />}
+    {photoUrl && isValidUrl(photoUrl) && <img src={photoUrl} alt="Offer preview" className="w-full h-28 object-cover rounded-xl border" onError={event => { event.currentTarget.style.display = 'none'; }} />}
     <input className="w-full p-3 rounded-xl border" placeholder="Notes" value={notes} onChange={e => setNotes(e.target.value)} />
-    <button onClick={addToQueue} disabled={!price || !photoUrl.trim()} className="w-full py-2 rounded-xl bg-blue-50 text-blue-700 font-bold disabled:opacity-40">Add to Queue</button>
-    {queue.length > 0 && <div className="rounded-xl bg-slate-50 p-3 text-xs text-slate-600">Queued offers: {queue.length}</div>}
     {error && <div className="text-xs text-red-600">{error}</div>}
-    <button onClick={sendQueued} disabled={!queue.length || sending} className="w-full py-3 rounded-2xl bg-blue-600 text-white font-black disabled:opacity-40">{sending ? 'Sending...' : 'Send All Queued Offers'}</button>
+    <button onClick={submitOffer} disabled={!price || sending} className="w-full py-3 rounded-2xl bg-blue-600 text-white font-black disabled:opacity-40">{sending ? 'Submitting...' : 'Submit Offer'}</button>
   </div>;
 }
