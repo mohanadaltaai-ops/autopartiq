@@ -228,7 +228,27 @@ function RequestForm({ token, onDone }) {
   </div>;
 }
 
+function CustomerOrderCard({ order }) {
+  const [open, setOpen] = useState(false);
+  const total = Number(order.customerPrice || 0) + Number(order.deliveryFee || 0);
+  return <div className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
+    <button onClick={() => setOpen(value => !value)} className="w-full text-left flex items-start justify-between gap-3">
+      <div>
+        <div className="font-black text-orange-600">{order.orderNumber}</div>
+        <div className="font-bold text-slate-900">{order.offer.request.partName}</div>
+        <div className="text-xs text-slate-500">{order.offer.request.make} {order.offer.request.model}</div>
+        <div className="text-sm mt-2 font-bold text-slate-700">Total: {formatIQD(total)}</div>
+      </div>
+      <div className="text-right">
+        <span className="inline-block text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{order.status}</span>
+        <div className="text-[10px] text-slate-400 mt-2">{open ? 'Hide' : 'Details'}</div>
+      </div>
+    </button>
+    {open && <><OrderInfoPanel order={order} /><DeliveryWorkflow status={order.status} /></>}
+  </div>;
+}
+
 function OrderList({ orders }) {
   const sortedOrders = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  return <div className="p-4 space-y-3"><h1 className="font-black text-xl">Orders</h1>{sortedOrders.length === 0 && <Empty text="No orders yet." />}{sortedOrders.map(o => <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3"><div><div className="font-black text-orange-600">{o.orderNumber}</div><div className="font-bold">{o.offer.request.partName}</div><div className="text-xs text-slate-500">{o.offer.request.make} {o.offer.request.model}</div><div className="text-sm mt-2">Total: {formatIQD(o.customerPrice + o.deliveryFee)}</div><span className="inline-block mt-2 text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{o.status}</span></div><OrderInfoPanel order={o} /><DeliveryWorkflow status={o.status} /></div>)}</div>;
+  return <div className="p-4 space-y-3"><h1 className="font-black text-xl">Orders</h1>{sortedOrders.length === 0 && <Empty text="No orders yet." />}{sortedOrders.map(order => <CustomerOrderCard key={order.id} order={order} />)}</div>;
 }
