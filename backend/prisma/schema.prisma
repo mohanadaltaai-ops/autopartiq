@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -65,23 +65,23 @@ model Supplier {
 }
 
 model PartRequest {
-  id          String   @id @default(cuid())
-  customerId  String
-  customer    User     @relation(fields: [customerId], references: [id])
-  origin      String
-  make        String
-  model       String
-  year        Int
-  partName    String
-  description String?
-  partNumber  String?
-  vin         String?
-  location    String?
+  id            String   @id @default(cuid())
+  customerId    String
+  customer      User     @relation(fields: [customerId], references: [id])
+  origin        String
+  make          String
+  model         String
+  year          Int
+  partName      String
+  description   String?
+  partNumber    String?
+  vin           String?
+  location      String?
   customerPhone String?
-  status      RequestStatus @default(WAITING)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  offers      Offer[]
+  status        RequestStatus @default(WAITING)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  offers        Offer[]
 }
 
 model Offer {
