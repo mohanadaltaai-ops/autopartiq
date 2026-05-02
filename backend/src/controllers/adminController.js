@@ -11,10 +11,16 @@ export async function dashboard(req, res) {
     prisma.supplier.findMany({ include: { user: true, orders: true }, orderBy: { createdAt: 'desc' } }),
     prisma.partRequest.count()
   ]);
+  const nonCancelledOrders = orders.filter(o => o.status !== 'CANCELLED');
   const completed = orders.filter(o => o.status === 'COMPLETED');
   const platformRevenue = completed.reduce((s, o) => s + o.platformRevenue, 0);
-  const supplierEarnings = orders.reduce((s, o) => s + o.supplierPrice, 0);
-  res.json({ summary: { totalOrders: orders.length, totalRequests: requests, suppliers: suppliers.length, platformRevenue, supplierEarnings }, orders, suppliers });
+  const supplierEarnings = completed.reduce((s, o) => s + o.supplierPrice, 0);
+  const summary = { totalOrders: orders.length, activeOrders: nonCancelledOrders.length, totalRequests: requests, suppliers: suppliers.length };
+  if (req.user.role === 'SUPER_ADMIN') {
+    summary.platformRevenue = platformRevenue;
+    summary.supplierEarnings = supplierEarnings;
+  }
+  res.json({ summary, orders, suppliers });
 }
 
 export async function auditLogs(req, res) {
