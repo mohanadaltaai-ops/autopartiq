@@ -9,13 +9,22 @@ function normalizePhotoUrls(value) {
   return value.filter(item => typeof item === 'string' && item.trim()).slice(0, 5);
 }
 
+function sanitizeOfferForSupplier(offer) {
+  if (!offer.request) return offer;
+  const { customerPhone, location, customer, ...safeRequest } = offer.request;
+  return { ...offer, request: safeRequest };
+}
+
 export async function createOffer(req, res) {
   const supplier = await prisma.supplier.findUnique({ where: { userId: req.user.id } });
   if (!supplier) return res.status(404).json({ message: 'Supplier profile not found' });
 
-  const request = await prisma.partRequest.findUnique({ where: { id: req.params.requestId } });
+  const request = await prisma.partRequest.findUnique({ where: { id: req.params.requestId }, include: { offers: true } });
   if (!request) return res.status(404).json({ message: 'Request not found' });
   if (request.status !== 'WAITING') return res.status(400).json({ message: 'Only waiting requests can receive offers' });
+
+  const alreadyOffered = request.offers.some(offer => offer.supplierId === supplier.id && offer.status !== 'CANCELLED');
+  if (alreadyOffered) return res.status(400).json({ message: 'You already sent an offer for this lead' });
 
   const supportedMakes = JSON.parse(supplier.supportedMakesJson || '[]');
   if (!supportedMakes.includes(request.origin)) return res.status(403).json({ message: 'This lead is not assigned to your supported car origins' });
@@ -25,6 +34,8 @@ export async function createOffer(req, res) {
   if (!ALLOWED_CONDITIONS.includes(req.body.condition)) return res.status(400).json({ message: 'Invalid part condition' });
 
   const photoUrls = normalizePhotoUrls(req.body.photoUrls);
+  if (photoUrls.length < 1) return res.status(400).json({ message: 'At least one offer photo is required' });
+
   const pricing = calculatePricing(supplierPrice);
   const offer = await prisma.offer.create({
     data: {
@@ -45,7 +56,37 @@ export async function createOffer(req, res) {
     data: { userId: offer.request.customerId, message: `You have a new ${offer.condition.toLowerCase()} offer for ${offer.request.partName}` }
   });
 
-  res.status(201).json({ offer });
+  res.status(201).json({ offer: sanitizeOfferForSupplier(offer) });
+}
+
+export async function supplierOffers(req, res) {
+  const supplier = await prisma.supplier.findUnique({ where: { userId: req.user.id } });
+  if (!supplier) return res.status(404).json({ message: 'Supplier profile not found' });
+
+  const offers = await prisma.offer.findMany({
+    where: { supplierId: supplier.id },
+    include: { request: true, order: true },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  res.json({ offers: offers.map(sanitizeOfferForSupplier) });
+}
+
+export async function cancelOffer(req, res) {
+  const supplier = await prisma.supplier.findUnique({ where: { userId: req.user.id } });
+  if (!supplier) return res.status(404).json({ message: 'Supplier profile not found' });
+
+  const offer = await prisma.offer.findUnique({ where: { id: req.params.offerId }, include: { order: true } });
+  if (!offer) return res.status(404).json({ message: 'Offer not found' });
+  if (offer.supplierId !== supplier.id) return res.status(403).json({ message: 'Forbidden' });
+  if (offer.status !== 'ACTIVE') return res.status(400).json({ message: 'Only active offers can be cancelled' });
+  if (offer.order) return res.status(400).json({ message: 'Accepted offers cannot be cancelled' });
+
+  const reason = typeof req.body.reason === 'string' ? req.body.reason.trim().slice(0, 500) : '';
+  if (!reason) return res.status(400).json({ message: 'Cancellation reason is required' });
+
+  const cancelled = await prisma.offer.update({ where: { id: offer.id }, data: { status: 'CANCELLED', cancellationReason: reason } });
+  res.json({ offer: cancelled });
 }
 
 export async function acceptOffer(req, res) {
