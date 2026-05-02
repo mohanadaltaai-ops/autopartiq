@@ -13,6 +13,7 @@ function parseJsonArray(value) {
 
 export default function OfferCard({ offer, token, reload }) {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const offerPhotos = parseJsonArray(offer.photoUrlsJson);
 
@@ -38,9 +39,18 @@ export default function OfferCard({ offer, token, reload }) {
           <div className="font-bold">{formatIQD(offer.customerPrice)}</div>
           <div className="text-xs">Delivery: 6,000 IQD • {offer.condition}</div>
         </div>
-        <button onClick={() => setCheckoutOpen(true)} className="px-4 py-2 rounded-xl bg-orange-600 text-white text-sm font-bold">Checkout</button>
+        <button onClick={() => setDetailsOpen(!detailsOpen)} className="px-4 py-2 rounded-xl bg-white border text-slate-700 text-sm font-bold">{detailsOpen ? 'Hide' : 'View'}</button>
       </div>
-      {offerPhotos.length > 0 && <div className="flex gap-2 overflow-x-auto">{offerPhotos.map(url => <img key={url} src={url} alt="Offer" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
+      {detailsOpen && <div className="rounded-xl bg-white border p-3 space-y-2">
+        <div className="grid grid-cols-2 gap-1 text-xs text-slate-500">
+          <span>Price</span><strong className="text-slate-900">{formatIQD(offer.customerPrice)}</strong>
+          <span>Condition</span><strong className="text-slate-900">{offer.condition}</strong>
+          <span>Delivery</span><strong className="text-slate-900">6,000 IQD</strong>
+        </div>
+        {offer.notes && <div className="text-xs text-slate-600 bg-slate-50 rounded-xl p-2">{offer.notes}</div>}
+        {offerPhotos.length > 0 && <div className="flex gap-2 overflow-x-auto">{offerPhotos.map(url => <img key={url} src={url} alt="Offer" className="w-20 h-20 rounded-xl object-cover border" />)}</div>}
+        <button onClick={() => setCheckoutOpen(true)} className="w-full py-2 rounded-xl bg-orange-600 text-white text-sm font-bold">Checkout</button>
+      </div>}
     </div>
   );
 }
