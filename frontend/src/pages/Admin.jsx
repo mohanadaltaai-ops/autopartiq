@@ -4,10 +4,20 @@ import { useAuth } from '../contexts/AuthContext';
 import { carData } from '../data/carData';
 
 function StatCard({ label, value }) {
-  return <div className="bg-white rounded-2xl border p-4">
+  return <div className="bg-white rounded-2xl border p-4 shadow-sm">
     <div className="text-[10px] text-slate-400 font-bold uppercase">{label}</div>
     <div className="font-black text-slate-900 mt-1">{value}</div>
   </div>;
+}
+
+function StatusBadge({ status }) {
+  const colors = {
+    WAITING_PICKUP: 'bg-amber-100 text-amber-700',
+    DELIVERING: 'bg-blue-100 text-blue-700',
+    COMPLETED: 'bg-green-100 text-green-700',
+    CANCELLED: 'bg-red-100 text-red-700'
+  };
+  return <span className={`text-[10px] mt-2 inline-block px-2 py-1 rounded-full font-bold ${colors[status] || 'bg-slate-100 text-slate-600'}`}>{status}</span>;
 }
 
 export default function Admin({ tab }) {
@@ -15,6 +25,7 @@ export default function Admin({ tab }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [supplierForm, setSupplierForm] = useState({ name: '', phone: '', location: '', supportedMakes: ['Japanese'] });
+  const [updatingOrderId, setUpdatingOrderId] = useState('');
 
   async function load() {
     try {
@@ -31,6 +42,16 @@ export default function Admin({ tab }) {
     await load();
   }
 
+  async function changeOrderStatus(orderId, status) {
+    setUpdatingOrderId(orderId);
+    try {
+      await api(`/orders/${orderId}/status`, { method: 'PATCH', token, body: { status } });
+      await load();
+    } finally {
+      setUpdatingOrderId('');
+    }
+  }
+
   useEffect(() => { load(); }, []);
 
   if (error) return <div className="p-4 text-red-600 text-sm">{error}</div>;
@@ -39,7 +60,7 @@ export default function Admin({ tab }) {
   if (tab === 'suppliers') {
     return <div className="p-4 space-y-4">
       <h1 className="font-black text-xl text-slate-900">Suppliers</h1>
-      <div className="bg-white rounded-2xl border p-4 space-y-3">
+      <div className="bg-white rounded-2xl border p-4 space-y-3 shadow-sm">
         <input className="w-full p-3 rounded-xl border" placeholder="Supplier name" value={supplierForm.name} onChange={e => setSupplierForm({ ...supplierForm, name: e.target.value })} />
         <input className="w-full p-3 rounded-xl border" placeholder="Phone" value={supplierForm.phone} onChange={e => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
         <input className="w-full p-3 rounded-xl border" placeholder="Location" value={supplierForm.location} onChange={e => setSupplierForm({ ...supplierForm, location: e.target.value })} />
@@ -54,7 +75,7 @@ export default function Admin({ tab }) {
         </div>
         <button onClick={addSupplier} disabled={!supplierForm.name || !supplierForm.phone} className="w-full py-3 rounded-2xl bg-purple-600 text-white font-black disabled:opacity-40">Add Supplier</button>
       </div>
-      {data.suppliers.map(supplier => <div key={supplier.id} className="bg-white rounded-2xl border p-4">
+      {data.suppliers.map(supplier => <div key={supplier.id} className="bg-white rounded-2xl border p-4 shadow-sm">
         <div className="font-bold text-slate-900">{supplier.name}</div>
         <div className="text-xs text-slate-500">{supplier.phone} • {supplier.location}</div>
         <div className="text-xs text-slate-400 mt-1">Makes: {JSON.parse(supplier.supportedMakesJson || '[]').join(', ')}</div>
@@ -65,20 +86,36 @@ export default function Admin({ tab }) {
   if (tab === 'orders') {
     return <div className="p-4 space-y-3">
       <h1 className="font-black text-xl text-slate-900">All Orders</h1>
-      {data.orders.map(order => <div key={order.id} className="bg-white rounded-2xl border p-4">
-        <div className="font-black text-orange-600">{order.orderNumber}</div>
-        <div className="font-bold text-slate-900">{order.offer.request.partName}</div>
-        <div className="text-xs text-slate-500">Supplier: {order.offer.supplier.name}</div>
-        <div className="text-xs text-slate-500 mt-2">Supplier Price: {formatIQD(order.supplierPrice)}</div>
-        <div className="text-xs text-slate-500">Customer Price: {formatIQD(order.customerPrice)}</div>
-        <div className="text-xs text-slate-500">Revenue: {formatIQD(order.platformRevenue)}</div>
-        <div className="text-[10px] mt-2 inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{order.status}</div>
+      {data.orders.length === 0 && <div className="bg-white border border-dashed rounded-2xl p-6 text-center text-sm text-slate-400">No orders yet.</div>}
+      {data.orders.map(order => <div key={order.id} className="bg-white rounded-2xl border p-4 shadow-sm">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="font-black text-orange-600">{order.orderNumber}</div>
+            <div className="font-bold text-slate-900">{order.offer.request.partName}</div>
+            <div className="text-xs text-slate-500">Supplier: {order.offer.supplier.name}</div>
+          </div>
+          <StatusBadge status={order.status} />
+        </div>
+        <div className="text-xs text-slate-500 mt-3 grid grid-cols-2 gap-1">
+          <span>Supplier: {formatIQD(order.supplierPrice)}</span>
+          <span>Customer: {formatIQD(order.customerPrice)}</span>
+          <span>Revenue: {formatIQD(order.platformRevenue)}</span>
+          <span>Delivery: {formatIQD(order.deliveryFee)}</span>
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'DELIVERING')} className="text-[11px] py-2 rounded-xl bg-blue-50 text-blue-700 font-bold disabled:opacity-40">Delivering</button>
+          <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'COMPLETED')} className="text-[11px] py-2 rounded-xl bg-green-50 text-green-700 font-bold disabled:opacity-40">Completed</button>
+          <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'CANCELLED')} className="text-[11px] py-2 rounded-xl bg-red-50 text-red-700 font-bold disabled:opacity-40">Cancel</button>
+        </div>
       </div>)}
     </div>;
   }
 
   return <div className="p-4 space-y-4">
-    <h1 className="font-black text-xl text-slate-900">Admin Dashboard</h1>
+    <div className="rounded-3xl bg-gradient-to-br from-slate-900 to-slate-700 text-white p-5 shadow">
+      <div className="text-sm opacity-70">Platform overview</div>
+      <div className="text-xl font-black">AutoPartIQ Admin</div>
+    </div>
     <div className="grid grid-cols-2 gap-3">
       <StatCard label="Orders" value={data.summary.totalOrders} />
       <StatCard label="Requests" value={data.summary.totalRequests} />
@@ -86,7 +123,7 @@ export default function Admin({ tab }) {
       <StatCard label="Supplier Earnings" value={formatIQD(data.summary.supplierEarnings)} />
     </div>
     <h2 className="font-black text-slate-900">Suppliers</h2>
-    {data.suppliers.map(supplier => <div key={supplier.id} className="bg-white rounded-2xl border p-4">
+    {data.suppliers.map(supplier => <div key={supplier.id} className="bg-white rounded-2xl border p-4 shadow-sm">
       <div className="font-bold text-slate-900">{supplier.name}</div>
       <div className="text-xs text-slate-500">{supplier.location}</div>
     </div>)}
