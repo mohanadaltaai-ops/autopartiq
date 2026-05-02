@@ -17,6 +17,15 @@ export async function dashboard(req, res) {
   res.json({ summary: { totalOrders: orders.length, totalRequests: requests, suppliers: suppliers.length, platformRevenue, supplierEarnings }, orders, suppliers });
 }
 
+export async function auditLogs(req, res) {
+  const logs = await prisma.auditLog.findMany({
+    include: { actor: true },
+    orderBy: { createdAt: 'desc' },
+    take: 100
+  });
+  res.json({ logs });
+}
+
 export async function createSupplier(req, res) {
   const { name, phone, location, supportedMakes } = req.body;
   if (!name || !phone || !location) return res.status(400).json({ message: 'Name, phone, and location are required' });
