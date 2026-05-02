@@ -54,6 +54,21 @@ export default function Customer({ tab }) {
 
 function RequestCard({ req, token, reload }) {
   const requestPhotos = parseJsonArray(req.photoUrlsJson);
+  const [showCancel, setShowCancel] = useState(false);
+  const [reason, setReason] = useState('');
+  const [error, setError] = useState('');
+  const canCancel = req.status === 'WAITING';
+
+  async function cancel() {
+    try {
+      setError('');
+      await api(`/requests/${req.id}/cancel`, { method: 'PATCH', token, body: { reason } });
+      await reload();
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
   return <div className="bg-white rounded-2xl border p-4 space-y-3 shadow-sm">
     <div className="flex justify-between">
       <div>
@@ -62,6 +77,7 @@ function RequestCard({ req, token, reload }) {
       </div>
       <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full h-fit">{req.status}</span>
     </div>
+    {req.cancellationReason && <div className="text-xs bg-red-50 text-red-700 rounded-xl p-2">Cancelled reason: {req.cancellationReason}</div>}
     {requestPhotos.length > 0 && <div className="flex gap-2 overflow-x-auto">{requestPhotos.map(url => <img key={url} src={url} alt="Request" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
     <div className="space-y-2">
       {req.offers?.filter(o => o.status === 'ACTIVE').map(o => {
@@ -79,6 +95,13 @@ function RequestCard({ req, token, reload }) {
         </div>;
       })}
     </div>
+    {canCancel && <div className="border-t pt-3 space-y-2">
+      {!showCancel ? <button onClick={() => setShowCancel(true)} className="text-xs font-bold text-red-600">Cancel request</button> : <>
+        <textarea className="w-full p-3 rounded-xl border text-sm" placeholder="Reason for cancellation optional" value={reason} onChange={e => setReason(e.target.value)} />
+        {error && <div className="text-xs text-red-600">{error}</div>}
+        <div className="flex gap-2"><button onClick={cancel} className="flex-1 py-2 rounded-xl bg-red-600 text-white text-sm font-bold">Confirm cancel</button><button onClick={() => setShowCancel(false)} className="flex-1 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-bold">Keep request</button></div>
+      </>}
+    </div>}
   </div>;
 }
 
