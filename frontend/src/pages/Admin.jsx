@@ -26,6 +26,26 @@ function StatusBadge({ status }) {
   return <span className={`text-[10px] mt-2 inline-block px-2 py-1 rounded-full font-bold ${colors[status] || 'bg-slate-100 text-slate-600'}`}>{labels[status] || status}</span>;
 }
 
+function toDateInputValue(value) {
+  if (!value) return '';
+  return new Date(value).toISOString().slice(0, 10);
+}
+
+function isDateInRange(value, fromDate, toDate) {
+  if (!fromDate && !toDate) return true;
+  const orderDate = new Date(value);
+  if (Number.isNaN(orderDate.getTime())) return true;
+  if (fromDate) {
+    const from = new Date(`${fromDate}T00:00:00`);
+    if (orderDate < from) return false;
+  }
+  if (toDate) {
+    const to = new Date(`${toDate}T23:59:59`);
+    if (orderDate > to) return false;
+  }
+  return true;
+}
+
 export default function Admin({ tab }) {
   const { token, user } = useAuth();
   const [data, setData] = useState(null);
@@ -34,6 +54,8 @@ export default function Admin({ tab }) {
   const [updatingOrderId, setUpdatingOrderId] = useState('');
   const [orderSearch, setOrderSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   async function load() {
     try {
@@ -92,15 +114,19 @@ export default function Admin({ tab }) {
   }
 
   if (tab === 'orders') {
-    const filteredOrders = data.orders.filter(order => {
-      const matchesSearch = !orderSearch || order.orderNumber?.toLowerCase().includes(orderSearch.toLowerCase());
-      const matchesStatus = statusFilter === 'ALL' || order.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
+    const filteredOrders = [...data.orders]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .filter(order => {
+        const search = orderSearch.toLowerCase();
+        const matchesSearch = !search || order.orderNumber?.toLowerCase().includes(search) || order.offer?.request?.partName?.toLowerCase().includes(search) || order.offer?.supplier?.name?.toLowerCase().includes(search);
+        const matchesStatus = statusFilter === 'ALL' || order.status === statusFilter;
+        const matchesDate = isDateInRange(order.createdAt, dateFrom, dateTo);
+        return matchesSearch && matchesStatus && matchesDate;
+      });
     return <div className="p-4 space-y-3">
       <h1 className="font-black text-xl text-slate-900">All Orders</h1>
       <div className="bg-white rounded-2xl border p-3 space-y-2">
-        <input className="w-full p-3 rounded-xl border text-sm" placeholder="Search order number" value={orderSearch} onChange={e => setOrderSearch(e.target.value)} />
+        <input className="w-full p-3 rounded-xl border text-sm" placeholder="Search order, part, or supplier" value={orderSearch} onChange={e => setOrderSearch(e.target.value)} />
         <select className="w-full p-3 rounded-xl border text-sm" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
           <option value="ALL">All statuses</option>
           <option value="WAITING_PICKUP">Waiting Pickup</option>
@@ -108,6 +134,12 @@ export default function Admin({ tab }) {
           <option value="COMPLETED">Completed</option>
           <option value="CANCELLED">Cancelled</option>
         </select>
+        <div className="grid grid-cols-2 gap-2">
+          <label className="text-[10px] font-bold text-slate-500 space-y-1">From<input type="date" className="w-full p-3 rounded-xl border text-sm font-normal" value={dateFrom} onChange={e => setDateFrom(e.target.value)} /></label>
+          <label className="text-[10px] font-bold text-slate-500 space-y-1">To<input type="date" className="w-full p-3 rounded-xl border text-sm font-normal" value={dateTo} onChange={e => setDateTo(e.target.value)} /></label>
+        </div>
+        {(orderSearch || statusFilter !== 'ALL' || dateFrom || dateTo) && <button onClick={() => { setOrderSearch(''); setStatusFilter('ALL'); setDateFrom(''); setDateTo(''); }} className="w-full py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold">Clear filters</button>}
+        <div className="text-[10px] text-slate-400 font-bold">Showing {filteredOrders.length} of {data.orders.length} orders</div>
       </div>
       {filteredOrders.length === 0 && <div className="bg-white border border-dashed rounded-2xl p-6 text-center text-sm text-slate-400">No matching orders.</div>}
       {filteredOrders.map(order => <div key={order.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
@@ -115,6 +147,7 @@ export default function Admin({ tab }) {
           <div>
             <div className="font-black text-orange-600">{order.orderNumber}</div>
             <div className="font-bold text-slate-900">{order.offer.request.partName}</div>
+            <div className="text-xs text-slate-400">Created: {toDateInputValue(order.createdAt) || 'N/A'}</div>
             <div className="text-xs text-slate-500">Supplier: {order.offer.supplier.name}</div>
             <div className="text-xs text-slate-500">Customer phone: {order.offer.request.customerPhone || 'N/A'}</div>
             <div className="text-xs text-slate-500">Location: {order.offer.request.location || 'N/A'}</div>
