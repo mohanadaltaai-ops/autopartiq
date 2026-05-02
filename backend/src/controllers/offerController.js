@@ -23,9 +23,6 @@ export async function createOffer(req, res) {
   if (!request) return res.status(404).json({ message: 'Request not found' });
   if (request.status !== 'WAITING') return res.status(400).json({ message: 'Only waiting requests can receive offers' });
 
-  const alreadyOffered = request.offers.some(offer => offer.supplierId === supplier.id && offer.status !== 'CANCELLED');
-  if (alreadyOffered) return res.status(400).json({ message: 'You already sent an offer for this lead' });
-
   const supportedMakes = JSON.parse(supplier.supportedMakesJson || '[]');
   if (!supportedMakes.includes(request.origin)) return res.status(403).json({ message: 'This lead is not assigned to your supported car origins' });
 
@@ -34,9 +31,27 @@ export async function createOffer(req, res) {
   if (!ALLOWED_CONDITIONS.includes(req.body.condition)) return res.status(400).json({ message: 'Invalid part condition' });
 
   const photoUrls = normalizePhotoUrls(req.body.photoUrls);
-  if (photoUrls.length < 1) return res.status(400).json({ message: 'At least one offer photo is required' });
-
   const pricing = calculatePricing(supplierPrice);
+  const existingOffer = request.offers.find(offer => offer.supplierId === supplier.id && offer.status === 'ACTIVE');
+
+  if (existingOffer) {
+    const updatedOffer = await prisma.offer.update({
+      where: { id: existingOffer.id },
+      data: {
+        supplierPrice,
+        customerPrice: pricing.customerPrice,
+        platformRevenue: pricing.platformRevenue,
+        condition: req.body.condition,
+        notes: req.body.notes || null,
+        photoUrl: photoUrls[0] || req.body.photoUrl || existingOffer.photoUrl || null,
+        photoUrlsJson: JSON.stringify(photoUrls)
+      },
+      include: { request: true, supplier: true }
+    });
+
+    return res.json({ offer: sanitizeOfferForSupplier(updatedOffer), updated: true });
+  }
+
   const offer = await prisma.offer.create({
     data: {
       requestId: request.id,
@@ -56,7 +71,7 @@ export async function createOffer(req, res) {
     data: { userId: offer.request.customerId, message: `You have a new ${offer.condition.toLowerCase()} offer for ${offer.request.partName}` }
   });
 
-  res.status(201).json({ offer: sanitizeOfferForSupplier(offer) });
+  res.status(201).json({ offer: sanitizeOfferForSupplier(offer), updated: false });
 }
 
 export async function supplierOffers(req, res) {
