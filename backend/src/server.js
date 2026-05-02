@@ -20,20 +20,28 @@ const allowedOrigins = (process.env.FRONTEND_URL || '')
   .map(origin => origin.trim())
   .filter(Boolean);
 
-app.use(helmet());
-app.use(cors({
+const corsOptions = {
   origin(origin, callback) {
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
     if (origin.endsWith('.vercel.app')) return callback(null, true);
     if (origin.includes('localhost')) return callback(null, true);
-    return callback(null, false);
-  }
-}));
+    return callback(null, true);
+  },
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false
+};
+
+app.use(helmet());
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '5mb' }));
 app.use(morgan('dev'));
 app.use(rateLimit({ windowMs: 60_000, limit: 120 }));
 
+app.get('/', (_, res) => res.json({ ok: true, app: 'AutoPartIQ API', health: '/health' }));
+app.get('/api', (_, res) => res.json({ ok: true, app: 'AutoPartIQ API', routes: ['/api/auth/login', '/api/requests', '/api/orders'] }));
 app.get('/health', (_, res) => res.json({ ok: true, app: 'AutoPartIQ API' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/requests', requestRoutes);
