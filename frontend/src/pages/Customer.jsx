@@ -8,15 +8,26 @@ export default function Customer({ tab }) {
   const [requests, setRequests] = useState([]);
   const [orders, setOrders] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   async function load() {
-    const [r, o] = await Promise.all([api('/requests/mine', { token }), api('/orders/mine', { token })]);
-    setRequests(r.requests);
-    setOrders(o.orders);
+    try {
+      setError('');
+      const [r, o] = await Promise.all([api('/requests/mine', { token }), api('/orders/mine', { token })]);
+      setRequests(r.requests || []);
+      setOrders(o.orders || []);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [token]);
 
+  if (loading) return <div className="p-4 text-slate-500">Loading customer workspace...</div>;
+  if (error) return <div className="p-4 text-red-600 text-sm">{error}</div>;
   if (tab === 'orders') return <OrderList orders={orders} />;
 
   return <div className="p-4 space-y-4">
@@ -27,6 +38,7 @@ export default function Customer({ tab }) {
     <button onClick={() => setShowForm(true)} className="w-full py-4 rounded-2xl bg-orange-600 text-white font-black">+ New Part Request</button>
     {showForm && <RequestForm token={token} onDone={() => { setShowForm(false); load(); }} />}
     <h2 className="font-black text-slate-900">My Requests</h2>
+    {requests.length === 0 && <Empty text="No part requests yet." />}
     {requests.map(req => <div key={req.id} className="bg-white rounded-2xl border p-4 space-y-3">
       <div className="flex justify-between">
         <div>
@@ -49,24 +61,42 @@ export default function Customer({ tab }) {
   </div>;
 }
 
+function Empty({ text }) {
+  return <div className="bg-white rounded-2xl border border-dashed p-6 text-center text-sm text-slate-400">{text}</div>;
+}
+
 function RequestForm({ token, onDone }) {
   const [form, setForm] = useState({ origin:'Japanese', make:'Toyota', model:'Camry', year: years[0], partName:'', description:'', customerPhone:'', location:'' });
   const [problem, setProblem] = useState('');
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const makes = Object.keys(carData[form.origin].makes);
   const models = carData[form.origin].makes[form.make] || [];
 
   async function ai() {
+    if (!problem.trim()) return;
     setLoading(true);
+    setError('');
     try {
       const r = await api('/ai/identify-part', { method:'POST', token, body: { problem } });
       setForm(f => ({ ...f, partName: r.partName, description: r.description }));
+    } catch (e) {
+      setError(e.message);
     } finally { setLoading(false); }
   }
 
   async function submit() {
-    await api('/requests', { method:'POST', token, body: form });
-    onDone();
+    try {
+      setSaving(true);
+      setError('');
+      await api('/requests', { method:'POST', token, body: form });
+      onDone();
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return <div className="bg-white rounded-3xl border p-4 space-y-3">
@@ -76,16 +106,17 @@ function RequestForm({ token, onDone }) {
     <select className="w-full p-3 rounded-xl border" value={form.year} onChange={e => setForm({...form, year:e.target.value})}>{years.map(y => <option key={y}>{y}</option>)}</select>
     <div className="bg-orange-50 rounded-2xl p-3 space-y-2">
       <input className="w-full p-3 rounded-xl border" placeholder="Describe problem e.g. squeaking brakes" value={problem} onChange={e => setProblem(e.target.value)}/>
-      <button onClick={ai} className="w-full py-2 rounded-xl bg-orange-600 text-white font-bold">{loading ? 'Analyzing...' : 'AI Identify Part'}</button>
+      <button onClick={ai} disabled={loading || !problem.trim()} className="w-full py-2 rounded-xl bg-orange-600 text-white font-bold disabled:opacity-40">{loading ? 'Analyzing...' : 'AI Identify Part'}</button>
     </div>
     <input className="w-full p-3 rounded-xl border" placeholder="Part name" value={form.partName} onChange={e => setForm({...form, partName:e.target.value})}/>
     <textarea className="w-full p-3 rounded-xl border" placeholder="Description" value={form.description} onChange={e => setForm({...form, description:e.target.value})}/>
     <input className="w-full p-3 rounded-xl border" placeholder="Your phone" value={form.customerPhone} onChange={e => setForm({...form, customerPhone:e.target.value})}/>
     <input className="w-full p-3 rounded-xl border" placeholder="Detailed location" value={form.location} onChange={e => setForm({...form, location:e.target.value})}/>
-    <button onClick={submit} disabled={!form.partName} className="w-full py-3 rounded-2xl bg-slate-900 text-white font-black disabled:opacity-40">Submit Request</button>
+    {error && <div className="text-xs text-red-600">{error}</div>}
+    <button onClick={submit} disabled={!form.partName || !form.customerPhone || !form.location || saving} className="w-full py-3 rounded-2xl bg-slate-900 text-white font-black disabled:opacity-40">{saving ? 'Submitting...' : 'Submit Request'}</button>
   </div>;
 }
 
 function OrderList({ orders }) {
-  return <div className="p-4 space-y-3"><h1 className="font-black text-xl">Orders</h1>{orders.map(o => <div key={o.id} className="bg-white rounded-2xl border p-4"><div className="font-black text-orange-600">{o.orderNumber}</div><div className="font-bold">{o.offer.request.partName}</div><div className="text-xs text-slate-500">{o.offer.request.make} {o.offer.request.model}</div><div className="text-sm mt-2">Total: {formatIQD(o.customerPrice + o.deliveryFee)}</div><span className="inline-block mt-2 text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{o.status}</span></div>)}</div>;
+  return <div className="p-4 space-y-3"><h1 className="font-black text-xl">Orders</h1>{orders.length === 0 && <Empty text="No orders yet." />}{orders.map(o => <div key={o.id} className="bg-white rounded-2xl border p-4"><div className="font-black text-orange-600">{o.orderNumber}</div><div className="font-bold">{o.offer.request.partName}</div><div className="text-xs text-slate-500">{o.offer.request.make} {o.offer.request.model}</div><div className="text-sm mt-2">Total: {formatIQD(o.customerPrice + o.deliveryFee)}</div><span className="inline-block mt-2 text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{o.status}</span></div>)}</div>;
 }
