@@ -32,6 +32,12 @@ function SummaryRow({ label, value }) {
   return <div className="flex items-center justify-between gap-3 text-xs"><span className="text-slate-400">{label}</span><strong className="text-slate-700 text-right">{value || 'N/A'}</strong></div>;
 }
 
+const supplierOfferStatusLabel = {
+  ACTIVE: 'Pending',
+  REJECTED: 'Rejected',
+  CANCELLED: 'Cancelled'
+};
+
 export default function Supplier({ tab }) {
   const { token } = useAuth();
   const [leads, setLeads] = useState([]);
@@ -59,7 +65,7 @@ export default function Supplier({ tab }) {
   useEffect(() => { load(); }, [token]);
 
   const activeOfferCountByRequest = useMemo(() => offers.reduce((map, offer) => {
-    if (offer.status !== 'CANCELLED') map[offer.requestId] = (map[offer.requestId] || 0) + 1;
+    if (!['CANCELLED', 'ACCEPTED'].includes(offer.status)) map[offer.requestId] = (map[offer.requestId] || 0) + 1;
     return map;
   }, {}), [offers]);
 
@@ -94,20 +100,19 @@ function OrderCard({ order }) {
 }
 
 function Earnings({ orders }) {
-  const eligible = orders.filter(o => o.status !== 'CANCELLED');
-  const total = eligible.reduce((s, o) => s + o.supplierPrice, 0);
-  const completed = eligible.filter(o => o.status === 'COMPLETED').reduce((s, o) => s + o.supplierPrice, 0);
-  const processing = eligible.filter(o => o.status !== 'COMPLETED').reduce((s, o) => s + o.supplierPrice, 0);
+  const completedOrders = orders.filter(o => o.status === 'COMPLETED');
+  const pendingOrders = orders.filter(o => !['COMPLETED', 'CANCELLED'].includes(o.status));
+  const totalCompleted = completedOrders.reduce((sum, order) => sum + Number(order.supplierPrice || 0), 0);
 
   return <div className="p-4 space-y-4">
-    <div className="bg-blue-600 text-white rounded-3xl p-5 shadow"><div className="text-sm opacity-80">Total earnings</div><div className="text-2xl font-black">{formatIQD(total)}</div></div>
+    <div className="bg-blue-600 text-white rounded-3xl p-5 shadow"><div className="text-sm opacity-80">Completed earnings only</div><div className="text-2xl font-black">{formatIQD(totalCompleted)}</div></div>
     <div className="grid grid-cols-2 gap-3">
-      <div className="bg-white rounded-2xl border p-4"><div className="text-[10px] text-slate-400 font-bold uppercase">Completed</div><div className="font-black text-green-700">{formatIQD(completed)}</div></div>
-      <div className="bg-white rounded-2xl border p-4"><div className="text-[10px] text-slate-400 font-bold uppercase">Processing</div><div className="font-black text-blue-700">{formatIQD(processing)}</div></div>
+      <div className="bg-white rounded-2xl border p-4"><div className="text-[10px] text-slate-400 font-bold uppercase">Completed Orders</div><div className="font-black text-green-700">{completedOrders.length}</div></div>
+      <div className="bg-white rounded-2xl border p-4"><div className="text-[10px] text-slate-400 font-bold uppercase">Pending Orders</div><div className="font-black text-blue-700">{pendingOrders.length}</div></div>
     </div>
-    <h2 className="font-black text-slate-900">Recent Transactions</h2>
-    {eligible.length === 0 && <Empty text="No earnings transactions yet." />}
-    {eligible.map(o => <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm flex justify-between gap-3"><div><div className="font-bold text-slate-900">{o.offer.request.partName}</div><div className="text-xs text-slate-500">{o.orderNumber} • {o.status}</div></div><div className="font-black text-blue-600">{formatIQD(o.supplierPrice)}</div></div>)}
+    <h2 className="font-black text-slate-900">Completed Transactions</h2>
+    {completedOrders.length === 0 && <Empty text="No completed earnings transactions yet." />}
+    {completedOrders.map(o => <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm flex justify-between gap-3"><div><div className="font-bold text-slate-900">{o.offer.request.partName}</div><div className="text-xs text-slate-500">{o.orderNumber} • COMPLETED</div></div><div className="font-black text-blue-600">{formatIQD(o.supplierPrice)}</div></div>)}
   </div>;
 }
 
@@ -116,6 +121,11 @@ function SentOffers({ offers, token, reload, onToast }) {
   const [openCancelId, setOpenCancelId] = useState('');
   const [openId, setOpenId] = useState('');
   const [error, setError] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ACTIVE');
+
+  const visibleOffers = offers
+    .filter(offer => offer.status !== 'ACCEPTED')
+    .filter(offer => statusFilter === 'ALL' || offer.status === statusFilter);
 
   async function cancelOffer(offerId) {
     try {
@@ -130,21 +140,26 @@ function SentOffers({ offers, token, reload, onToast }) {
     }
   }
 
-  if (!offers.length) return <Empty text="No sent offers yet." />;
-
   return <div className="space-y-3">
     {error && <div className="text-xs text-red-600 bg-red-50 rounded-xl p-2">{error}</div>}
-    {offers.map(offer => {
+    <select className="w-full p-3 rounded-xl border text-sm bg-white" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+      <option value="ACTIVE">Pending</option>
+      <option value="REJECTED">Rejected</option>
+      <option value="CANCELLED">Cancelled</option>
+      <option value="ALL">All visible offers</option>
+    </select>
+    {visibleOffers.length === 0 && <Empty text="No matching sent offers." />}
+    {visibleOffers.map(offer => {
       const photos = parseJsonArray(offer.photoUrlsJson);
       const canCancel = offer.status === 'ACTIVE';
       const open = openId === offer.id;
       return <div key={offer.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
         <button onClick={() => setOpenId(open ? '' : offer.id)} className="w-full text-left flex justify-between gap-3">
           <div><div className="font-bold text-slate-900">{offer.request?.partName}</div><div className="text-xs text-slate-500">{offer.request?.make} {offer.request?.model} • {offer.condition}</div><div className="text-sm font-black text-blue-600 mt-1">{formatIQD(offer.supplierPrice)}</div></div>
-          <div className="text-right"><span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full h-fit font-bold">{offer.status}</span><div className="text-[10px] text-slate-400 mt-2">{open ? 'Hide' : 'Details'}</div></div>
+          <div className="text-right"><span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full h-fit font-bold">{supplierOfferStatusLabel[offer.status] || offer.status}</span><div className="text-[10px] text-slate-400 mt-2">{open ? 'Hide' : 'Details'}</div></div>
         </button>
         {open && <>
-          <div className="rounded-xl bg-slate-50 p-3 space-y-1"><SummaryRow label="Your price" value={formatIQD(offer.supplierPrice)} /><SummaryRow label="Condition" value={offer.condition} /></div>
+          <div className="rounded-xl bg-slate-50 p-3 space-y-1"><SummaryRow label="Your price" value={formatIQD(offer.supplierPrice)} /><SummaryRow label="Condition" value={offer.condition} /><SummaryRow label="Status" value={supplierOfferStatusLabel[offer.status] || offer.status} /></div>
           {offer.notes && <div className="text-xs text-slate-600 bg-slate-50 rounded-xl p-2">{offer.notes}</div>}
           {offer.cancellationReason && <div className="text-xs bg-red-50 text-red-700 rounded-xl p-2">Cancelled reason: {offer.cancellationReason}</div>}
           {photos.length > 0 && <div className="flex gap-2 overflow-x-auto">{photos.map(url => <img key={url} src={url} alt="Offer" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
