@@ -40,6 +40,20 @@ enum PartCondition {
   USED
 }
 
+enum PaymentMethod {
+  CASH_ON_DELIVERY
+  CARD
+  WALLET
+  BANK_TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
 model User {
   id        String   @id @default(cuid())
   name      String
@@ -120,6 +134,14 @@ model Order {
   deliveryFee     Int @default(6000)
   platformRevenue Int
   status          OrderStatus @default(WAITING_PICKUP)
+  paymentMethod   PaymentMethod @default(CASH_ON_DELIVERY)
+  paymentStatus   PaymentStatus @default(PENDING)
+  driverName      String?
+  driverPhone     String?
+  pickupEta       String?
+  deliveryEta     String?
+  proofOfDeliveryUrl String?
+  deliveryNotes   String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
