@@ -3,6 +3,7 @@ import { api, formatIQD } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { carData } from '../data/carData';
 import AdminSupplierList from '../components/admin/AdminSupplierList';
+import AuditLogViewer from '../components/admin/AuditLogViewer';
 
 function StatCard({ label, value }) {
   return <div className="bg-white rounded-2xl border p-4 shadow-sm">
@@ -57,6 +58,10 @@ export default function Admin({ tab }) {
 
   if (error) return <div className="p-4 text-red-600 text-sm">{error}</div>;
   if (!data) return <div className="p-4 text-slate-500">Loading dashboard...</div>;
+
+  if (tab === 'audit') {
+    return <div className="p-4 space-y-4"><h1 className="font-black text-xl text-slate-900">Audit Logs</h1><AuditLogViewer token={token} /></div>;
+  }
 
   if (tab === 'suppliers') {
     return <div className="p-4 space-y-4">
