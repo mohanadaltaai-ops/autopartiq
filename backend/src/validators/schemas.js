@@ -1,7 +1,9 @@
 import { z } from 'zod';
 
+const emptyToNull = value => value === '' ? null : value;
 const phone = z.string().min(7).max(20);
-const optionalText = z.string().max(500).optional().nullable();
+const optionalText = z.preprocess(emptyToNull, z.string().max(500).optional().nullable());
+const optionalUrl = z.preprocess(emptyToNull, z.string().url().optional().nullable());
 const photoUrls = z.array(z.string().url()).max(5).optional().default([]);
 
 export const loginSchema = z.object({
@@ -17,9 +19,9 @@ export const requestCreateSchema = z.object({
   partName: z.string().min(2).max(120),
   description: optionalText,
   partNumber: optionalText,
-  vin: z.string().max(40).optional().nullable(),
+  vin: z.preprocess(emptyToNull, z.string().max(40).optional().nullable()),
   location: optionalText,
-  customerPhone: z.string().max(20).optional().nullable(),
+  customerPhone: z.preprocess(emptyToNull, z.string().max(20).optional().nullable()),
   photoUrls
 });
 
@@ -31,7 +33,7 @@ export const offerCreateSchema = z.object({
   supplierPrice: z.coerce.number().int().positive(),
   condition: z.enum(['NEW', 'USED']),
   notes: optionalText,
-  photoUrl: z.string().url().optional().nullable(),
+  photoUrl: optionalUrl,
   photoUrls
 });
 
@@ -45,12 +47,12 @@ export const paymentUpdateSchema = z.object({
 });
 
 export const deliveryAssignmentSchema = z.object({
-  driverName: z.string().max(120).optional().nullable(),
-  driverPhone: z.string().max(30).optional().nullable(),
-  pickupEta: z.string().max(120).optional().nullable(),
-  deliveryEta: z.string().max(120).optional().nullable(),
-  proofOfDeliveryUrl: z.string().url().optional().nullable(),
-  deliveryNotes: z.string().max(500).optional().nullable()
+  driverName: z.preprocess(emptyToNull, z.string().max(120).optional().nullable()),
+  driverPhone: z.preprocess(emptyToNull, z.string().max(30).optional().nullable()),
+  pickupEta: z.preprocess(emptyToNull, z.string().max(120).optional().nullable()),
+  deliveryEta: z.preprocess(emptyToNull, z.string().max(120).optional().nullable()),
+  proofOfDeliveryUrl: optionalUrl,
+  deliveryNotes: optionalText
 });
 
 export const supplierSchema = z.object({
