@@ -21,15 +21,18 @@ function StatusBadge({ status }) {
     COMPLETED: 'bg-green-100 text-green-700',
     CANCELLED: 'bg-red-100 text-red-700'
   };
-  return <span className={`text-[10px] mt-2 inline-block px-2 py-1 rounded-full font-bold ${colors[status] || 'bg-slate-100 text-slate-600'}`}>{status}</span>;
+  const labels = { WAITING_PICKUP: 'Waiting Pickup', DELIVERING: 'Delivering', COMPLETED: 'Completed', CANCELLED: 'Cancelled' };
+  return <span className={`text-[10px] mt-2 inline-block px-2 py-1 rounded-full font-bold ${colors[status] || 'bg-slate-100 text-slate-600'}`}>{labels[status] || status}</span>;
 }
 
 export default function Admin({ tab }) {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [supplierForm, setSupplierForm] = useState({ name: '', phone: '', location: '', supportedMakes: ['Japanese'] });
   const [updatingOrderId, setUpdatingOrderId] = useState('');
+  const [orderSearch, setOrderSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
 
   async function load() {
     try {
@@ -88,22 +91,37 @@ export default function Admin({ tab }) {
   }
 
   if (tab === 'orders') {
+    const filteredOrders = data.orders.filter(order => {
+      const matchesSearch = !orderSearch || order.orderNumber?.toLowerCase().includes(orderSearch.toLowerCase());
+      const matchesStatus = statusFilter === 'ALL' || order.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
     return <div className="p-4 space-y-3">
       <h1 className="font-black text-xl text-slate-900">All Orders</h1>
-      {data.orders.length === 0 && <div className="bg-white border border-dashed rounded-2xl p-6 text-center text-sm text-slate-400">No orders yet.</div>}
-      {data.orders.map(order => <div key={order.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
+      <div className="bg-white rounded-2xl border p-3 space-y-2">
+        <input className="w-full p-3 rounded-xl border text-sm" placeholder="Search order number" value={orderSearch} onChange={e => setOrderSearch(e.target.value)} />
+        <select className="w-full p-3 rounded-xl border text-sm" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+          <option value="ALL">All statuses</option>
+          <option value="WAITING_PICKUP">Waiting Pickup</option>
+          <option value="DELIVERING">Delivering</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="CANCELLED">Cancelled</option>
+        </select>
+      </div>
+      {filteredOrders.length === 0 && <div className="bg-white border border-dashed rounded-2xl p-6 text-center text-sm text-slate-400">No matching orders.</div>}
+      {filteredOrders.map(order => <div key={order.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="font-black text-orange-600">{order.orderNumber}</div>
             <div className="font-bold text-slate-900">{order.offer.request.partName}</div>
             <div className="text-xs text-slate-500">Supplier: {order.offer.supplier.name}</div>
+            <div className="text-xs text-slate-500">Customer phone: {order.offer.request.customerPhone || 'N/A'}</div>
+            <div className="text-xs text-slate-500">Location: {order.offer.request.location || 'N/A'}</div>
           </div>
           <StatusBadge status={order.status} />
         </div>
         <div className="text-xs text-slate-500 grid grid-cols-2 gap-1">
-          <span>Supplier: {formatIQD(order.supplierPrice)}</span>
-          <span>Customer: {formatIQD(order.customerPrice)}</span>
-          <span>Revenue: {formatIQD(order.platformRevenue)}</span>
+          {user?.role === 'SUPER_ADMIN' && <><span>Supplier: {formatIQD(order.supplierPrice)}</span><span>Customer: {formatIQD(order.customerPrice)}</span><span>Revenue: {formatIQD(order.platformRevenue)}</span></>}
           <span>Delivery: {formatIQD(order.deliveryFee)}</span>
           <span>Payment: {order.paymentMethod}</span>
           <span>Status: {order.paymentStatus}</span>
@@ -128,9 +146,10 @@ export default function Admin({ tab }) {
     </div>
     <div className="grid grid-cols-2 gap-3">
       <StatCard label="Orders" value={data.summary.totalOrders} />
+      <StatCard label="Active Orders" value={data.summary.activeOrders ?? data.summary.totalOrders} />
       <StatCard label="Requests" value={data.summary.totalRequests} />
-      <StatCard label="Platform Revenue" value={formatIQD(data.summary.platformRevenue)} />
-      <StatCard label="Supplier Earnings" value={formatIQD(data.summary.supplierEarnings)} />
+      <StatCard label="Suppliers" value={data.summary.suppliers} />
+      {user?.role === 'SUPER_ADMIN' && <><StatCard label="Platform Revenue" value={formatIQD(data.summary.platformRevenue)} /><StatCard label="Supplier Earnings" value={formatIQD(data.summary.supplierEarnings)} /></>}
     </div>
     <h2 className="font-black text-slate-900">Suppliers</h2>
     <AdminSupplierList suppliers={data.suppliers.slice(0, 3)} token={token} reload={load} />
