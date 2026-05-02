@@ -1,5 +1,10 @@
 import { prisma } from '../db.js';
 
+function normalizePhotoUrls(value) {
+  if (!Array.isArray(value)) return [];
+  return value.filter(item => typeof item === 'string' && item.trim()).slice(0, 5);
+}
+
 export async function createRequest(req, res) {
   const data = req.body;
   if (!data.origin || !data.make || !data.model || !data.year || !data.partName) {
@@ -18,7 +23,8 @@ export async function createRequest(req, res) {
       partNumber: data.partNumber || null,
       vin: data.vin || null,
       location: data.location || null,
-      customerPhone: data.customerPhone || null
+      customerPhone: data.customerPhone || null,
+      photoUrlsJson: JSON.stringify(normalizePhotoUrls(data.photoUrls))
     }
   });
   res.status(201).json({ request });
