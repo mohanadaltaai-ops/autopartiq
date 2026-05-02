@@ -29,7 +29,7 @@ export default function Supplier({ tab }) {
   if (loading) return <div className="p-4 text-slate-500">Loading supplier workspace...</div>;
   if (error) return <div className="p-4 text-red-600 text-sm">{error}</div>;
 
-  if (tab === 'orders') return <div className="p-4 space-y-3"><h1 className="font-black text-xl">Active Orders</h1>{orders.length === 0 && <Empty text="No accepted orders yet." />}{orders.map(o => <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3"><div><div className="font-bold">{o.offer.request.partName}</div><div className="text-xs text-slate-500">{o.offer.request.make} {o.offer.request.model} • {o.offer.condition}</div><div className="text-xs text-slate-500 mt-1">Earnings: {formatIQD(o.supplierPrice)}</div><div className="text-[10px] mt-2 inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-bold">{o.status}</div></div><OrderInfoPanel order={o} /><DeliveryWorkflow status={o.status} /><button onClick={async () => { await api(`/orders/${o.id}/status`, { method:'PATCH', token, body:{status:'COMPLETED'} }); load(); }} className="w-full py-2 rounded-xl bg-blue-600 text-white font-bold">Mark Completed</button></div>)}</div>;
+  if (tab === 'orders') return <div className="p-4 space-y-3"><h1 className="font-black text-xl">Active Orders</h1>{orders.length === 0 && <Empty text="No accepted orders yet." />}{orders.map(o => <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3"><div><div className="font-bold">{o.offer.request.partName}</div><div className="text-xs text-slate-500">{o.offer.request.make} {o.offer.request.model} • {o.offer.condition}</div><div className="text-xs text-slate-500 mt-1">Earnings: {formatIQD(o.supplierPrice)}</div><div className="text-[10px] mt-2 inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-bold">{o.status}</div></div><OrderInfoPanel order={o} /><DeliveryWorkflow status={o.status} /><div className="rounded-xl bg-slate-50 text-slate-500 text-xs p-3">Order status is managed by Admin. Supplier view is read-only.</div></div>)}</div>;
   if (tab === 'earnings') return <Earnings orders={orders} />;
   return <div className="p-4 space-y-3"><div className="rounded-3xl bg-gradient-to-br from-blue-600 to-blue-500 text-white p-5 shadow"><div className="text-sm opacity-80">Supplier workspace</div><div className="text-xl font-black">Matching Leads</div></div>{leads.length === 0 && <Empty text="No matching leads yet." />}{leads.map(req => <Lead key={req.id} req={req} token={token} reload={load} />)}</div>;
 }
@@ -39,9 +39,10 @@ function Empty({ text }) {
 }
 
 function Earnings({ orders }) {
-  const total = orders.reduce((s, o) => s + o.supplierPrice, 0);
-  const completed = orders.filter(o => o.status === 'COMPLETED').reduce((s, o) => s + o.supplierPrice, 0);
-  const processing = orders.filter(o => o.status !== 'COMPLETED' && o.status !== 'CANCELLED').reduce((s, o) => s + o.supplierPrice, 0);
+  const eligible = orders.filter(o => o.status !== 'CANCELLED');
+  const total = eligible.reduce((s, o) => s + o.supplierPrice, 0);
+  const completed = eligible.filter(o => o.status === 'COMPLETED').reduce((s, o) => s + o.supplierPrice, 0);
+  const processing = eligible.filter(o => o.status !== 'COMPLETED').reduce((s, o) => s + o.supplierPrice, 0);
 
   return <div className="p-4 space-y-4">
     <div className="bg-blue-600 text-white rounded-3xl p-5 shadow">
@@ -53,8 +54,8 @@ function Earnings({ orders }) {
       <div className="bg-white rounded-2xl border p-4"><div className="text-[10px] text-slate-400 font-bold uppercase">Processing</div><div className="font-black text-blue-700">{formatIQD(processing)}</div></div>
     </div>
     <h2 className="font-black text-slate-900">Recent Transactions</h2>
-    {orders.length === 0 && <Empty text="No earnings transactions yet." />}
-    {orders.map(o => <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm flex justify-between gap-3">
+    {eligible.length === 0 && <Empty text="No earnings transactions yet." />}
+    {eligible.map(o => <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm flex justify-between gap-3">
       <div>
         <div className="font-bold text-slate-900">{o.offer.request.partName}</div>
         <div className="text-xs text-slate-500">{o.orderNumber} • {o.status}</div>
