@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { carData, years } from '../data/carData';
 import OfferCard from '../components/customer/OfferCard';
 import DeliveryWorkflow from '../components/orders/DeliveryWorkflow';
+import OrderInfoPanel from '../components/orders/OrderInfoPanel';
 
 function parseJsonArray(value) {
   try {
@@ -101,6 +102,7 @@ function Empty({ text }) {
 function RequestForm({ token, onDone }) {
   const [form, setForm] = useState({ origin:'Japanese', make:'Toyota', model:'Camry', year: years[0], partName:'', description:'', customerPhone:'', location:'', photoUrls: [] });
   const [photoUrl, setPhotoUrl] = useState('');
+  const [uploadNote, setUploadNote] = useState('');
   const [problem, setProblem] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -124,6 +126,15 @@ function RequestForm({ token, onDone }) {
     if (!photoUrl.trim()) return;
     setForm(f => ({ ...f, photoUrls: [...f.photoUrls, photoUrl.trim()].slice(0, 5) }));
     setPhotoUrl('');
+  }
+
+  async function checkUploadPlaceholder() {
+    try {
+      const result = await api('/uploads/placeholder', { method: 'POST', token, body: { fileName: 'request-photo.jpg', fileType: 'image/jpeg', context: 'request' } });
+      setUploadNote(result.message);
+    } catch (e) {
+      setUploadNote(e.message);
+    }
   }
 
   async function submit() {
@@ -153,6 +164,8 @@ function RequestForm({ token, onDone }) {
     <div className="bg-slate-50 rounded-2xl p-3 space-y-2">
       <div className="text-xs font-bold text-slate-500">Request photos structure</div>
       <div className="flex gap-2"><input className="flex-1 p-3 rounded-xl border" placeholder="Photo URL optional" value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} /><button onClick={addPhotoUrl} type="button" className="px-3 rounded-xl bg-slate-900 text-white text-sm font-bold">Add</button></div>
+      <button onClick={checkUploadPlaceholder} type="button" className="w-full py-2 rounded-xl bg-slate-200 text-slate-700 text-xs font-bold">Check upload placeholder</button>
+      {uploadNote && <div className="text-xs text-slate-500">{uploadNote}</div>}
       {form.photoUrls.length > 0 && <div className="flex gap-2 overflow-x-auto">{form.photoUrls.map(url => <img key={url} src={url} alt="Request preview" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
     </div>
     <input className="w-full p-3 rounded-xl border" placeholder="Your phone" value={form.customerPhone} onChange={e => setForm({...form, customerPhone:e.target.value})}/>
@@ -163,5 +176,5 @@ function RequestForm({ token, onDone }) {
 }
 
 function OrderList({ orders }) {
-  return <div className="p-4 space-y-3"><h1 className="font-black text-xl">Orders</h1>{orders.length === 0 && <Empty text="No orders yet." />}{orders.map(o => <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3"><div><div className="font-black text-orange-600">{o.orderNumber}</div><div className="font-bold">{o.offer.request.partName}</div><div className="text-xs text-slate-500">{o.offer.request.make} {o.offer.request.model}</div><div className="text-sm mt-2">Total: {formatIQD(o.customerPrice + o.deliveryFee)}</div><span className="inline-block mt-2 text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{o.status}</span></div><DeliveryWorkflow status={o.status} /></div>)}</div>;
+  return <div className="p-4 space-y-3"><h1 className="font-black text-xl">Orders</h1>{orders.length === 0 && <Empty text="No orders yet." />}{orders.map(o => <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3"><div><div className="font-black text-orange-600">{o.orderNumber}</div><div className="font-bold">{o.offer.request.partName}</div><div className="text-xs text-slate-500">{o.offer.request.make} {o.offer.request.model}</div><div className="text-sm mt-2">Total: {formatIQD(o.customerPrice + o.deliveryFee)}</div><span className="inline-block mt-2 text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{o.status}</span></div><OrderInfoPanel order={o} /><DeliveryWorkflow status={o.status} /></div>)}</div>;
 }
