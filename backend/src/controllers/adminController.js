@@ -1,4 +1,5 @@
 import { prisma } from '../db.js';
+import { writeAuditLog } from '../services/auditService.js';
 
 function normalizeSupportedMakes(value) {
   return Array.isArray(value) ? value.filter(Boolean) : [];
@@ -30,6 +31,7 @@ export async function createSupplier(req, res) {
     update: { name, phone, location, isActive: true, supportedMakesJson: JSON.stringify(normalizeSupportedMakes(supportedMakes)) },
     create: { userId: user.id, name, phone, location, supportedMakesJson: JSON.stringify(normalizeSupportedMakes(supportedMakes)) }
   });
+  await writeAuditLog({ actorUserId: req.user.id, action: 'SUPPLIER_CREATED', entityType: 'Supplier', entityId: supplier.id, metadata: { phone, location } });
   res.status(201).json({ supplier });
 }
 
@@ -53,6 +55,7 @@ export async function updateSupplier(req, res) {
     await prisma.user.update({ where: { id: existing.userId }, data: { name: name ?? existing.name, phone: phone ?? existing.phone } });
   }
 
+  await writeAuditLog({ actorUserId: req.user.id, action: 'SUPPLIER_UPDATED', entityType: 'Supplier', entityId: supplier.id, metadata: { isActive: supplier.isActive } });
   res.json({ supplier });
 }
 
@@ -60,5 +63,6 @@ export async function disableSupplier(req, res) {
   const existing = await prisma.supplier.findUnique({ where: { id: req.params.id } });
   if (!existing) return res.status(404).json({ message: 'Supplier not found' });
   const supplier = await prisma.supplier.update({ where: { id: existing.id }, data: { isActive: false } });
+  await writeAuditLog({ actorUserId: req.user.id, action: 'SUPPLIER_DISABLED', entityType: 'Supplier', entityId: supplier.id });
   res.json({ supplier });
 }
