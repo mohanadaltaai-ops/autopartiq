@@ -7,7 +7,10 @@ function normalizeSupportedMakes(value) {
 
 export async function dashboard(req, res) {
   const [orders, suppliers, requests] = await Promise.all([
-    prisma.order.findMany({ include: { offer: { include: { request: true, supplier: true } } } }),
+    prisma.order.findMany({
+      include: { offer: { include: { request: true, supplier: true } } },
+      orderBy: { createdAt: 'desc' }
+    }),
     prisma.supplier.findMany({ include: { user: true, orders: true }, orderBy: { createdAt: 'desc' } }),
     prisma.partRequest.count()
   ]);
