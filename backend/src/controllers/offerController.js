@@ -19,7 +19,7 @@ export async function createOffer(req, res) {
   const supplier = await prisma.supplier.findUnique({ where: { userId: req.user.id } });
   if (!supplier) return res.status(404).json({ message: 'Supplier profile not found' });
 
-  const request = await prisma.partRequest.findUnique({ where: { id: req.params.requestId }, include: { offers: true } });
+  const request = await prisma.partRequest.findUnique({ where: { id: req.params.requestId } });
   if (!request) return res.status(404).json({ message: 'Request not found' });
   if (request.status !== 'WAITING') return res.status(400).json({ message: 'Only waiting requests can receive offers' });
 
@@ -32,25 +32,6 @@ export async function createOffer(req, res) {
 
   const photoUrls = normalizePhotoUrls(req.body.photoUrls);
   const pricing = calculatePricing(supplierPrice);
-  const existingOffer = request.offers.find(offer => offer.supplierId === supplier.id && offer.status === 'ACTIVE');
-
-  if (existingOffer) {
-    const updatedOffer = await prisma.offer.update({
-      where: { id: existingOffer.id },
-      data: {
-        supplierPrice,
-        customerPrice: pricing.customerPrice,
-        platformRevenue: pricing.platformRevenue,
-        condition: req.body.condition,
-        notes: req.body.notes || null,
-        photoUrl: photoUrls[0] || req.body.photoUrl || existingOffer.photoUrl || null,
-        photoUrlsJson: JSON.stringify(photoUrls)
-      },
-      include: { request: true, supplier: true }
-    });
-
-    return res.json({ offer: sanitizeOfferForSupplier(updatedOffer), updated: true });
-  }
 
   const offer = await prisma.offer.create({
     data: {
@@ -71,7 +52,7 @@ export async function createOffer(req, res) {
     data: { userId: offer.request.customerId, message: `You have a new ${offer.condition.toLowerCase()} offer for ${offer.request.partName}` }
   });
 
-  res.status(201).json({ offer: sanitizeOfferForSupplier(offer), updated: false });
+  res.status(201).json({ offer: sanitizeOfferForSupplier(offer) });
 }
 
 export async function supplierOffers(req, res) {
