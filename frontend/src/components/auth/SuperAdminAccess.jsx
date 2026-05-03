@@ -24,8 +24,8 @@ export default function SuperAdminAccess({ onBack }) {
 
   return (
     <>
-      <div className="mx-auto w-24 h-24 rounded-3xl bg-white flex items-center justify-center p-3 shadow-lg">
-        <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain" />
+      <div className="mx-auto w-28 h-28 rounded-3xl bg-white flex items-center justify-center p-1 shadow-lg">
+        <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain scale-125" />
       </div>
       <h1 className="text-xl font-black text-slate-900">Super Admin Access</h1>
       <input className="p-4 rounded-2xl bg-slate-50 border outline-none" value={identifier} onChange={e => setIdentifier(e.target.value)} placeholder="Username, email, or phone" />

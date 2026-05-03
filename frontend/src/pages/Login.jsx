@@ -32,8 +32,8 @@ export default function Login() {
 
       {screen === 'landing' ? <div className="flex-1 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white p-8 flex flex-col items-center justify-center text-center gap-8">
         <div className="space-y-5">
-          <div className="mx-auto w-32 h-32 rounded-[32px] bg-white shadow-2xl flex items-center justify-center p-3">
-            <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain" />
+          <div className="mx-auto w-36 h-36 rounded-[32px] bg-white shadow-2xl flex items-center justify-center p-1">
+            <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain scale-125" />
           </div>
           <div>
             <div className="text-4xl font-black tracking-tight">AutoParts IQ</div>
@@ -46,8 +46,8 @@ export default function Login() {
         </div>
       </div> : <>
         <div className="bg-gradient-to-br from-slate-900 to-slate-700 text-white p-8 text-center">
-          <div className="mx-auto w-24 h-24 rounded-3xl bg-white flex items-center justify-center p-3 mb-4 shadow-lg">
-            <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain" />
+          <div className="mx-auto w-28 h-28 rounded-3xl bg-white flex items-center justify-center p-1 mb-4 shadow-lg">
+            <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain scale-125" />
           </div>
           <div className="text-3xl font-black">AutoParts IQ</div>
           <div className="text-white/50 mt-2">Phone number login</div>
