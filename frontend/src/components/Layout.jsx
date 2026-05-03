@@ -3,6 +3,7 @@ import { Bell, Home, Package, User, BarChart3, Users, Languages, ShieldCheck, Us
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../lib/api';
+import logo from '../assets/logo.png';
 
 export default function Layout({ tab, setTab, children }) {
   const { user, token } = useAuth();
@@ -47,7 +48,9 @@ export default function Layout({ tab, setTab, children }) {
     <div className="phone-frame bg-slate-100 rounded-[40px] border-8 border-slate-900 shadow-2xl overflow-hidden flex flex-col relative">
       <header className="shrink-0 bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => setTab(user?.adminPermission === 'ORDERS_ONLY' ? 'orders' : 'home')} className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black">AIQ</button>
+          <button onClick={() => setTab(user?.adminPermission === 'ORDERS_ONLY' ? 'orders' : 'home')} className="w-12 h-12 rounded-2xl overflow-hidden bg-white border border-slate-200 flex items-center justify-center p-1 shadow-sm">
+            <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain" />
+          </button>
           <div>
             <div className="font-black text-slate-900 leading-tight">{t('appName')}</div>
             <div className={`text-[10px] font-bold ${roleColor}`}>{roleLabel}</div>

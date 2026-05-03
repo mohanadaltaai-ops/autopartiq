@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { api } from '../../lib/api';
+import logo from '../../assets/logo.png';
 
 export default function SuperAdminAccess({ onBack }) {
   const [identifier, setIdentifier] = useState('');
@@ -23,6 +24,9 @@ export default function SuperAdminAccess({ onBack }) {
 
   return (
     <>
+      <div className="mx-auto w-24 h-24 rounded-3xl bg-white flex items-center justify-center p-3 shadow-lg">
+        <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain" />
+      </div>
       <h1 className="text-xl font-black text-slate-900">Super Admin Access</h1>
       <input className="p-4 rounded-2xl bg-slate-50 border outline-none" value={identifier} onChange={e => setIdentifier(e.target.value)} placeholder="Username, email, or phone" />
       <input className="p-4 rounded-2xl bg-slate-50 border outline-none" value={secret} onChange={e => setSecret(e.target.value)} type="password" placeholder="Password" />
