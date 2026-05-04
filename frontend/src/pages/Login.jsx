@@ -5,7 +5,7 @@ import logo from '../assets/logo.png';
 
 export default function Login() {
   const { login } = useAuth();
-  const { t } = useLanguage();
+  const { t, language, toggleLanguage } = useLanguage();
   const [phone, setPhone] = useState('');
   const [screen, setScreen] = useState('landing');
   const [otp, setOtp] = useState('1234');
@@ -23,6 +23,13 @@ export default function Login() {
   return <div className="min-h-screen flex items-center justify-center bg-slate-600 p-5">
     <div className="phone-frame bg-white rounded-[40px] border-8 border-slate-900 overflow-hidden shadow-2xl flex flex-col relative">
       <button
+        onClick={toggleLanguage}
+        className="absolute bottom-4 left-4 z-10 px-3 h-9 rounded-full bg-white/90 text-slate-900 text-xs font-black shadow-lg border border-white/50"
+        title="Language"
+      >
+        {language === 'en' ? 'AR' : 'EN'}
+      </button>
+      <button
         onClick={() => { window.location.href = '/super-access'; }}
         className="absolute bottom-4 right-4 z-10 w-9 h-9 rounded-full bg-slate-900/80 text-white text-[10px] font-black shadow-lg"
         title="Admin access"
@@ -37,7 +44,7 @@ export default function Login() {
           </div>
           <div>
             <div className="text-4xl font-black tracking-tight">AutoParts IQ</div>
-            <div className="text-white/60 mt-3 text-sm">Iraqi spare parts marketplace</div>
+            <div className="text-white/60 mt-3 text-sm">{t('iraqiPartsMarket')}</div>
           </div>
         </div>
         <div className="w-full space-y-3">
