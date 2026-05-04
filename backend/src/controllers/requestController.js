@@ -67,11 +67,17 @@ export async function supplierLeads(req, res) {
   const supplier = await prisma.supplier.findUnique({ where: { userId: req.user.id } });
   if (!supplier) return res.status(404).json({ message: 'Supplier profile not found' });
   if (!supplier.isActive) return res.status(403).json({ message: 'Supplier account is disabled' });
+
   const supportedMakes = JSON.parse(supplier.supportedMakesJson || '[]');
   const requests = await prisma.partRequest.findMany({
-    where: { origin: { in: supportedMakes }, status: 'WAITING' },
+    where: {
+      origin: { in: supportedMakes },
+      status: 'WAITING',
+      offers: { none: { supplierId: supplier.id } }
+    },
     include: { offers: true },
     orderBy: { createdAt: 'desc' }
   });
+
   res.json({ requests: requests.map(sanitizeRequestForSupplier) });
 }
