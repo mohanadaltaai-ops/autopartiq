@@ -164,6 +164,8 @@ export default function Customer({ tab }) {
 function RequestCard({ req, token, reload, onToast, focus }) {
   const { t } = useLanguage();
   const requestPhotos = parseJsonArray(req.photoUrlsJson);
+  const activeOffers = req.offers?.filter(o => o.status === 'ACTIVE') || [];
+  const totalOffers = req.offers?.length || 0;
   const [open, setOpen] = useState(false);
   const cardRef = useRef(null);
   const [showCancel, setShowCancel] = useState(false);
@@ -195,6 +197,7 @@ function RequestCard({ req, token, reload, onToast, focus }) {
       <div>
         <div className="font-bold">{req.partName}</div>
         <div className="text-xs text-slate-500">{req.make} {req.model} ({req.year})</div>
+        <div className="text-[11px] text-orange-600 font-bold mt-1">{t('offers')}: {activeOffers.length} / {totalOffers}</div>
         {(req.partNumber || req.vin) && (
           <div className="text-[11px] text-slate-400 mt-1">
             {req.partNumber && `${t('partNumber')}: ${req.partNumber}`} {req.vin && `${t('vinChassis')}: ${req.vin}`}
@@ -202,7 +205,7 @@ function RequestCard({ req, token, reload, onToast, focus }) {
         )}
       </div>
       <div className="text-right">
-        <span className={`text-[10px] px-2 py-1 rounded-full h-fit ${req.status === 'CANCELLED' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+        <span className={`text-[10px] px-2 py-1 rounded-full h-fit font-bold whitespace-nowrap inline-flex items-center shrink-0 ${req.status === 'CANCELLED' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
           {requestStatusLabel(req.status, t)}
         </span>
         <div className="text-[10px] text-slate-400 mt-2">{open ? t('hide') : t('details')}</div>
@@ -210,6 +213,16 @@ function RequestCard({ req, token, reload, onToast, focus }) {
     </button>
 
     {open && <>
+      <div className="rounded-xl bg-slate-50 p-3 space-y-1 text-xs">
+        <div className="text-[10px] uppercase font-black text-slate-400">{t('requestDetails')}</div>
+        <SummaryRow label={t('part')} value={req.partName} />
+        <SummaryRow label={t('make')} value={`${req.make} ${req.model}`.trim()} />
+        <SummaryRow label={t('year')} value={req.year} />
+        {req.partNumber && <SummaryRow label={t('partNumber')} value={req.partNumber} />}
+        {req.vin && <SummaryRow label={t('vinChassis')} value={req.vin} />}
+        <SummaryRow label={t('offers')} value={`${activeOffers.length} / ${totalOffers}`} />
+      </div>
+
       {req.description && <div className="text-xs bg-slate-50 text-slate-600 rounded-xl p-2">{req.description}</div>}
       {req.cancellationReason && <div className="text-xs bg-red-50 text-red-700 rounded-xl p-2">{t('reasonForCancellation')}: {req.cancellationReason}</div>}
 
@@ -220,7 +233,7 @@ function RequestCard({ req, token, reload, onToast, focus }) {
       )}
 
       <div className="space-y-2">
-        {req.offers?.filter(o => o.status === 'ACTIVE').map(o => <OfferCard key={o.id} offer={o} token={token} reload={reload} />)}
+        {activeOffers.map(o => <OfferCard key={o.id} offer={o} token={token} reload={reload} />)}
       </div>
 
       {canCancel && <div className="border-t pt-3 space-y-2">
