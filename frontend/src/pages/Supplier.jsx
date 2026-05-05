@@ -162,35 +162,64 @@ function OrderCard({ order }) {
 function Earnings({ orders }) {
   const { t } = useLanguage();
   const completedOrders = orders.filter(o => o.status === 'COMPLETED');
-  const pendingOrders = orders.filter(o => !['COMPLETED', 'CANCELLED'].includes(o.status));
+  const openOrders = orders.filter(o => ['WAITING_PICKUP', 'DELIVERING'].includes(o.status));
+  const cancelledOrders = orders.filter(o => o.status === 'CANCELLED');
+
   const totalCompleted = completedOrders.reduce((sum, order) => sum + Number(order.supplierPrice || 0), 0);
+  const pendingValue = openOrders.reduce((sum, order) => sum + Number(order.supplierPrice || 0), 0);
+
+  const recentCompleted = [...completedOrders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const recentOpen = [...openOrders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   return <div className="p-4 space-y-4">
-    <div className="bg-blue-600 text-white rounded-3xl p-5 shadow">
+    <div className="bg-blue-600 text-white rounded-3xl p-5 shadow space-y-1">
       <div className="text-sm opacity-80">{t('completedEarningsOnly')}</div>
       <div className="text-2xl font-black">{formatIQD(totalCompleted)}</div>
+      <div className="text-[11px] opacity-80">{t('pendingValue')}: {formatIQD(pendingValue)}</div>
     </div>
 
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-3 gap-3">
       <div className="bg-white rounded-2xl border p-4">
         <div className="text-[10px] text-slate-400 font-bold uppercase">{t('completedOrders')}</div>
         <div className="font-black text-green-700">{completedOrders.length}</div>
       </div>
       <div className="bg-white rounded-2xl border p-4">
-        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('pendingOrders')}</div>
-        <div className="font-black text-blue-700">{pendingOrders.length}</div>
+        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('openOrders')}</div>
+        <div className="font-black text-blue-700">{openOrders.length}</div>
+      </div>
+      <div className="bg-white rounded-2xl border p-4">
+        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('cancelled')}</div>
+        <div className="font-black text-red-700">{cancelledOrders.length}</div>
       </div>
     </div>
 
+    <div className="rounded-2xl bg-white border p-4 shadow-sm">
+      <div className="text-[10px] text-slate-400 font-bold uppercase">{t('pendingValue')}</div>
+      <div className="text-xl font-black text-slate-900 mt-1">{formatIQD(pendingValue)}</div>
+      <div className="text-xs text-slate-400 mt-1">{t('pendingValueNote')}</div>
+    </div>
+
+    <h2 className="font-black text-slate-900">{t('openTransactions')}</h2>
+    {recentOpen.length === 0 && <Empty text={t('noPendingValue')} />}
+    {recentOpen.map(o => (
+      <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm flex justify-between gap-3">
+        <div>
+          <div className="font-bold text-slate-900">{o.offer.request.partName}</div>
+          <div className="text-xs text-slate-500">{o.orderNumber} • {orderStatusLabel(o.status, t)}</div>
+        </div>
+        <div className="font-black text-blue-600">{formatIQD(o.supplierPrice)}</div>
+      </div>
+    ))}
+
     <h2 className="font-black text-slate-900">{t('completedTransactions')}</h2>
-    {completedOrders.length === 0 && <Empty text={t('noCompletedEarnings')} />}
-    {completedOrders.map(o => (
+    {recentCompleted.length === 0 && <Empty text={t('noCompletedEarnings')} />}
+    {recentCompleted.map(o => (
       <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm flex justify-between gap-3">
         <div>
           <div className="font-bold text-slate-900">{o.offer.request.partName}</div>
           <div className="text-xs text-slate-500">{o.orderNumber} • {t('completed')}</div>
         </div>
-        <div className="font-black text-blue-600">{formatIQD(o.supplierPrice)}</div>
+        <div className="font-black text-green-600">{formatIQD(o.supplierPrice)}</div>
       </div>
     ))}
   </div>;
