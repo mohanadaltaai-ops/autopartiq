@@ -278,12 +278,17 @@ export default function Admin({ tab }) {
     <div className="grid grid-cols-2 gap-3">
       <StatCard label={t('orders')} value={data.summary.totalOrders} />
       <StatCard label={t('activeOrders')} value={data.summary.activeOrders ?? data.summary.totalOrders} />
-      <StatCard label={t('requests')} value={data.summary.totalRequests} />
+      <StatCard label={t('waitingPickup')} value={data.summary.waitingPickupOrders ?? 0} />
+      <StatCard label={t('delivering')} value={data.summary.deliveringOrders ?? 0} />
+      <StatCard label={t('completed')} value={data.summary.completedOrders ?? 0} />
+      <StatCard label={t('cancelled')} value={data.summary.cancelledOrders ?? 0} />
+      <StatCard label={t('pendingPayments')} value={data.summary.pendingPayments ?? 0} />
+      <StatCard label={t('paidOrders')} value={data.summary.paidOrders ?? 0} />
       <StatCard label={t('suppliers')} value={data.summary.suppliers} />
-      {user?.role === 'SUPER_ADMIN' && <>
+      <StatCard label={t('activeSuppliers')} value={data.summary.activeSuppliers ?? data.summary.suppliers} />
+      {user?.role === 'SUPER_ADMIN' && (
         <StatCard label={t('platformRevenue')} value={formatIQD(data.summary.platformRevenue)} />
-        <StatCard label={t('supplierEarnings')} value={formatIQD(data.summary.supplierEarnings)} />
-      </>}
+      )}
     </div>
 
     <h2 className="font-black text-slate-900">{t('suppliers')}</h2>

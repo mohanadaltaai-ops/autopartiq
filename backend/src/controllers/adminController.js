@@ -16,15 +16,27 @@ export async function dashboard(req, res) {
   ]);
 
   const nonCancelledOrders = orders.filter(o => o.status !== 'CANCELLED');
+  const waitingPickupOrders = orders.filter(o => o.status === 'WAITING_PICKUP');
+  const deliveringOrders = orders.filter(o => o.status === 'DELIVERING');
   const completed = orders.filter(o => o.status === 'COMPLETED');
+  const cancelledOrders = orders.filter(o => o.status === 'CANCELLED');
+  const pendingPayments = orders.filter(o => o.paymentStatus === 'PENDING');
+  const paidOrders = orders.filter(o => o.paymentStatus === 'PAID');
+  const activeSuppliers = suppliers.filter(s => s.isActive);
   const platformRevenue = completed.reduce((s, o) => s + o.platformRevenue, 0);
-  const supplierEarnings = completed.reduce((s, o) => s + o.supplierPrice, 0);
 
   const summary = {
     totalOrders: orders.length,
     activeOrders: nonCancelledOrders.length,
-    totalRequests: requests,
-    suppliers: suppliers.length
+    waitingPickupOrders: waitingPickupOrders.length,
+    deliveringOrders: deliveringOrders.length,
+    completedOrders: completed.length,
+    cancelledOrders: cancelledOrders.length,
+    pendingPayments: pendingPayments.length,
+    paidOrders: paidOrders.length,
+    requests: requests.length,
+    suppliers: suppliers.length,
+    activeSuppliers: activeSuppliers.length
   };
 
   if (req.user.role === 'SUPER_ADMIN') {
