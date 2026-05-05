@@ -23,6 +23,17 @@ export default function Login() {
       setError('');
       await login(phone, cleanOtp);
     } catch (e) {
+      const message = e.message || '';
+
+      if (
+        message.includes('Failed to reach API') ||
+        message.includes('Internal server error') ||
+        message.includes('API request failed with status')
+      ) {
+        setError(t('loginServerError'));
+        return;
+      }
+
       setError(t('incorrectOtp'));
     }
   }
