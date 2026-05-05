@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { api, formatIQD } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { carData } from '../data/carData';
 import AdminSupplierList from '../components/admin/AdminSupplierList';
 import AuditLogViewer from '../components/admin/AuditLogViewer';
@@ -15,15 +16,28 @@ function StatCard({ label, value }) {
   </div>;
 }
 
+function statusLabel(status, t) {
+  const labels = {
+    WAITING_PICKUP: t('waitingPickup'),
+    DELIVERING: t('delivering'),
+    COMPLETED: t('completed'),
+    CANCELLED: t('cancelled')
+  };
+  return labels[status] || status;
+}
+
 function StatusBadge({ status }) {
+  const { t } = useLanguage();
   const colors = {
     WAITING_PICKUP: 'bg-amber-100 text-amber-700',
     DELIVERING: 'bg-blue-100 text-blue-700',
     COMPLETED: 'bg-green-100 text-green-700',
     CANCELLED: 'bg-red-100 text-red-700'
   };
-  const labels = { WAITING_PICKUP: 'Waiting Pickup', DELIVERING: 'Delivering', COMPLETED: 'Completed', CANCELLED: 'Cancelled' };
-  return <span className={`text-[10px] mt-2 inline-block px-2 py-1 rounded-full font-bold ${colors[status] || 'bg-slate-100 text-slate-600'}`}>{labels[status] || status}</span>;
+
+  return <span className={`text-[10px] mt-2 inline-block px-2 py-1 rounded-full font-bold ${colors[status] || 'bg-slate-100 text-slate-600'}`}>
+    {statusLabel(status, t)}
+  </span>;
 }
 
 function toDateInputValue(value) {
@@ -35,49 +49,61 @@ function isDateInRange(value, fromDate, toDate) {
   if (!fromDate && !toDate) return true;
   const orderDate = new Date(value);
   if (Number.isNaN(orderDate.getTime())) return true;
+
   if (fromDate) {
     const from = new Date(`${fromDate}T00:00:00`);
     if (orderDate < from) return false;
   }
+
   if (toDate) {
     const to = new Date(`${toDate}T23:59:59`);
     if (orderDate > to) return false;
   }
+
   return true;
 }
 
 function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token, reload }) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
+
   return <div className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
     <button onClick={() => setOpen(value => !value)} className="w-full text-left flex items-start justify-between gap-3">
       <div>
         <div className="font-black text-orange-600">{order.orderNumber}</div>
         <div className="font-bold text-slate-900">{order.offer.request.partName}</div>
-        <div className="text-xs text-slate-400">Created: {toDateInputValue(order.createdAt) || 'N/A'}</div>
-        <div className="text-xs text-slate-500">Supplier: {order.offer.supplier.name}</div>
-        <div className="text-xs text-slate-500">Customer phone: {order.offer.request.customerPhone || 'N/A'}</div>
+        <div className="text-xs text-slate-400">{t('created')}: {toDateInputValue(order.createdAt) || 'N/A'}</div>
+        <div className="text-xs text-slate-500">{t('supplier')}: {order.offer.supplier.name}</div>
+        <div className="text-xs text-slate-500">{t('customerPhone')}: {order.offer.request.customerPhone || 'N/A'}</div>
       </div>
+
       <div className="text-right">
         <StatusBadge status={order.status} />
-        <div className="text-[10px] text-slate-400 mt-2">{open ? 'Hide' : 'Details'}</div>
+        <div className="text-[10px] text-slate-400 mt-2">{open ? t('hide') : t('details')}</div>
       </div>
     </button>
 
     {open && <>
       <div className="text-xs text-slate-500 grid grid-cols-2 gap-1 rounded-xl bg-slate-50 p-3">
-        {user?.role === 'SUPER_ADMIN' && <><span>Supplier: {formatIQD(order.supplierPrice)}</span><span>Customer: {formatIQD(order.customerPrice)}</span><span>Revenue: {formatIQD(order.platformRevenue)}</span></>}
-        <span>Delivery: {formatIQD(order.deliveryFee)}</span>
-        <span>Payment: {order.paymentMethod}</span>
-        <span>Status: {order.paymentStatus}</span>
-        <span>Driver: {order.driverName || 'Not assigned'}</span>
-        <span>ETA: {order.deliveryEta || 'Pending'}</span>
-        <span className="col-span-2">Location: {order.offer.request.location || 'N/A'}</span>
+        {user?.role === 'SUPER_ADMIN' && <>
+          <span>{t('supplier')}: {formatIQD(order.supplierPrice)}</span>
+          <span>{t('customer')}: {formatIQD(order.customerPrice)}</span>
+          <span>{t('revenue')}: {formatIQD(order.platformRevenue)}</span>
+        </>}
+        <span>{t('delivery')}: {formatIQD(order.deliveryFee)}</span>
+        <span>{t('payment')}: {order.paymentMethod}</span>
+        <span>{t('status')}: {order.paymentStatus}</span>
+        <span>{t('driver')}: {order.driverName || t('notAssigned')}</span>
+        <span>{t('deliveryEta')}: {order.deliveryEta || t('pending')}</span>
+        <span className="col-span-2">{t('location')}: {order.offer.request.location || 'N/A'}</span>
       </div>
+
       <div className="grid grid-cols-3 gap-2">
-        <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'DELIVERING')} className="text-[11px] py-2 rounded-xl bg-blue-50 text-blue-700 font-bold disabled:opacity-40">Delivering</button>
-        <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'COMPLETED')} className="text-[11px] py-2 rounded-xl bg-green-50 text-green-700 font-bold disabled:opacity-40">Completed</button>
-        <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'CANCELLED')} className="text-[11px] py-2 rounded-xl bg-red-50 text-red-700 font-bold disabled:opacity-40">Cancel</button>
+        <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'DELIVERING')} className="text-[11px] py-2 rounded-xl bg-blue-50 text-blue-700 font-bold disabled:opacity-40">{t('delivering')}</button>
+        <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'COMPLETED')} className="text-[11px] py-2 rounded-xl bg-green-50 text-green-700 font-bold disabled:opacity-40">{t('completed')}</button>
+        <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'CANCELLED')} className="text-[11px] py-2 rounded-xl bg-red-50 text-red-700 font-bold disabled:opacity-40">{t('cancel')}</button>
       </div>
+
       <OrderPaymentControls order={order} token={token} reload={reload} />
       <OrderDeliveryControls order={order} token={token} reload={reload} />
     </>}
@@ -86,6 +112,7 @@ function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token
 
 export default function Admin({ tab }) {
   const { token, user } = useAuth();
+  const { t } = useLanguage();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [supplierForm, setSupplierForm] = useState({ name: '', phone: '', location: '', supportedMakes: ['Japanese'] });
@@ -123,28 +150,37 @@ export default function Admin({ tab }) {
   useEffect(() => { load(); }, []);
 
   if (error) return <div className="p-4 text-red-600 text-sm">{error}</div>;
-  if (!data) return <div className="p-4 text-slate-500">Loading dashboard...</div>;
+  if (!data) return <div className="p-4 text-slate-500">{t('loadingDashboard')}</div>;
 
   if (user?.role === 'ADMIN' && user?.adminPermission === 'ORDERS_ONLY' && tab !== 'orders') {
-    return <div className="p-4 text-slate-500">Orders-only admin access.</div>;
+    return <div className="p-4 text-slate-500">{t('ordersOnlyAdminAccess')}</div>;
   }
 
   if (tab === 'manage') {
-    if (user?.role !== 'SUPER_ADMIN') return <div className="p-4 text-red-600 text-sm">Only Super Admin can manage admin users.</div>;
-    return <div className="p-4 space-y-4"><h1 className="font-black text-xl text-slate-900">Admin Users</h1><SuperAdminEnroll token={token} /></div>;
+    if (user?.role !== 'SUPER_ADMIN') return <div className="p-4 text-red-600 text-sm">{t('superAdminOnlyUsers')}</div>;
+
+    return <div className="p-4 space-y-4">
+      <h1 className="font-black text-xl text-slate-900">{t('adminUsers')}</h1>
+      <SuperAdminEnroll token={token} />
+    </div>;
   }
 
   if (tab === 'audit') {
-    return <div className="p-4 space-y-4"><h1 className="font-black text-xl text-slate-900">Audit Logs</h1><AuditLogViewer token={token} /></div>;
+    return <div className="p-4 space-y-4">
+      <h1 className="font-black text-xl text-slate-900">{t('auditLogs')}</h1>
+      <AuditLogViewer token={token} />
+    </div>;
   }
 
   if (tab === 'suppliers') {
     return <div className="p-4 space-y-4">
-      <h1 className="font-black text-xl text-slate-900">Suppliers</h1>
+      <h1 className="font-black text-xl text-slate-900">{t('suppliers')}</h1>
+
       <div className="bg-white rounded-2xl border p-4 space-y-3 shadow-sm">
-        <input className="w-full p-3 rounded-xl border" placeholder="Supplier name" value={supplierForm.name} onChange={e => setSupplierForm({ ...supplierForm, name: e.target.value })} />
-        <input className="w-full p-3 rounded-xl border" placeholder="Phone" value={supplierForm.phone} onChange={e => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
-        <input className="w-full p-3 rounded-xl border" placeholder="Location" value={supplierForm.location} onChange={e => setSupplierForm({ ...supplierForm, location: e.target.value })} />
+        <input className="w-full p-3 rounded-xl border" placeholder={t('supplierName')} value={supplierForm.name} onChange={e => setSupplierForm({ ...supplierForm, name: e.target.value })} />
+        <input className="w-full p-3 rounded-xl border" placeholder={t('phone')} value={supplierForm.phone} onChange={e => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
+        <input className="w-full p-3 rounded-xl border" placeholder={t('location')} value={supplierForm.location} onChange={e => setSupplierForm({ ...supplierForm, location: e.target.value })} />
+
         <div className="grid grid-cols-2 gap-2">
           {Object.keys(carData).map(origin => <label key={origin} className="text-xs bg-slate-50 rounded-xl p-2 flex gap-2 items-center text-slate-700">
             <input type="checkbox" checked={supplierForm.supportedMakes.includes(origin)} onChange={e => setSupplierForm(current => ({
@@ -154,8 +190,12 @@ export default function Admin({ tab }) {
             <span>{origin}</span>
           </label>)}
         </div>
-        <button onClick={addSupplier} disabled={!supplierForm.name || !supplierForm.phone} className="w-full py-3 rounded-2xl bg-purple-600 text-white font-black disabled:opacity-40">Add Supplier</button>
+
+        <button onClick={addSupplier} disabled={!supplierForm.name || !supplierForm.phone} className="w-full py-3 rounded-2xl bg-purple-600 text-white font-black disabled:opacity-40">
+          {t('addSupplier')}
+        </button>
       </div>
+
       <AdminSupplierList suppliers={data.suppliers} token={token} reload={load} />
     </div>;
   }
@@ -170,42 +210,63 @@ export default function Admin({ tab }) {
         const matchesDate = isDateInRange(order.createdAt, dateFrom, dateTo);
         return matchesSearch && matchesStatus && matchesDate;
       });
+
     return <div className="p-4 space-y-3">
-      <h1 className="font-black text-xl text-slate-900">All Orders</h1>
+      <h1 className="font-black text-xl text-slate-900">{t('allOrders')}</h1>
+
       <div className="bg-white rounded-2xl border p-3 space-y-2">
-        <input className="w-full p-3 rounded-xl border text-sm" placeholder="Search order, part, or supplier" value={orderSearch} onChange={e => setOrderSearch(e.target.value)} />
+        <input className="w-full p-3 rounded-xl border text-sm" placeholder={t('searchOrderPartSupplier')} value={orderSearch} onChange={e => setOrderSearch(e.target.value)} />
+
         <select className="w-full p-3 rounded-xl border text-sm" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-          <option value="ALL">All statuses</option>
-          <option value="WAITING_PICKUP">Waiting Pickup</option>
-          <option value="DELIVERING">Delivering</option>
-          <option value="COMPLETED">Completed</option>
-          <option value="CANCELLED">Cancelled</option>
+          <option value="ALL">{t('allStatuses')}</option>
+          <option value="WAITING_PICKUP">{t('waitingPickup')}</option>
+          <option value="DELIVERING">{t('delivering')}</option>
+          <option value="COMPLETED">{t('completed')}</option>
+          <option value="CANCELLED">{t('cancelled')}</option>
         </select>
+
         <div className="grid grid-cols-1 gap-2">
-          <label className="text-[10px] font-bold text-slate-500 space-y-1">From<input type="date" className="w-full min-w-0 p-3 rounded-xl border text-sm font-normal" value={dateFrom} onChange={e => setDateFrom(e.target.value)} /></label>
-          <label className="text-[10px] font-bold text-slate-500 space-y-1">To<input type="date" className="w-full min-w-0 p-3 rounded-xl border text-sm font-normal" value={dateTo} onChange={e => setDateTo(e.target.value)} /></label>
+          <label className="text-[10px] font-bold text-slate-500 space-y-1">
+            {t('from')}
+            <input type="date" className="w-full min-w-0 p-3 rounded-xl border text-sm font-normal" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
+          </label>
+          <label className="text-[10px] font-bold text-slate-500 space-y-1">
+            {t('to')}
+            <input type="date" className="w-full min-w-0 p-3 rounded-xl border text-sm font-normal" value={dateTo} onChange={e => setDateTo(e.target.value)} />
+          </label>
         </div>
-        {(orderSearch || statusFilter !== 'ALL' || dateFrom || dateTo) && <button onClick={() => { setOrderSearch(''); setStatusFilter('ALL'); setDateFrom(''); setDateTo(''); }} className="w-full py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold">Clear filters</button>}
-        <div className="text-[10px] text-slate-400 font-bold">Showing {filteredOrders.length} of {data.orders.length} orders</div>
+
+        {(orderSearch || statusFilter !== 'ALL' || dateFrom || dateTo) && <button onClick={() => { setOrderSearch(''); setStatusFilter('ALL'); setDateFrom(''); setDateTo(''); }} className="w-full py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold">
+          {t('clearFilters')}
+        </button>}
+
+        <div className="text-[10px] text-slate-400 font-bold">{t('showing')} {filteredOrders.length} {t('of')} {data.orders.length} {t('orders').toLowerCase()}</div>
       </div>
-      {filteredOrders.length === 0 && <div className="bg-white border border-dashed rounded-2xl p-6 text-center text-sm text-slate-400">No matching orders.</div>}
+
+      {filteredOrders.length === 0 && <div className="bg-white border border-dashed rounded-2xl p-6 text-center text-sm text-slate-400">{t('noMatchingOrders')}</div>}
+
       {filteredOrders.map(order => <AdminOrderCard key={order.id} order={order} user={user} updatingOrderId={updatingOrderId} changeOrderStatus={changeOrderStatus} token={token} reload={load} />)}
     </div>;
   }
 
   return <div className="p-4 space-y-4">
     <div className="rounded-3xl bg-gradient-to-br from-slate-900 to-slate-700 text-white p-5 shadow">
-      <div className="text-sm opacity-70">Platform overview</div>
-      <div className="text-xl font-black">AutoPartIQ Admin</div>
+      <div className="text-sm opacity-70">{t('platformOverview')}</div>
+      <div className="text-xl font-black">{t('adminDashboard')}</div>
     </div>
+
     <div className="grid grid-cols-2 gap-3">
-      <StatCard label="Orders" value={data.summary.totalOrders} />
-      <StatCard label="Active Orders" value={data.summary.activeOrders ?? data.summary.totalOrders} />
-      <StatCard label="Requests" value={data.summary.totalRequests} />
-      <StatCard label="Suppliers" value={data.summary.suppliers} />
-      {user?.role === 'SUPER_ADMIN' && <><StatCard label="Platform Revenue" value={formatIQD(data.summary.platformRevenue)} /><StatCard label="Supplier Earnings" value={formatIQD(data.summary.supplierEarnings)} /></>}
+      <StatCard label={t('orders')} value={data.summary.totalOrders} />
+      <StatCard label={t('activeOrders')} value={data.summary.activeOrders ?? data.summary.totalOrders} />
+      <StatCard label={t('requests')} value={data.summary.totalRequests} />
+      <StatCard label={t('suppliers')} value={data.summary.suppliers} />
+      {user?.role === 'SUPER_ADMIN' && <>
+        <StatCard label={t('platformRevenue')} value={formatIQD(data.summary.platformRevenue)} />
+        <StatCard label={t('supplierEarnings')} value={formatIQD(data.summary.supplierEarnings)} />
+      </>}
     </div>
-    <h2 className="font-black text-slate-900">Suppliers</h2>
+
+    <h2 className="font-black text-slate-900">{t('suppliers')}</h2>
     <AdminSupplierList suppliers={data.suppliers.slice(0, 3)} token={token} reload={load} />
   </div>;
 }
