@@ -64,7 +64,7 @@ export default function Customer({ tab }) {
   const [requests, setRequests] = useState([]);
   const [orders, setOrders] = useState([]);
   const [homeTab, setHomeTab] = useState('new');
-  const [requestFilter, setRequestFilter] = useState('PENDING');
+  const [requestFilter, setRequestFilter] = useState('OPEN');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
@@ -114,9 +114,10 @@ export default function Customer({ tab }) {
 
   const visibleRequests = useMemo(() => {
     return requests.filter(req => {
-      if (requestFilter === 'PENDING') return req.status === 'WAITING';
+      if (requestFilter === 'OPEN') return ['WAITING', 'PROCESSING'].includes(req.status);
+      if (requestFilter === 'COMPLETED') return req.status === 'COMPLETED';
       if (requestFilter === 'CANCELLED') return req.status === 'CANCELLED';
-      return ['WAITING', 'CANCELLED'].includes(req.status);
+      return true;
     });
   }, [requests, requestFilter]);
 
@@ -161,9 +162,10 @@ export default function Customer({ tab }) {
               value={requestFilter}
               onChange={e => setRequestFilter(e.target.value)}
             >
-              <option value="PENDING">{t('pending')}</option>
+              <option value="ALL">{t('all')}</option>
+              <option value="OPEN">{t('openRequests')}</option>
+              <option value="COMPLETED">{t('completed')}</option>
               <option value="CANCELLED">{t('cancelled')}</option>
-              <option value="ALL">{t('pendingCancelled')}</option>
             </select>
           </div>
           {visibleRequests.length === 0 && <Empty text={t('noMatchingRequests')} />}
