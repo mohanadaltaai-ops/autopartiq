@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import logo from '../assets/logo.png';
@@ -8,7 +8,7 @@ export default function Login() {
   const { t, language, toggleLanguage } = useLanguage();
   const [phone, setPhone] = useState('');
   const [screen, setScreen] = useState('landing');
-  const [otp, setOtp] = useState('1234');
+  const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
 
   async function submit() {
