@@ -40,7 +40,30 @@ export async function updateOrderStatus(req, res) {
   const existing = await prisma.order.findUnique({ where: { id: req.params.id } });
   if (!existing) return res.status(404).json({ message: 'Order not found' });
 
-  const order = await prisma.order.update({ where: { id: req.params.id }, data: { status } });
+  const order = await prisma.$transaction(async (tx) => {
+    const updatedOrder = await tx.order.update({
+      where: { id: req.params.id },
+      data: { status },
+      include: { offer: true }
+    });
+
+    if (status === 'COMPLETED') {
+      await tx.partRequest.update({
+        where: { id: updatedOrder.offer.requestId },
+        data: { status: 'COMPLETED' }
+      });
+    }
+
+    if (status === 'CANCELLED') {
+      await tx.partRequest.update({
+        where: { id: updatedOrder.offer.requestId },
+        data: { status: 'CANCELLED' }
+      });
+    }
+
+    return updatedOrder;
+  });
+
   await writeAuditLog({ actorUserId: req.user.id, action: 'ORDER_STATUS_UPDATED', entityType: 'Order', entityId: order.id, metadata: { from: existing.status, to: status } });
   res.json({ order });
 }
