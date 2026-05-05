@@ -84,6 +84,7 @@ const translations = {
 
     supplier: 'Supplier',
     price: 'Price',
+    priceBreakdown: 'Price Breakdown',
     condition: 'Condition',
     delivery: 'Delivery',
     new: 'New',
@@ -352,6 +353,7 @@ const translations = {
 
     supplier: 'المورد',
     price: 'السعر',
+    priceBreakdown: 'تفاصيل السعر',
     condition: 'الحالة',
     delivery: 'التوصيل',
     new: 'جديد',

@@ -38,6 +38,16 @@ function orderStatusLabel(status, t) {
   return labels[status] || status;
 }
 
+function customerPaymentStatusLabel(status, t) {
+  const labels = {
+    PENDING: t('pending'),
+    PAID: t('paid'),
+    FAILED: t('failed'),
+    REFUNDED: t('refunded')
+  };
+  return labels[status] || status;
+}
+
 export default function Customer({ tab }) {
   const { token, user } = useAuth();
   const { t } = useLanguage();
@@ -401,7 +411,9 @@ function RequestForm({ token, onDone }) {
 function CustomerOrderCard({ order }) {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
-  const total = Number(order.customerPrice || 0) + Number(order.deliveryFee || 0);
+  const partPrice = Number(order.customerPrice || 0);
+  const deliveryFee = Number(order.deliveryFee || 0);
+  const total = partPrice + deliveryFee;
 
   return <div className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
     <button onClick={() => setOpen(value => !value)} className="w-full text-left flex items-start justify-between gap-3">
@@ -409,7 +421,8 @@ function CustomerOrderCard({ order }) {
         <div className="font-black text-orange-600">{order.orderNumber}</div>
         <div className="font-bold text-slate-900">{order.offer.request.partName}</div>
         <div className="text-xs text-slate-500">{order.offer.request.make} {order.offer.request.model}</div>
-        <div className="text-sm mt-2 font-bold text-slate-700">{t('price')}: {formatIQD(total)}</div>
+        <div className="text-xs text-slate-500 mt-1">{t('paymentStatus')}: {customerPaymentStatusLabel(order.paymentStatus, t)}</div>
+        <div className="text-sm mt-2 font-bold text-slate-700">{t('total')}: {formatIQD(total)}</div>
       </div>
       <div className="text-right">
         <span className="inline-block text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full whitespace-nowrap inline-flex items-center shrink-0">{orderStatusLabel(order.status, t)}</span>
@@ -417,6 +430,13 @@ function CustomerOrderCard({ order }) {
       </div>
     </button>
     {open && <>
+      <div className="rounded-xl bg-slate-50 p-3 text-xs space-y-1">
+        <div className="text-[10px] uppercase font-black text-slate-400">{t('priceBreakdown')}</div>
+        <SummaryRow label={t('price')} value={formatIQD(partPrice)} />
+        <SummaryRow label={t('deliveryFee')} value={formatIQD(deliveryFee)} />
+        <SummaryRow label={t('total')} value={formatIQD(total)} />
+      </div>
+
       <OrderInfoPanel order={order} />
       <DeliveryWorkflow status={order.status} />
     </>}
