@@ -52,7 +52,7 @@ export async function createOffer(req, res) {
     data: {
       userId: offer.request.customerId,
       message: `You have a new ${offer.condition.toLowerCase()} offer for ${offer.request.partName}`,
-      metadataJson: JSON.stringify({ type: 'NEW_OFFER', requestId: offer.requestId, offerId: offer.id, tab: 'requests' })
+      metadataJson: JSON.stringify({ type: 'NEW_OFFER', requestId: offer.requestId, offerId: offer.id, tab: 'requests', partName: offer.request.partName, condition: offer.condition })
     }
   });
 

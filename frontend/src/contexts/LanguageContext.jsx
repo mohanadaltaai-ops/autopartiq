@@ -233,7 +233,8 @@ const translations = {
     year: 'Year',
     activeOffer: 'Active',
     waiting: 'Waiting',
-    processing: 'Processing'
+    processing: 'Processing',
+    newOfferNotification: 'You have a new offer'
   },
 
   ar: {
@@ -468,7 +469,8 @@ const translations = {
     year: 'السنة',
     activeOffer: 'نشط',
     waiting: 'قيد الانتظار',
-    processing: 'قيد المعالجة'
+    processing: 'قيد المعالجة',
+    newOfferNotification: 'لديك عرض جديد'
   }
 };
 

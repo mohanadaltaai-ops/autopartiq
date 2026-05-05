@@ -13,6 +13,18 @@ function parseNotificationMetadata(item) {
   }
 }
 
+function notificationText(item, t) {
+  const metadata = parseNotificationMetadata(item);
+
+  if (metadata.type === 'NEW_OFFER') {
+    return metadata.partName
+      ? `${t('newOfferNotification')}: ${metadata.partName}`
+      : t('newOfferNotification');
+  }
+
+  return item.message;
+}
+
 export default function Layout({ tab, setTab, children }) {
   const { user, token } = useAuth();
   const { language, t, toggleLanguage } = useLanguage();
@@ -157,7 +169,7 @@ export default function Layout({ tab, setTab, children }) {
 
             return (
               <button key={item.id} onClick={() => openNotification(item)} className="w-full text-left text-sm bg-slate-50 rounded-xl p-3 text-slate-700 hover:bg-orange-50">
-                <div>{item.message}</div>
+                <div>{notificationText(item, t)}</div>
                 {clickable && <div className="text-[10px] text-orange-600 font-bold mt-1">{t('tapToOpen')}</div>}
               </button>
             );

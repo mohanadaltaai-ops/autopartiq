@@ -47,3 +47,33 @@ input[type="date"] { min-width: 0; width: 100%; max-width: 100%; box-sizing: bor
 input[type="date"]::-webkit-date-and-time-value { text-align: left; min-height: 1.5em; }
 
 @media (max-width: 420px) { .phone-frame { width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0 !important; border: none !important; } }
+
+/* RTL polish */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+}
+
+[dir="rtl"] .text-left {
+  text-align: right !important;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left !important;
+}
+
+[dir="rtl"] input[type="date"] {
+  direction: rtl;
+}
+
+[dir="rtl"] .space-x-2 > :not([hidden]) ~ :not([hidden]),
+[dir="rtl"] .space-x-3 > :not([hidden]) ~ :not([hidden]),
+[dir="rtl"] .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+}
+
