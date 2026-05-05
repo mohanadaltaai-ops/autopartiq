@@ -12,11 +12,18 @@ export default function Login() {
   const [error, setError] = useState('');
 
   async function submit() {
+    const cleanOtp = otp.trim();
+
+    if (!cleanOtp) {
+      setError(t('otpRequired'));
+      return;
+    }
+
     try {
       setError('');
-      await login(phone, otp);
+      await login(phone, cleanOtp);
     } catch (e) {
-      setError(e.message);
+      setError(t('incorrectOtp'));
     }
   }
 
