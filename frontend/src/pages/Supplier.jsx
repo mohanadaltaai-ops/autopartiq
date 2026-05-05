@@ -30,6 +30,16 @@ function conditionLabel(condition, t) {
   return condition;
 }
 
+function orderStatusLabel(status, t) {
+  const labels = {
+    WAITING_PICKUP: t('waitingPickup'),
+    DELIVERING: t('delivering'),
+    COMPLETED: t('completed'),
+    CANCELLED: t('cancelled')
+  };
+  return labels[status] || status;
+}
+
 function offerStatusLabel(status, t) {
   if (status === 'ACTIVE') return t('pending');
   if (status === 'REJECTED') return t('rejected') || 'Rejected';
@@ -136,7 +146,7 @@ function OrderCard({ order }) {
         <div className="text-xs text-slate-500 mt-1">{t('yourPrice')}: {formatIQD(order.supplierPrice)}</div>
       </div>
       <div className="text-right">
-        <div className="text-[10px] inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-bold">{order.status}</div>
+        <div className="text-[10px] inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-bold">{orderStatusLabel(order.status, t)}</div>
         <div className="text-[10px] text-slate-400 mt-2">{open ? t('hide') : t('details')}</div>
       </div>
     </button>

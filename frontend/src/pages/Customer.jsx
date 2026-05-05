@@ -28,6 +28,16 @@ function requestStatusLabel(status, t) {
   return status;
 }
 
+function orderStatusLabel(status, t) {
+  const labels = {
+    WAITING_PICKUP: t('waitingPickup'),
+    DELIVERING: t('delivering'),
+    COMPLETED: t('completed'),
+    CANCELLED: t('cancelled')
+  };
+  return labels[status] || status;
+}
+
 export default function Customer({ tab }) {
   const { token, user } = useAuth();
   const { t } = useLanguage();
@@ -389,7 +399,7 @@ function CustomerOrderCard({ order }) {
         <div className="text-sm mt-2 font-bold text-slate-700">{t('price')}: {formatIQD(total)}</div>
       </div>
       <div className="text-right">
-        <span className="inline-block text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{order.status}</span>
+        <span className="inline-block text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{orderStatusLabel(order.status, t)}</span>
         <div className="text-[10px] text-slate-400 mt-2">{open ? t('hide') : t('details')}</div>
       </div>
     </button>

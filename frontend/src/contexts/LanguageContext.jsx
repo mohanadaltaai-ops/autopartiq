@@ -236,7 +236,16 @@ const translations = {
     processing: 'Processing',
     newOfferNotification: 'You have a new offer',
     created: 'Created',
-    noOrders: 'No orders yet.'
+    noOrders: 'No orders yet.',
+    user: 'User',
+    order: 'Order',
+    auditAdminUserCreated: 'Admin user created',
+    auditOrderStatusUpdated: 'Order status updated',
+    auditSupplierCreated: 'Supplier created',
+    auditSupplierUpdated: 'Supplier updated',
+    auditSupplierDisabled: 'Supplier disabled',
+    auditPaymentUpdated: 'Payment updated',
+    auditDeliveryUpdated: 'Delivery updated'
   },
 
   ar: {
@@ -474,7 +483,16 @@ const translations = {
     processing: 'قيد المعالجة',
     newOfferNotification: 'لديك عرض جديد',
     created: 'تاريخ الإنشاء',
-    noOrders: 'لا توجد طلبات حالياً.'
+    noOrders: 'لا توجد طلبات حالياً.',
+    user: 'مستخدم',
+    order: 'طلب',
+    auditAdminUserCreated: 'تم إنشاء مستخدم إداري',
+    auditOrderStatusUpdated: 'تم تحديث حالة الطلب',
+    auditSupplierCreated: 'تم إنشاء مورد',
+    auditSupplierUpdated: 'تم تحديث مورد',
+    auditSupplierDisabled: 'تم تعطيل مورد',
+    auditPaymentUpdated: 'تم تحديث الدفع',
+    auditDeliveryUpdated: 'تم تحديث التوصيل'
   }
 };
 
