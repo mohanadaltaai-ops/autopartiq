@@ -40,6 +40,52 @@ export default function Profile() {
         </div>
       </div>
 
+      {user?.role === 'SUPPLIER' && user?.supplier && (
+        <div className="bg-white rounded-3xl border p-5 shadow-sm space-y-3">
+          <div className="text-xs font-bold text-slate-400 uppercase">{language === 'ar' ? 'بيانات المورد' : 'Supplier Details'}</div>
+
+          <div className="grid grid-cols-1 gap-2 text-sm">
+            <div className="rounded-2xl bg-slate-50 p-3">
+              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'اسم المورد' : 'Supplier Name'}</div>
+              <div className="font-bold text-slate-800">{user.supplier.name || '-'}</div>
+            </div>
+
+            <div className="rounded-2xl bg-slate-50 p-3">
+              <div className="text-xs text-slate-400 font-bold">{t('phone')}</div>
+              <div className="font-bold text-slate-800 dir-ltr text-left">{user.supplier.phone || '-'}</div>
+            </div>
+
+            <div className="rounded-2xl bg-slate-50 p-3">
+              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'الموقع' : 'Location'}</div>
+              <div className="font-bold text-slate-800">{user.supplier.location || '-'}</div>
+            </div>
+
+            <div className="rounded-2xl bg-slate-50 p-3">
+              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'الأنواع المدعومة' : 'Supported Makes'}</div>
+              <div className="font-bold text-slate-800">
+                {(() => {
+                  try {
+                    const makes = JSON.parse(user.supplier.supportedMakesJson || '[]');
+                    return makes.length ? makes.join(', ') : '-';
+                  } catch {
+                    return '-';
+                  }
+                })()}
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-slate-50 p-3">
+              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'الحالة' : 'Status'}</div>
+              <div className={`font-bold ${user.supplier.isActive ? 'text-green-700' : 'text-red-700'}`}>
+                {user.supplier.isActive
+                  ? (language === 'ar' ? 'نشط' : 'Active')
+                  : (language === 'ar' ? 'غير نشط' : 'Inactive')}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-3xl border p-5 shadow-sm space-y-3">
         <div className="text-xs font-bold text-slate-400 uppercase">{t('settings')}</div>
 
