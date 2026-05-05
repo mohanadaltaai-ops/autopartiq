@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { api } from '../../lib/api';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function OrderPaymentControls({ order, token, reload }) {
+  const { t } = useLanguage();
   const [paymentMethod, setPaymentMethod] = useState(order.paymentMethod || 'CASH_ON_DELIVERY');
   const [paymentStatus, setPaymentStatus] = useState(order.paymentStatus || 'PENDING');
   const [saving, setSaving] = useState(false);
@@ -22,24 +24,28 @@ export default function OrderPaymentControls({ order, token, reload }) {
 
   return (
     <div className="rounded-xl bg-slate-50 p-3 space-y-2">
-      <div className="text-xs font-bold text-slate-500">Payment controls</div>
+      <div className="text-xs font-bold text-slate-500">{t('paymentControls')}</div>
+
       <div className="grid grid-cols-2 gap-2">
         <select className="p-2 rounded-xl border text-xs" value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
-          <option value="CASH_ON_DELIVERY">Cash on delivery</option>
-          <option value="CARD">Card</option>
-          <option value="WALLET">Wallet</option>
-          <option value="BANK_TRANSFER">Bank transfer</option>
+          <option value="CASH_ON_DELIVERY">{t('cashOnDelivery')}</option>
+          <option value="CARD">{t('card')}</option>
+          <option value="WALLET">{t('wallet')}</option>
+          <option value="BANK_TRANSFER">{t('bankTransfer')}</option>
         </select>
+
         <select className="p-2 rounded-xl border text-xs" value={paymentStatus} onChange={e => setPaymentStatus(e.target.value)}>
-          <option value="PENDING">Pending</option>
-          <option value="PAID">Paid</option>
-          <option value="FAILED">Failed</option>
-          <option value="REFUNDED">Refunded</option>
+          <option value="PENDING">{t('pending')}</option>
+          <option value="PAID">{t('paid')}</option>
+          <option value="FAILED">{t('failed')}</option>
+          <option value="REFUNDED">{t('refunded')}</option>
         </select>
       </div>
+
       {error && <div className="text-xs text-red-600">{error}</div>}
+
       <button onClick={save} disabled={saving} className="w-full py-2 rounded-xl bg-purple-600 text-white text-xs font-bold disabled:opacity-40">
-        {saving ? 'Saving...' : 'Update payment'}
+        {saving ? t('saving') : t('updatePayment')}
       </button>
     </div>
   );

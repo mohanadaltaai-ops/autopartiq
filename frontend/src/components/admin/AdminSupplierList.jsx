@@ -1,9 +1,12 @@
-import React from 'react';
+﻿import React from 'react';
 import SupplierCard from './SupplierCard';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function AdminSupplierList({ suppliers, token, reload }) {
+  const { t } = useLanguage();
+
   if (!suppliers.length) {
-    return <div className="bg-white rounded-2xl border border-dashed p-6 text-center text-sm text-slate-400">No suppliers yet.</div>;
+    return <div className="bg-white rounded-2xl border border-dashed p-6 text-center text-sm text-slate-400">{t('noSuppliersYet')}</div>;
   }
 
   return (
