@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { api, formatIQD } from '../lib/api';
+import { api, formatIQD, uploadImage } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import DeliveryWorkflow from '../components/orders/DeliveryWorkflow';
 import OrderInfoPanel from '../components/orders/OrderInfoPanel';
@@ -178,26 +178,32 @@ function SentOffers({ offers, token, reload, onToast }) {
 function Lead({ req, token, reload, onSubmitted, existingCount, onToast }) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState({ supplierPrice: '', condition: 'NEW', notes: '', photoUrls: [] });
-  const [photoInput, setPhotoInput] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [items, setItems] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
-  const [uploadNote, setUploadNote] = useState('');
+
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const requestPhotos = parseJsonArray(req.photoUrlsJson);
 
   function resetDraft() {
     setDraft({ supplierPrice: '', condition: 'NEW', notes: '', photoUrls: [] });
-    setPhotoInput('');
     setEditIndex(null);
   }
 
-  function addPhoto() {
+  async function handleOfferPhotoUpload(file) {
+    if (!file) return;
+    if (draft.photoUrls.length >= 5) return setError('You can upload up to 5 offer photos.');
+    setUploading(true);
     setError('');
-    if (!photoInput.trim()) return;
-    if (!isValidUrl(photoInput)) return setError('Photo must be a valid URL.');
-    setDraft(current => ({ ...current, photoUrls: [...current.photoUrls, photoInput.trim()].slice(0, 5) }));
-    setPhotoInput('');
+    try {
+      const result = await uploadImage(file, { token, context: 'offer' });
+      setDraft(current => ({ ...current, photoUrls: [...current.photoUrls, result.url].slice(0, 5) }));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setUploading(false);
+    }
   }
 
   function removePhoto(index) {
@@ -217,7 +223,6 @@ function Lead({ req, token, reload, onSubmitted, existingCount, onToast }) {
   function editItem(index) {
     const item = items[index];
     setDraft({ supplierPrice: String(item.supplierPrice), condition: item.condition, notes: item.notes || '', photoUrls: item.photoUrls || [] });
-    setPhotoInput('');
     setEditIndex(index);
   }
 
@@ -247,15 +252,6 @@ function Lead({ req, token, reload, onSubmitted, existingCount, onToast }) {
     }
   }
 
-  async function checkUploadPlaceholder() {
-    try {
-      const result = await api('/uploads/placeholder', { method: 'POST', token, body: { fileName: 'offer-photo.jpg', fileType: 'image/jpeg', context: 'offer' } });
-      setUploadNote(result.message);
-    } catch (e) {
-      setUploadNote(e.message);
-    }
-  }
-
   return <div className="bg-white rounded-2xl border p-4 space-y-3 shadow-sm">
     <button onClick={() => setOpen(value => !value)} className="w-full text-left flex justify-between gap-3">
       <div><div className="font-bold">{req.partName}</div><div className="text-xs text-slate-500">{req.make} {req.model} ({req.year})</div><div className="text-xs text-slate-400 mt-1">{existingCount ? `${existingCount} sent offer item(s)` : 'No sent offers yet'}</div></div>
@@ -279,11 +275,13 @@ function Lead({ req, token, reload, onSubmitted, existingCount, onToast }) {
         <input className="w-full p-3 rounded-xl border" placeholder="Net price IQD" value={draft.supplierPrice} onChange={e => setDraft(current => ({ ...current, supplierPrice: e.target.value }))} inputMode="numeric" />
         <select className="w-full p-3 rounded-xl border" value={draft.condition} onChange={e => setDraft(current => ({ ...current, condition: e.target.value }))}><option value="NEW">New</option><option value="USED">Used</option></select>
         <div className="space-y-2">
-          <div className="flex gap-2"><input className="flex-1 p-3 rounded-xl border" placeholder="Photo URL optional" value={photoInput} onChange={e => setPhotoInput(e.target.value)} /><button onClick={addPhoto} type="button" disabled={draft.photoUrls.length >= 5} className="px-3 rounded-xl bg-blue-600 text-white text-xs font-bold disabled:opacity-40">Add</button></div>
+          <label className="block w-full py-3 rounded-xl bg-blue-600 text-white text-center text-sm font-bold cursor-pointer">
+            {uploading ? 'Uploading...' : 'Upload offer photo'}
+            <input type="file" accept="image/*" className="hidden" disabled={uploading || draft.photoUrls.length >= 5} onChange={e => handleOfferPhotoUpload(e.target.files?.[0])} />
+          </label>
+          <div className="text-[10px] text-slate-400">Optional. JPG, PNG, WEBP, or GIF. Max 5MB per image.</div>
           {draft.photoUrls.length > 0 && <div className="flex gap-2 overflow-x-auto">{draft.photoUrls.map((url, index) => <div key={`${url}-${index}`} className="relative"><img src={url} alt="Offer preview" className="w-16 h-16 rounded-xl object-cover border" /><button onClick={() => removePhoto(index)} type="button" className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold">×</button></div>)}</div>}
         </div>
-        <button onClick={checkUploadPlaceholder} type="button" className="w-full py-2 rounded-xl bg-slate-200 text-slate-700 text-xs font-bold">Check upload placeholder</button>
-        {uploadNote && <div className="text-xs text-slate-500">{uploadNote}</div>}
         <input className="w-full p-3 rounded-xl border" placeholder="Notes" value={draft.notes} onChange={e => setDraft(current => ({ ...current, notes: e.target.value }))} />
         <div className="grid grid-cols-2 gap-2">
           <button onClick={addOrUpdateItem} className="py-2 rounded-xl bg-blue-600 text-white font-bold">{editIndex === null ? 'Add Item' : 'Update Item'}</button>

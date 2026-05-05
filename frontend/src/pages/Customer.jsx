@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { api, formatIQD } from '../lib/api';
+import { api, formatIQD, uploadImage } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { carData, years } from '../data/carData';
 import OfferCard from '../components/customer/OfferCard';
@@ -134,8 +134,7 @@ function RequestCard({ req, token, reload, onToast }) {
 
 function RequestForm({ token, onDone }) {
   const [form, setForm] = useState({ origin:'', make:'', model:'', year:'', partName:'', description:'', partNumber:'', vin:'', customerPhone:'', location:'', photoUrls: [] });
-  const [photoUrl, setPhotoUrl] = useState('');
-  const [uploadNote, setUploadNote] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [problem, setProblem] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -155,23 +154,23 @@ function RequestForm({ token, onDone }) {
     } finally { setLoading(false); }
   }
 
-  function addPhotoUrl() {
-    if (!photoUrl.trim()) return;
-    setForm(f => ({ ...f, photoUrls: [...f.photoUrls, photoUrl.trim()].slice(0, 4) }));
-    setPhotoUrl('');
+  async function handlePhotoUpload(file) {
+    if (!file) return;
+    if (form.photoUrls.length >= 4) return setError('You can upload up to 4 request photos.');
+    setUploading(true);
+    setError('');
+    try {
+      const result = await uploadImage(file, { token, context: 'request' });
+      setForm(f => ({ ...f, photoUrls: [...f.photoUrls, result.url].slice(0, 4) }));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setUploading(false);
+    }
   }
 
   function removePhotoUrl(index) {
     setForm(f => ({ ...f, photoUrls: f.photoUrls.filter((_, photoIndex) => photoIndex !== index) }));
-  }
-
-  async function checkUploadPlaceholder() {
-    try {
-      const result = await api('/uploads/placeholder', { method: 'POST', token, body: { fileName: 'request-photo.jpg', fileType: 'image/jpeg', context: 'request' } });
-      setUploadNote(result.message);
-    } catch (e) {
-      setUploadNote(e.message);
-    }
   }
 
   async function submit() {
@@ -216,9 +215,11 @@ function RequestForm({ token, onDone }) {
     <textarea className="w-full p-3 rounded-xl border" placeholder="Description" value={form.description} onChange={e => setForm({...form, description:e.target.value})}/>
     <div className="bg-slate-50 rounded-2xl p-3 space-y-2">
       <div className="text-xs font-bold text-slate-500">Request photos optional — up to 4</div>
-      <div className="flex gap-2"><input className="flex-1 p-3 rounded-xl border" placeholder="Photo URL optional" value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} /><button onClick={addPhotoUrl} disabled={form.photoUrls.length >= 4} type="button" className="px-3 rounded-xl bg-slate-900 text-white text-sm font-bold disabled:opacity-40">Add</button></div>
-      <button onClick={checkUploadPlaceholder} type="button" className="w-full py-2 rounded-xl bg-slate-200 text-slate-700 text-xs font-bold">Check upload placeholder</button>
-      {uploadNote && <div className="text-xs text-slate-500">{uploadNote}</div>}
+      <label className="block w-full py-3 rounded-xl bg-slate-900 text-white text-center text-sm font-bold cursor-pointer">
+        {uploading ? 'Uploading...' : 'Upload photo'}
+        <input type="file" accept="image/*" className="hidden" disabled={uploading || form.photoUrls.length >= 4} onChange={e => handlePhotoUpload(e.target.files?.[0])} />
+      </label>
+      <div className="text-[10px] text-slate-400">JPG, PNG, WEBP, or GIF. Max 5MB per image.</div>
       {form.photoUrls.length > 0 && <div className="flex gap-2 overflow-x-auto">{form.photoUrls.map((url, index) => <div key={url} className="relative"><img src={url} alt="Request preview" className="w-16 h-16 rounded-xl object-cover border" /><button onClick={() => removePhotoUrl(index)} type="button" className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold">×</button></div>)}</div>}
     </div>
     <input className="w-full p-3 rounded-xl border" placeholder="Your phone required" value={form.customerPhone} onChange={e => setForm({...form, customerPhone:e.target.value})}/>
