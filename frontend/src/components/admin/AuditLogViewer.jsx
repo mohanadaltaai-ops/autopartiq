@@ -3,17 +3,24 @@ import { api } from '../../lib/api';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 function auditActionLabel(action, t) {
+  const normalizedAction = String(action || '')
+    .trim()
+    .replace(/\s+/g, '_')
+    .toUpperCase();
+
   const labels = {
     ADMIN_USER_CREATED: t('auditAdminUserCreated'),
     ORDER_STATUS_UPDATED: t('auditOrderStatusUpdated'),
+    ORDER_PAYMENT_UPDATED: t('auditPaymentUpdated'),
+    PAYMENT_UPDATED: t('auditPaymentUpdated'),
+    ORDER_DELIVERY_UPDATED: t('auditDeliveryUpdated'),
+    DELIVERY_UPDATED: t('auditDeliveryUpdated'),
     SUPPLIER_CREATED: t('auditSupplierCreated'),
     SUPPLIER_UPDATED: t('auditSupplierUpdated'),
-    SUPPLIER_DISABLED: t('auditSupplierDisabled'),
-    PAYMENT_UPDATED: t('auditPaymentUpdated'),
-    DELIVERY_UPDATED: t('auditDeliveryUpdated')
+    SUPPLIER_DISABLED: t('auditSupplierDisabled')
   };
 
-  return labels[action] || action.replaceAll('_', ' ');
+  return labels[normalizedAction] || String(action || '').replaceAll('_', ' ');
 }
 
 function auditEntityLabel(entityType, t) {

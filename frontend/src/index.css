@@ -77,3 +77,16 @@ input[type="date"]::-webkit-date-and-time-value { text-align: left; min-height: 
   --tw-space-x-reverse: 1;
 }
 
+/* Production polish: keep placeholders readable on small mobile screens */
+input::placeholder,
+textarea::placeholder {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+[dir="rtl"] input::placeholder,
+[dir="rtl"] textarea::placeholder {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+

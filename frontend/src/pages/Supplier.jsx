@@ -146,7 +146,7 @@ function OrderCard({ order }) {
         <div className="text-xs text-slate-500 mt-1">{t('yourPrice')}: {formatIQD(order.supplierPrice)}</div>
       </div>
       <div className="text-right">
-        <div className="text-[10px] inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-bold">{orderStatusLabel(order.status, t)}</div>
+        <div className="text-[10px] inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-bold whitespace-nowrap inline-flex items-center shrink-0">{orderStatusLabel(order.status, t)}</div>
         <div className="text-[10px] text-slate-400 mt-2">{open ? t('hide') : t('details')}</div>
       </div>
     </button>
@@ -246,7 +246,7 @@ function SentOffers({ offers, token, reload, onToast }) {
             <div className="text-sm font-black text-blue-600 mt-1">{formatIQD(offer.supplierPrice)}</div>
           </div>
           <div className="text-right">
-            <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full h-fit font-bold">{offerStatusLabel(offer.status, t)}</span>
+            <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full h-fit font-bold whitespace-nowrap inline-flex items-center shrink-0">{offerStatusLabel(offer.status, t)}</span>
             <div className="text-[10px] text-slate-400 mt-2">{open ? t('hide') : t('details')}</div>
           </div>
         </button>
@@ -416,7 +416,7 @@ function Lead({ req, token, reload, onSubmitted, existingCount, onToast }) {
               {draft.photoUrls.map((url, index) => (
                 <div key={`${url}-${index}`} className="relative">
                   <ImagePreview src={url} alt="Offer preview" className="w-16 h-16 rounded-xl object-cover border" />
-                  <button onClick={() => removePhoto(index)} type="button" className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold">×</button>
+                  <button onClick={() => removePhoto(index)} type="button" className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold whitespace-nowrap inline-flex items-center shrink-0">×</button>
                 </div>
               ))}
             </div>

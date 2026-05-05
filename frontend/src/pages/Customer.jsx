@@ -363,7 +363,7 @@ function RequestForm({ token, onDone }) {
           {form.photoUrls.map((url, index) => (
             <div key={url} className="relative">
               <ImagePreview src={url} alt="Request preview" className="w-16 h-16 rounded-xl object-cover border" />
-              <button onClick={() => removePhotoUrl(index)} type="button" className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold">×</button>
+              <button onClick={() => removePhotoUrl(index)} type="button" className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold whitespace-nowrap inline-flex items-center shrink-0">×</button>
             </div>
           ))}
         </div>
@@ -399,7 +399,7 @@ function CustomerOrderCard({ order }) {
         <div className="text-sm mt-2 font-bold text-slate-700">{t('price')}: {formatIQD(total)}</div>
       </div>
       <div className="text-right">
-        <span className="inline-block text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{orderStatusLabel(order.status, t)}</span>
+        <span className="inline-block text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full whitespace-nowrap inline-flex items-center shrink-0">{orderStatusLabel(order.status, t)}</span>
         <div className="text-[10px] text-slate-400 mt-2">{open ? t('hide') : t('details')}</div>
       </div>
     </button>
