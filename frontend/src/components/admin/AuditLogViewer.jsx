@@ -35,6 +35,33 @@ function auditEntityLabel(entityType, t) {
   return labels[entityType] || entityType;
 }
 
+function parseAuditMetadata(log) {
+  try {
+    return JSON.parse(log.metadataJson || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function metadataRows(metadata, t) {
+  const rows = [];
+
+  if (metadata.from || metadata.to) {
+    rows.push([t('from'), metadata.from || '-']);
+    rows.push([t('to'), metadata.to || '-']);
+  }
+
+  if (metadata.paymentMethod) {
+    rows.push([t('payment'), metadata.paymentMethod]);
+  }
+
+  if (metadata.paymentStatus) {
+    rows.push([t('paymentStatus'), metadata.paymentStatus]);
+  }
+
+  return rows;
+}
+
 export default function AuditLogViewer({ token }) {
   const { t, language } = useLanguage();
   const [logs, setLogs] = useState([]);
@@ -54,16 +81,40 @@ export default function AuditLogViewer({ token }) {
 
   return (
     <div className="space-y-3">
-      {logs.map(log => (
-        <div key={log.id} className="bg-white rounded-2xl border p-4 shadow-sm">
-          <div className="flex justify-between gap-3">
-            <div className="font-bold text-slate-900">{auditActionLabel(log.action, t)}</div>
-            <div className="text-[10px] text-slate-400">{new Date(log.createdAt).toLocaleString(language === 'ar' ? 'ar-IQ' : undefined)}</div>
+      {logs.map(log => {
+        const metadata = parseAuditMetadata(log);
+        const rows = metadataRows(metadata, t);
+
+        return (
+          <div key={log.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
+            <div className="flex justify-between gap-3">
+              <div className="min-w-0">
+                <div className="font-black text-slate-900">{auditActionLabel(log.action, t)}</div>
+                <div className="text-xs text-slate-500 mt-1">
+                  {auditEntityLabel(log.entityType, t)}
+                  {log.entityId ? <span className="text-slate-400"> • {log.entityId}</span> : null}
+                </div>
+              </div>
+              <div className="text-[10px] text-slate-400 text-right shrink-0">
+                {new Date(log.createdAt).toLocaleString(language === 'ar' ? 'ar-IQ' : undefined)}
+              </div>
+            </div>
+
+            {rows.length > 0 && (
+              <div className="rounded-xl bg-slate-50 p-3 text-xs space-y-1">
+                {rows.map(([label, value]) => (
+                  <div key={`${label}-${value}`} className="flex justify-between gap-3">
+                    <span className="text-slate-400">{label}</span>
+                    <strong className="text-slate-700 text-right">{String(value).replaceAll('_', ' ')}</strong>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="text-xs text-slate-400">{t('by')}: {log.actor?.name || t('system')}</div>
           </div>
-          <div className="text-xs text-slate-500 mt-1">{auditEntityLabel(log.entityType, t)} {log.entityId ? `• ${log.entityId}` : ''}</div>
-          <div className="text-xs text-slate-400 mt-1">{t('by')}: {log.actor?.name || t('system')}</div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
