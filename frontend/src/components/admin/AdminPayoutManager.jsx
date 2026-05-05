@@ -119,6 +119,7 @@ export default function AdminPayoutManager({ token }) {
   const [payouts, setPayouts] = useState([]);
   const [summary, setSummary] = useState(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [supplierFilter, setSupplierFilter] = useState('ALL');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -145,9 +146,25 @@ export default function AdminPayoutManager({ token }) {
     load();
   }, [token]);
 
+  const supplierOptions = useMemo(() => {
+    const map = new Map();
+
+    payouts.forEach(payout => {
+      if (payout.supplierId) {
+        map.set(payout.supplierId, payout.supplier?.name || payout.supplier?.user?.name || 'Supplier');
+      }
+    });
+
+    return Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1]));
+  }, [payouts]);
+
   const filteredPayouts = useMemo(() => {
-    return payouts.filter(payout => statusFilter === 'ALL' || payout.status === statusFilter);
-  }, [payouts, statusFilter]);
+    return payouts.filter(payout => {
+      const matchesStatus = statusFilter === 'ALL' || payout.status === statusFilter;
+      const matchesSupplier = supplierFilter === 'ALL' || payout.supplierId === supplierFilter;
+      return matchesStatus && matchesSupplier;
+    });
+  }, [payouts, statusFilter, supplierFilter]);
 
   if (loading) return <div className="bg-white rounded-2xl border p-4 text-sm text-slate-500">Loading settlements...</div>;
   if (error) return <div className="bg-white rounded-2xl border p-4 text-sm text-red-600">{error}</div>;
@@ -179,6 +196,13 @@ export default function AdminPayoutManager({ token }) {
         </button>
       ))}
     </div>
+
+    <select className="w-full p-3 rounded-xl border text-sm bg-white" value={supplierFilter} onChange={e => setSupplierFilter(e.target.value)}>
+      <option value="ALL">All suppliers</option>
+      {supplierOptions.map(([supplierId, supplierName]) => (
+        <option key={supplierId} value={supplierId}>{supplierName}</option>
+      ))}
+    </select>
 
     <div className="text-[10px] text-slate-400 font-bold">
       Showing {filteredPayouts.length} of {payouts.length} payouts
