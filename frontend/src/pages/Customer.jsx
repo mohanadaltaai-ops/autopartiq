@@ -177,13 +177,14 @@ export default function Customer({ tab }) {
               reload={load}
               onToast={setToast}
               focus={targetRequestId === req.id}
+              onFocusHandled={() => setTargetRequestId('')}
             />
           ))}
         </div>}
   </div>;
 }
 
-function RequestCard({ req, token, reload, onToast, focus }) {
+function RequestCard({ req, token, reload, onToast, focus, onFocusHandled }) {
   const { t } = useLanguage();
   const requestPhotos = parseJsonArray(req.photoUrlsJson);
   const activeOffers = req.offers?.filter(o => o.status === 'ACTIVE') || [];
@@ -199,8 +200,9 @@ function RequestCard({ req, token, reload, onToast, focus }) {
     if (focus) {
       setOpen(true);
       setTimeout(() => cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+      setTimeout(() => onFocusHandled?.(), 700);
     }
-  }, [focus]);
+  }, [focus, onFocusHandled]);
 
   async function cancel() {
     try {
