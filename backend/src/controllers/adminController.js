@@ -15,7 +15,7 @@ export async function dashboard(req, res) {
     prisma.partRequest.count()
   ]);
 
-  const nonCancelledOrders = orders.filter(o => o.status !== 'CANCELLED');
+  const activeOperationalOrders = orders.filter(o => ['WAITING_PICKUP', 'DELIVERING'].includes(o.status));
   const waitingPickupOrders = orders.filter(o => o.status === 'WAITING_PICKUP');
   const deliveringOrders = orders.filter(o => o.status === 'DELIVERING');
   const completed = orders.filter(o => o.status === 'COMPLETED');
@@ -28,7 +28,7 @@ export async function dashboard(req, res) {
 
   const summary = {
     totalOrders: orders.length,
-    activeOrders: nonCancelledOrders.length,
+    activeOrders: activeOperationalOrders.length,
     waitingPickupOrders: waitingPickupOrders.length,
     deliveringOrders: deliveringOrders.length,
     completedOrders: completed.length,
