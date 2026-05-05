@@ -149,7 +149,13 @@ const translations = {
     upload5: 'You can upload up to 5 offer photos.',
     rejected: 'Rejected',
     accepted: 'Accepted',
-    allVisibleOffers: 'All visible offers'
+    allVisibleOffers: 'All visible offers',
+    waitingPickup: 'Waiting pickup',
+    delivering: 'Delivering',
+    completed: 'Completed',
+    deliveryCancelled: 'Delivery cancelled. Admin or support should review this order.',
+    deliveryWorkflow: 'Delivery workflow',
+    deliveryWorkflowNote: 'Driver assignment, pickup time, delivery ETA, and proof of delivery are managed by Admin.'
   },
 
   ar: {
@@ -300,7 +306,13 @@ const translations = {
     upload5: 'يمكنك رفع حتى 5 صور للعرض.',
     rejected: 'مرفوض',
     accepted: 'مقبول',
-    allVisibleOffers: 'كل العروض الظاهرة'
+    allVisibleOffers: 'كل العروض الظاهرة',
+    waitingPickup: 'بانتظار الاستلام',
+    delivering: 'قيد التوصيل',
+    completed: 'مكتمل',
+    deliveryCancelled: 'تم إلغاء التوصيل. يجب مراجعة الطلب من قبل الإدارة أو الدعم.',
+    deliveryWorkflow: 'مسار التوصيل',
+    deliveryWorkflowNote: 'تعيين السائق ووقت الاستلام وموعد التوصيل وإثبات التسليم تُدار من قبل الإدارة.'
   }
 };
 

@@ -1,6 +1,8 @@
 ﻿import React, { useState } from 'react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function ImagePreview({ src, alt = 'Image preview', className = '' }) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
 
   if (!src) return null;
@@ -11,7 +13,7 @@ export default function ImagePreview({ src, alt = 'Image preview', className = '
         type="button"
         onClick={() => setOpen(true)}
         className="shrink-0 rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500"
-        title="Open image"
+        title={t('openImage')}
       >
         <img src={src} alt={alt} className={className || 'w-16 h-16 rounded-xl object-cover border'} />
       </button>
@@ -23,14 +25,14 @@ export default function ImagePreview({ src, alt = 'Image preview', className = '
             onClick={() => setOpen(false)}
             className="absolute top-4 right-4 px-4 py-2 rounded-full bg-white text-slate-900 text-sm font-black shadow-lg"
           >
-            Close
+            {t('close')}
           </button>
 
           <button
             type="button"
             onClick={() => setOpen(false)}
             className="absolute inset-0 cursor-default"
-            aria-label="Close image preview"
+            aria-label={t('close')}
           />
 
           <img
@@ -40,7 +42,7 @@ export default function ImagePreview({ src, alt = 'Image preview', className = '
           />
 
           <div className="relative z-10 mt-4 text-white/60 text-xs">
-            Tap Close to return
+            {t('tapCloseToReturn')}
           </div>
         </div>
       )}
