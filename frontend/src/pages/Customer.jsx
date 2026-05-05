@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { api, formatIQD, uploadImage } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { carData, years } from '../data/carData';
@@ -30,6 +30,7 @@ export default function Customer({ tab }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
+  const [targetRequestId, setTargetRequestId] = useState('');
 
   async function load() {
     try {
@@ -43,6 +44,30 @@ export default function Customer({ tab }) {
       setLoading(false);
     }
   }
+
+  function openNotificationTarget(metadata) {
+    if (!metadata?.requestId) return;
+    setHomeTab('requests');
+    setRequestFilter('ALL');
+    setTargetRequestId(metadata.requestId);
+  }
+
+  useEffect(() => {
+    const storedTarget = localStorage.getItem('notificationTarget');
+    if (storedTarget) {
+      try {
+        openNotificationTarget(JSON.parse(storedTarget));
+      } catch {}
+      localStorage.removeItem('notificationTarget');
+    }
+
+    function handleNotificationNavigation(event) {
+      openNotificationTarget(event.detail);
+    }
+
+    window.addEventListener('autopartiq:navigate-notification', handleNotificationNavigation);
+    return () => window.removeEventListener('autopartiq:navigate-notification', handleNotificationNavigation);
+  }, []);
 
   useEffect(() => { load(); }, [token]);
 
@@ -78,15 +103,23 @@ export default function Customer({ tab }) {
         </select>
       </div>
       {visibleRequests.length === 0 && <Empty text="No matching requests." />}
-      {visibleRequests.map(req => <RequestCard key={req.id} req={req} token={token} reload={load} onToast={setToast} />)}
+      {visibleRequests.map(req => <RequestCard key={req.id} req={req} token={token} reload={load} onToast={setToast} focus={targetRequestId === req.id} />)}
     </div>}
   </div>;
 }
 
-function RequestCard({ req, token, reload, onToast }) {
+function RequestCard({ req, token, reload, onToast, focus }) {
   const requestPhotos = parseJsonArray(req.photoUrlsJson);
   const [open, setOpen] = useState(false);
+  const cardRef = useRef(null);
   const [showCancel, setShowCancel] = useState(false);
+
+  useEffect(() => {
+    if (focus) {
+      setOpen(true);
+      setTimeout(() => cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+    }
+  }, [focus]);
   const [reason, setReason] = useState('');
   const [error, setError] = useState('');
   const canCancel = req.status === 'WAITING';
@@ -103,7 +136,7 @@ function RequestCard({ req, token, reload, onToast }) {
     }
   }
 
-  return <div className="bg-white rounded-2xl border p-4 space-y-3 shadow-sm">
+  return <div ref={cardRef} className={`bg-white rounded-2xl border p-4 space-y-3 shadow-sm ${focus ? "ring-2 ring-orange-500" : ""}`}>
     <button onClick={() => setOpen(value => !value)} className="w-full text-left flex justify-between gap-3">
       <div>
         <div className="font-bold">{req.partName}</div>
