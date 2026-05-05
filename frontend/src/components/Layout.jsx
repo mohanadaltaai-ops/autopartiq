@@ -22,6 +22,30 @@ function notificationText(item, t) {
       : t('newOfferNotification');
   }
 
+  if (metadata.type === 'ORDER_STATUS_UPDATED') {
+    return metadata.orderNumber
+      ? `${t('orderStatusUpdatedNotification')}: ${metadata.orderNumber}`
+      : t('orderStatusUpdatedNotification');
+  }
+
+  if (metadata.type === 'ORDER_PAYMENT_UPDATED') {
+    return metadata.orderNumber
+      ? `${t('orderPaymentUpdatedNotification')}: ${metadata.orderNumber}`
+      : t('orderPaymentUpdatedNotification');
+  }
+
+  if (metadata.type === 'ORDER_DELIVERY_UPDATED') {
+    return metadata.orderNumber
+      ? `${t('orderDeliveryUpdatedNotification')}: ${metadata.orderNumber}`
+      : t('orderDeliveryUpdatedNotification');
+  }
+
+  if (metadata.type === 'PROOF_OF_DELIVERY_UPDATED') {
+    return metadata.orderNumber
+      ? `${t('proofOfDeliveryUpdatedNotification')}: ${metadata.orderNumber}`
+      : t('proofOfDeliveryUpdatedNotification');
+  }
+
   return item.message;
 }
 
