@@ -24,6 +24,7 @@ export async function dashboard(req, res) {
   const paidOrders = orders.filter(o => o.paymentStatus === 'PAID');
   const activeSuppliers = suppliers.filter(s => s.isActive);
   const platformRevenue = completed.reduce((s, o) => s + o.platformRevenue, 0);
+  const supplierEarnings = completed.reduce((s, o) => s + o.supplierPrice, 0);
 
   const summary = {
     totalOrders: orders.length,

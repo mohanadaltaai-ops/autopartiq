@@ -15,6 +15,7 @@ import auditRoutes from './routes/auditRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 
 const app = express();
+app.set('trust proxy', 1);
 const allowedOrigins = (process.env.FRONTEND_URL || '')
   .split(',')
   .map(origin => origin.trim())
