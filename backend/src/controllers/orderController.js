@@ -37,7 +37,7 @@ export async function updateOrderStatus(req, res) {
   if (!ALLOWED_STATUSES.includes(status)) return res.status(400).json({ message: 'Invalid order status' });
   if (!['ADMIN', 'SUPER_ADMIN'].includes(req.user.role)) return res.status(403).json({ message: 'Only Admin can update order status' });
 
-  const existing = await prisma.order.findUnique({ where: { id: req.params.id }, include: { offer: { include: { request: true } } } });
+  const existing = await prisma.order.findUnique({ where: { id: req.params.id }, include: { offer: { include: { request: true, supplier: true } } } });
   if (!existing) return res.status(404).json({ message: 'Order not found' });
 
   const order = await prisma.$transaction(async (tx) => {
@@ -81,11 +81,28 @@ export async function updateOrderStatus(req, res) {
     }
   });
 
+  if (existing.offer?.supplier?.userId) {
+    await prisma.notification.create({
+      data: {
+        userId: existing.offer.supplier.userId,
+        message: `Order ${order.orderNumber} status updated to ${status}`,
+        metadataJson: JSON.stringify({
+          type: 'ORDER_STATUS_UPDATED',
+          orderId: order.id,
+          status,
+          orderNumber: order.orderNumber,
+          partName: existing.offer?.request?.partName,
+          tab: 'orders'
+        })
+      }
+    });
+  }
+
   res.json({ order });
 }
 
 export async function updatePayment(req, res) {
-  const existing = await prisma.order.findUnique({ where: { id: req.params.id }, include: { offer: { include: { request: true } } } });
+  const existing = await prisma.order.findUnique({ where: { id: req.params.id }, include: { offer: { include: { request: true, supplier: true } } } });
   if (!existing) return res.status(404).json({ message: 'Order not found' });
 
   const order = await prisma.order.update({
@@ -111,6 +128,22 @@ export async function updatePayment(req, res) {
       })
     }
   });
+
+  if (existing.offer?.supplier?.userId) {
+    await prisma.notification.create({
+      data: {
+        userId: existing.offer.supplier.userId,
+        message: `Payment updated for order ${order.orderNumber}`,
+        metadataJson: JSON.stringify({
+          type: 'ORDER_PAYMENT_UPDATED',
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          paymentStatus: order.paymentStatus,
+          tab: 'orders'
+        })
+      }
+    });
+  }
 
   res.json({ order });
 }
@@ -146,6 +179,22 @@ export async function updateDelivery(req, res) {
       })
     }
   });
+
+  if (existing.offer?.supplier?.userId) {
+    await prisma.notification.create({
+      data: {
+        userId: existing.offer.supplier.userId,
+        message: `Delivery details updated for order ${order.orderNumber}`,
+        metadataJson: JSON.stringify({
+          type: order.proofOfDeliveryUrl ? 'PROOF_OF_DELIVERY_UPDATED' : 'ORDER_DELIVERY_UPDATED',
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          partName: existing.offer?.request?.partName,
+          tab: 'orders'
+        })
+      }
+    });
+  }
 
   res.json({ order });
 }

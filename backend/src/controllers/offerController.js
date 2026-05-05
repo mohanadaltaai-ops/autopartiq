@@ -114,5 +114,19 @@ export async function acceptOffer(req, res) {
     });
   });
 
+  await prisma.notification.create({
+    data: {
+      userId: order.offer.supplier.userId,
+      message: `Your offer was accepted for ${order.offer.request.partName}`,
+      metadataJson: JSON.stringify({
+        type: 'OFFER_ACCEPTED',
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        partName: order.offer.request.partName,
+        tab: 'orders'
+      })
+    }
+  });
+
   res.status(201).json({ order });
 }

@@ -22,6 +22,12 @@ function notificationText(item, t) {
       : t('newOfferNotification');
   }
 
+  if (metadata.type === 'OFFER_ACCEPTED') {
+    return metadata.orderNumber
+      ? `${t('offerAcceptedNotification')}: ${metadata.orderNumber}`
+      : t('offerAcceptedNotification');
+  }
+
   if (metadata.type === 'ORDER_STATUS_UPDATED') {
     return metadata.orderNumber
       ? `${t('orderStatusUpdatedNotification')}: ${metadata.orderNumber}`
@@ -113,7 +119,7 @@ export default function Layout({ tab, setTab, children }) {
       : adminTabs;
 
   async function loadNotifications() {
-    if (!token || user?.role !== 'CUSTOMER') return;
+    if (!token || !['CUSTOMER', 'SUPPLIER'].includes(user?.role)) return;
     const result = await api('/notifications/mine', { token });
     setNotifications(result.notifications || []);
     setUnreadCount(result.unreadCount || 0);
@@ -169,7 +175,7 @@ export default function Layout({ tab, setTab, children }) {
             <span className="sr-only">{language}</span>
           </button>
 
-          {user?.role === 'CUSTOMER' && (
+          {['CUSTOMER', 'SUPPLIER'].includes(user?.role) && (
             <button onClick={toggleNotifications} className="relative w-9 h-9 rounded-xl bg-slate-50 border flex items-center justify-center">
               <Bell size={17}/>
               {unreadCount > 0 && <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">{unreadCount}</span>}
