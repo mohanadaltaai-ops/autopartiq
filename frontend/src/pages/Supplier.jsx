@@ -181,15 +181,15 @@ function Earnings({ orders }) {
     <div className="grid grid-cols-3 gap-3">
       <div className="bg-white rounded-2xl border p-4">
         <div className="text-[10px] text-slate-400 font-bold uppercase">{t('completedOrders')}</div>
-        <div className="font-black text-green-700">{completedOrders.length}</div>
+        <div className="mt-1 text-2xl leading-none font-black tabular-nums text-green-700">{completedOrders.length}</div>
       </div>
       <div className="bg-white rounded-2xl border p-4">
         <div className="text-[10px] text-slate-400 font-bold uppercase">{t('openOrders')}</div>
-        <div className="font-black text-blue-700">{openOrders.length}</div>
+        <div className="mt-1 text-2xl leading-none font-black tabular-nums text-blue-700">{openOrders.length}</div>
       </div>
       <div className="bg-white rounded-2xl border p-4">
         <div className="text-[10px] text-slate-400 font-bold uppercase">{t('cancelled')}</div>
-        <div className="font-black text-red-700">{cancelledOrders.length}</div>
+        <div className="mt-1 text-2xl leading-none font-black tabular-nums text-red-700">{cancelledOrders.length}</div>
       </div>
     </div>
 
