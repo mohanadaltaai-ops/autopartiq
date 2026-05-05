@@ -1,22 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { api } from '../lib/api';
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
   const { t, language, toggleLanguage } = useLanguage();
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const [customerRequests, setCustomerRequests] = useState([]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  useEffect(() => {
+    if (user?.role !== 'CUSTOMER' || !token) return;
+
+    api('/requests/mine', { token })
+      .then(result => setCustomerRequests(result.requests || []))
+      .catch(() => setCustomerRequests([]));
+  }, [user?.role, token]);
+
   const roleLabel =
     user?.role === 'CUSTOMER' ? t('roleCustomer') :
     user?.role === 'SUPPLIER' ? t('roleSupplier') :
     user?.role === 'SUPER_ADMIN' ? t('roleSuperAdmin') :
     t('roleAdmin');
+
+  const customerStats = {
+    total: customerRequests.length,
+    active: customerRequests.filter(req => !['COMPLETED', 'CANCELLED'].includes(req.status)).length,
+    completed: customerRequests.filter(req => req.status === 'COMPLETED').length,
+    cancelled: customerRequests.filter(req => req.status === 'CANCELLED').length
+  };
 
   return (
     <div className="p-4 space-y-4">
@@ -81,6 +98,34 @@ export default function Profile() {
                   ? (language === 'ar' ? 'نشط' : 'Active')
                   : (language === 'ar' ? 'غير نشط' : 'Inactive')}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {user?.role === 'CUSTOMER' && (
+        <div className="bg-white rounded-3xl border p-5 shadow-sm space-y-3">
+          <div className="text-xs font-bold text-slate-400 uppercase">{language === 'ar' ? 'ملخص العميل' : 'Customer Summary'}</div>
+
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="rounded-2xl bg-slate-50 p-3">
+              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'كل الطلبات' : 'Total Requests'}</div>
+              <div className="text-xl font-black text-slate-900">{customerStats.total}</div>
+            </div>
+
+            <div className="rounded-2xl bg-slate-50 p-3">
+              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'النشطة' : 'Active'}</div>
+              <div className="text-xl font-black text-blue-700">{customerStats.active}</div>
+            </div>
+
+            <div className="rounded-2xl bg-slate-50 p-3">
+              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'المكتملة' : 'Completed'}</div>
+              <div className="text-xl font-black text-green-700">{customerStats.completed}</div>
+            </div>
+
+            <div className="rounded-2xl bg-slate-50 p-3">
+              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'الملغية' : 'Cancelled'}</div>
+              <div className="text-xl font-black text-red-700">{customerStats.cancelled}</div>
             </div>
           </div>
         </div>
