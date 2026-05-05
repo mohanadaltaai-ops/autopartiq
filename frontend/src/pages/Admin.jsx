@@ -139,6 +139,7 @@ export default function Admin({ tab }) {
   const [updatingOrderId, setUpdatingOrderId] = useState('');
   const [orderSearch, setOrderSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState('ALL');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
@@ -226,23 +227,51 @@ export default function Admin({ tab }) {
       .filter(order => {
         const search = orderSearch.toLowerCase();
         const matchesSearch = !search || order.orderNumber?.toLowerCase().includes(search) || order.offer?.request?.partName?.toLowerCase().includes(search) || order.offer?.supplier?.name?.toLowerCase().includes(search);
-        const matchesStatus = statusFilter === 'ALL' || order.status === statusFilter;
+        const matchesStatus =
+          statusFilter === 'ALL' ||
+          (statusFilter === 'OPEN' && ['WAITING_PICKUP', 'DELIVERING'].includes(order.status)) ||
+          order.status === statusFilter;
+        const matchesPayment = paymentStatusFilter === 'ALL' || order.paymentStatus === paymentStatusFilter;
         const matchesDate = isDateInRange(order.createdAt, dateFrom, dateTo);
-        return matchesSearch && matchesStatus && matchesDate;
+        return matchesSearch && matchesStatus && matchesPayment && matchesDate;
       });
 
     return <div className="p-4 space-y-3">
       <h1 className="font-black text-xl text-slate-900">{t('allOrders')}</h1>
+
+      <div className="grid grid-cols-4 gap-2">
+        <button onClick={() => setStatusFilter('ALL')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'ALL' ? 'bg-slate-900 text-white' : 'bg-white border text-slate-600'}`}>
+          {t('all')}
+        </button>
+        <button onClick={() => setStatusFilter('OPEN')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'OPEN' ? 'bg-blue-600 text-white' : 'bg-white border text-slate-600'}`}>
+          {t('activeOrders')}
+        </button>
+        <button onClick={() => setStatusFilter('COMPLETED')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'COMPLETED' ? 'bg-green-600 text-white' : 'bg-white border text-slate-600'}`}>
+          {t('completed')}
+        </button>
+        <button onClick={() => setStatusFilter('CANCELLED')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'CANCELLED' ? 'bg-red-600 text-white' : 'bg-white border text-slate-600'}`}>
+          {t('cancelled')}
+        </button>
+      </div>
 
       <div className="bg-white rounded-2xl border p-3 space-y-2">
         <input className="w-full p-3 rounded-xl border text-sm" placeholder={t('searchOrderPartSupplier')} value={orderSearch} onChange={e => setOrderSearch(e.target.value)} />
 
         <select className="w-full p-3 rounded-xl border text-sm" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
           <option value="ALL">{t('allStatuses')}</option>
+          <option value="OPEN">{t('activeOrders')}</option>
           <option value="WAITING_PICKUP">{t('waitingPickup')}</option>
           <option value="DELIVERING">{t('delivering')}</option>
           <option value="COMPLETED">{t('completed')}</option>
           <option value="CANCELLED">{t('cancelled')}</option>
+        </select>
+
+        <select className="w-full p-3 rounded-xl border text-sm" value={paymentStatusFilter} onChange={e => setPaymentStatusFilter(e.target.value)}>
+          <option value="ALL">{t('allPayments')}</option>
+          <option value="PENDING">{t('pending')}</option>
+          <option value="PAID">{t('paid')}</option>
+          <option value="FAILED">{t('failed')}</option>
+          <option value="REFUNDED">{t('refunded')}</option>
         </select>
 
         <div className="grid grid-cols-1 gap-2">
@@ -256,7 +285,7 @@ export default function Admin({ tab }) {
           </label>
         </div>
 
-        {(orderSearch || statusFilter !== 'ALL' || dateFrom || dateTo) && <button onClick={() => { setOrderSearch(''); setStatusFilter('ALL'); setDateFrom(''); setDateTo(''); }} className="w-full py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold">
+        {(orderSearch || statusFilter !== 'ALL' || paymentStatusFilter !== 'ALL' || dateFrom || dateTo) && <button onClick={() => { setOrderSearch(''); setStatusFilter('ALL'); setPaymentStatusFilter('ALL'); setDateFrom(''); setDateTo(''); }} className="w-full py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold">
           {t('clearFilters')}
         </button>}
 

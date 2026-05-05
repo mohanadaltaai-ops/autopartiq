@@ -423,6 +423,7 @@ const translations = {
     allOrders: 'كل الطلبات',
     searchOrderPartSupplier: 'ابحث برقم الطلب أو القطعة أو المورد',
     allStatuses: 'كل الحالات',
+    allPayments: 'كل المدفوعات',
     from: 'من',
     to: 'إلى',
     clearFilters: 'مسح الفلاتر',
