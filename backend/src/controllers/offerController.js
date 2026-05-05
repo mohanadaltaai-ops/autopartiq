@@ -49,7 +49,11 @@ export async function createOffer(req, res) {
   });
 
   await prisma.notification.create({
-    data: { userId: offer.request.customerId, message: `You have a new ${offer.condition.toLowerCase()} offer for ${offer.request.partName}` }
+    data: {
+      userId: offer.request.customerId,
+      message: `You have a new ${offer.condition.toLowerCase()} offer for ${offer.request.partName}`,
+      metadataJson: JSON.stringify({ type: 'NEW_OFFER', requestId: offer.requestId, offerId: offer.id, tab: 'requests' })
+    }
   });
 
   res.status(201).json({ offer: sanitizeOfferForSupplier(offer) });
