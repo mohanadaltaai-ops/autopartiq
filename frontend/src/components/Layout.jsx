@@ -142,7 +142,7 @@ export default function Layout({ tab, setTab, children }) {
     if (metadata.requestId || metadata.offerId || metadata.orderId) {
       localStorage.setItem('notificationTarget', JSON.stringify(metadata));
       setShowNotifications(false);
-      setTab(metadata.orderId ? 'orders' : 'home');
+      setTab(metadata.tab || (metadata.orderId ? 'orders' : 'home'));
       window.dispatchEvent(new CustomEvent('autopartiq:navigate-notification', { detail: metadata }));
     }
   }
