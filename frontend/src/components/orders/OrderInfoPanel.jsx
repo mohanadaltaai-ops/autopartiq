@@ -46,6 +46,17 @@ export default function OrderInfoPanel({ order }) {
         <strong className="text-slate-700">{order.deliveryEta || t('pending')}</strong>
       </div>
 
+      {order.proofOfDeliveryUrl && (
+        <a
+          href={order.proofOfDeliveryUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="block rounded-xl bg-white border p-2 text-blue-700 font-bold break-all"
+        >
+          {t('viewProofOfDelivery')}
+        </a>
+      )}
+
       {order.deliveryNotes && (
         <div className="rounded-xl bg-white border p-2">
           <div className="font-bold text-slate-700 mb-1">{t('deliveryComments')}</div>
