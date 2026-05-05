@@ -13,10 +13,10 @@ function sanitizeRequestForSupplier(request) {
 export async function createRequest(req, res) {
   const data = req.body;
   if (!data.origin || !data.make || !data.model || !data.year || !data.partName) {
-    return res.status(400).json({ message: 'Car details and part name are required' });
+    return res.status(400).json({ message: 'Complete car details and part name' });
   }
   if (!data.customerPhone || !data.location) {
-    return res.status(400).json({ message: 'Customer phone and detailed location are required' });
+    return res.status(400).json({ message: 'Customer phone and detailed location' });
   }
 
   const request = await prisma.partRequest.create({
@@ -54,7 +54,7 @@ export async function cancelRequest(req, res) {
   if (existing.status !== 'WAITING') return res.status(400).json({ message: 'Only waiting requests can be cancelled' });
 
   const reason = typeof req.body.reason === 'string' ? req.body.reason.trim().slice(0, 500) : '';
-  if (!reason) return res.status(400).json({ message: 'Cancellation reason is required' });
+  if (!reason) return res.status(400).json({ message: 'Reason for cancellation' });
 
   const request = await prisma.partRequest.update({
     where: { id: req.params.id },
