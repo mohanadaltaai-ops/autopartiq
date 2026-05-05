@@ -90,3 +90,18 @@ textarea::placeholder {
   line-height: 1.25rem;
 }
 
+/* Production polish: keep select text balanced on small mobile screens */
+select {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+[dir="rtl"] select {
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+}
+
+select option {
+  font-size: 0.875rem;
+}
+
