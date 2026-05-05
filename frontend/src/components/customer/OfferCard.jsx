@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { api, formatIQD } from '../../lib/api';
 import CheckoutPreview from './CheckoutPreview';
 import Toast from '../ui/Toast';
+import ImagePreview from '../ui/ImagePreview';
 
 function parseJsonArray(value) {
   try {
@@ -54,7 +55,7 @@ export default function OfferCard({ offer, token, reload }) {
           <span>Delivery</span><strong className="text-slate-900">6,000 IQD</strong>
         </div>
         {offer.notes && <div className="text-xs text-slate-600 bg-slate-50 rounded-xl p-2">{offer.notes}</div>}
-        {offerPhotos.length > 0 && <div className="flex gap-2 overflow-x-auto">{offerPhotos.map(url => <img key={url} src={url} alt="Offer" className="w-20 h-20 rounded-xl object-cover border" />)}</div>}
+        {offerPhotos.length > 0 && <div className="flex gap-2 overflow-x-auto">{offerPhotos.map(url => <ImagePreview key={url} src={url} alt="Offer" className="w-20 h-20 rounded-xl object-cover border" />)}</div>}
         <button onClick={() => setCheckoutOpen(true)} className="w-full py-2 rounded-xl bg-orange-600 text-white text-sm font-bold">Checkout</button>
       </div>}
     </div>

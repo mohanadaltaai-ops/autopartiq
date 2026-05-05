@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import DeliveryWorkflow from '../components/orders/DeliveryWorkflow';
 import OrderInfoPanel from '../components/orders/OrderInfoPanel';
 import Toast from '../components/ui/Toast';
+import ImagePreview from '../components/ui/ImagePreview';
 
 function parseJsonArray(value) {
   try {
@@ -162,7 +163,7 @@ function SentOffers({ offers, token, reload, onToast }) {
           <div className="rounded-xl bg-slate-50 p-3 space-y-1"><SummaryRow label="Your price" value={formatIQD(offer.supplierPrice)} /><SummaryRow label="Condition" value={offer.condition} /><SummaryRow label="Status" value={supplierOfferStatusLabel[offer.status] || offer.status} /></div>
           {offer.notes && <div className="text-xs text-slate-600 bg-slate-50 rounded-xl p-2">{offer.notes}</div>}
           {offer.cancellationReason && <div className="text-xs bg-red-50 text-red-700 rounded-xl p-2">Cancelled reason: {offer.cancellationReason}</div>}
-          {photos.length > 0 && <div className="flex gap-2 overflow-x-auto">{photos.map(url => <img key={url} src={url} alt="Offer" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
+          {photos.length > 0 && <div className="flex gap-2 overflow-x-auto">{photos.map(url => <ImagePreview key={url} src={url} alt="Offer" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
           {canCancel && <div className="border-t pt-3 space-y-2">
             {openCancelId !== offer.id ? <button onClick={() => setOpenCancelId(offer.id)} className="text-xs font-bold text-red-600">Cancel sent offer</button> : <>
               <textarea className="w-full p-3 rounded-xl border text-sm" placeholder="Cancellation reason required" value={cancelReasonById[offer.id] || ''} onChange={e => setCancelReasonById(current => ({ ...current, [offer.id]: e.target.value }))} />
@@ -269,7 +270,7 @@ function Lead({ req, token, reload, onSubmitted, existingCount, onToast }) {
         {req.vin && <SummaryRow label="VIN / Chassis" value={req.vin} />}
       </div>
       {req.description && <p className="text-xs text-slate-500 bg-slate-50 rounded-xl p-3">{req.description}</p>}
-      {requestPhotos.length > 0 && <div className="flex gap-2 overflow-x-auto">{requestPhotos.map(url => <img key={url} src={url} alt="Request" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
+      {requestPhotos.length > 0 && <div className="flex gap-2 overflow-x-auto">{requestPhotos.map(url => <ImagePreview key={url} src={url} alt="Request" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
       <div className="rounded-2xl bg-blue-50 border border-blue-100 p-3 space-y-2">
         <div className="text-xs font-black text-blue-700">Add offer item</div>
         <input className="w-full p-3 rounded-xl border" placeholder="Net price IQD" value={draft.supplierPrice} onChange={e => setDraft(current => ({ ...current, supplierPrice: e.target.value }))} inputMode="numeric" />
@@ -280,7 +281,7 @@ function Lead({ req, token, reload, onSubmitted, existingCount, onToast }) {
             <input type="file" accept="image/*" className="hidden" disabled={uploading || draft.photoUrls.length >= 5} onChange={e => handleOfferPhotoUpload(e.target.files?.[0])} />
           </label>
           <div className="text-[10px] text-slate-400">Optional. JPG, PNG, WEBP, or GIF. Max 5MB per image.</div>
-          {draft.photoUrls.length > 0 && <div className="flex gap-2 overflow-x-auto">{draft.photoUrls.map((url, index) => <div key={`${url}-${index}`} className="relative"><img src={url} alt="Offer preview" className="w-16 h-16 rounded-xl object-cover border" /><button onClick={() => removePhoto(index)} type="button" className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold">×</button></div>)}</div>}
+          {draft.photoUrls.length > 0 && <div className="flex gap-2 overflow-x-auto">{draft.photoUrls.map((url, index) => <div key={`${url}-${index}`} className="relative"><ImagePreview src={url} alt="Offer preview" className="w-16 h-16 rounded-xl object-cover border" /><button onClick={() => removePhoto(index)} type="button" className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold">×</button></div>)}</div>}
         </div>
         <input className="w-full p-3 rounded-xl border" placeholder="Notes" value={draft.notes} onChange={e => setDraft(current => ({ ...current, notes: e.target.value }))} />
         <div className="grid grid-cols-2 gap-2">

@@ -6,6 +6,7 @@ import OfferCard from '../components/customer/OfferCard';
 import DeliveryWorkflow from '../components/orders/DeliveryWorkflow';
 import OrderInfoPanel from '../components/orders/OrderInfoPanel';
 import Toast from '../components/ui/Toast';
+import ImagePreview from '../components/ui/ImagePreview';
 
 function parseJsonArray(value) {
   try {
@@ -117,7 +118,7 @@ function RequestCard({ req, token, reload, onToast }) {
     {open && <>
       {req.description && <div className="text-xs bg-slate-50 text-slate-600 rounded-xl p-2">{req.description}</div>}
       {req.cancellationReason && <div className="text-xs bg-red-50 text-red-700 rounded-xl p-2">Cancelled reason: {req.cancellationReason}</div>}
-      {requestPhotos.length > 0 && <div className="flex gap-2 overflow-x-auto">{requestPhotos.map(url => <img key={url} src={url} alt="Request" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
+      {requestPhotos.length > 0 && <div className="flex gap-2 overflow-x-auto">{requestPhotos.map(url => <ImagePreview key={url} src={url} alt="Request" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
       <div className="space-y-2">
         {req.offers?.filter(o => o.status === 'ACTIVE').map(o => <OfferCard key={o.id} offer={o} token={token} reload={reload} />)}
       </div>
@@ -220,7 +221,7 @@ function RequestForm({ token, onDone }) {
         <input type="file" accept="image/*" className="hidden" disabled={uploading || form.photoUrls.length >= 4} onChange={e => handlePhotoUpload(e.target.files?.[0])} />
       </label>
       <div className="text-[10px] text-slate-400">JPG, PNG, WEBP, or GIF. Max 5MB per image.</div>
-      {form.photoUrls.length > 0 && <div className="flex gap-2 overflow-x-auto">{form.photoUrls.map((url, index) => <div key={url} className="relative"><img src={url} alt="Request preview" className="w-16 h-16 rounded-xl object-cover border" /><button onClick={() => removePhotoUrl(index)} type="button" className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold">×</button></div>)}</div>}
+      {form.photoUrls.length > 0 && <div className="flex gap-2 overflow-x-auto">{form.photoUrls.map((url, index) => <div key={url} className="relative"><ImagePreview src={url} alt="Request preview" className="w-16 h-16 rounded-xl object-cover border" /><button onClick={() => removePhotoUrl(index)} type="button" className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold">×</button></div>)}</div>}
     </div>
     <input className="w-full p-3 rounded-xl border" placeholder="Your phone required" value={form.customerPhone} onChange={e => setForm({...form, customerPhone:e.target.value})}/>
     <input className="w-full p-3 rounded-xl border" placeholder="Detailed location required" value={form.location} onChange={e => setForm({...form, location:e.target.value})}/>
