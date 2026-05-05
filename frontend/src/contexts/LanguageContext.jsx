@@ -218,7 +218,14 @@ const translations = {
     fullName: 'Full name',
     phoneNumberForLogin: 'Phone number used for login',
     adminPhoneLoginNote: 'Admin and Super Admin users can log in from the main phone login screen using their registered phone number. The corner SA button remains available for emergency username/access-code access only.',
-    createUser: 'Create User'
+    createUser: 'Create User',
+    checkoutPreview: 'Checkout preview',
+    confirmOrder: 'Confirm order',
+    itemPrice: 'Item price',
+    deliveryFee: 'Delivery fee',
+    total: 'Total',
+    paymentPlaceholder: 'Cash on delivery is active for MVP. Card and wallet payment can be connected later.',
+    confirming: 'Confirming...'
   },
 
   ar: {
@@ -438,7 +445,14 @@ const translations = {
     fullName: 'الاسم الكامل',
     phoneNumberForLogin: 'رقم الهاتف المستخدم للدخول',
     adminPhoneLoginNote: 'يمكن للمشرفين والإدارة العليا تسجيل الدخول من شاشة الهاتف الرئيسية باستخدام رقم الهاتف المسجل. يبقى زر SA في الزاوية متاحاً للدخول الطارئ باسم المستخدم ورمز الوصول فقط.',
-    createUser: 'إنشاء المستخدم'
+    createUser: 'إنشاء المستخدم',
+    checkoutPreview: 'مراجعة الطلب',
+    confirmOrder: 'تأكيد الطلب',
+    itemPrice: 'سعر القطعة',
+    deliveryFee: 'رسوم التوصيل',
+    total: 'الإجمالي',
+    paymentPlaceholder: 'الدفع عند الاستلام مفعل حالياً. يمكن ربط الدفع بالبطاقة أو المحفظة لاحقاً.',
+    confirming: 'جارٍ التأكيد...'
   }
 };
 
