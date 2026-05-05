@@ -24,6 +24,33 @@ export async function api(path, { method = 'GET', body, token } = {}) {
   return res.json();
 }
 
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('Could not read selected image'));
+    reader.readAsDataURL(file);
+  });
+}
+
+export async function uploadImage(file, { token, context = 'request' } = {}) {
+  if (!file) throw new Error('Please select an image first');
+  if (!file.type?.startsWith('image/')) throw new Error('Only image files are allowed');
+  if (file.size > 5 * 1024 * 1024) throw new Error('Image must be 5MB or smaller');
+
+  const fileData = await readFileAsDataUrl(file);
+  return api('/uploads/image', {
+    method: 'POST',
+    token,
+    body: {
+      context,
+      fileName: file.name,
+      fileType: file.type,
+      fileData
+    }
+  });
+}
+
 export function formatIQD(value) {
   return `${Number(value || 0).toLocaleString()} IQD`;
 }
