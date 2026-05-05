@@ -78,7 +78,7 @@ export default function Profile() {
             rel="noreferrer"
             className="rounded-2xl bg-slate-50 p-3 block"
           >
-            <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? '????? / ??????' : 'Support / WhatsApp'}</div>
+            <div className="text-xs text-slate-400 font-bold">{t('supportWhatsapp')}</div>
             <div className="font-bold text-slate-800 dir-ltr text-left">07733664151</div>
           </a>
 
@@ -86,7 +86,7 @@ export default function Profile() {
             href="mailto:support@autopartiq.com"
             className="rounded-2xl bg-slate-50 p-3 block"
           >
-            <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? '?????? ?????????? ?????' : 'Support Email'}</div>
+            <div className="text-xs text-slate-400 font-bold">{t('supportEmail')}</div>
             <div className="font-bold text-slate-800 break-all dir-ltr text-left">support@autopartiq.com</div>
           </a>
         </div>
