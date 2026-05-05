@@ -16,6 +16,12 @@ function parseNotificationMetadata(item) {
 function notificationText(item, t) {
   const metadata = parseNotificationMetadata(item);
 
+  if (metadata.type === 'NEW_LEAD') {
+    return metadata.partName
+      ? `${t('newLeadNotification')}: ${metadata.partName}`
+      : t('newLeadNotification');
+  }
+
   if (metadata.type === 'NEW_OFFER') {
     return metadata.partName
       ? `${t('newOfferNotification')}: ${metadata.partName}`

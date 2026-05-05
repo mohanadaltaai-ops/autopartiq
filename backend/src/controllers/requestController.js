@@ -35,6 +35,45 @@ export async function createRequest(req, res) {
       photoUrlsJson: JSON.stringify(normalizePhotoUrls(data.photoUrls))
     }
   });
+
+  try {
+    const suppliers = await prisma.supplier.findMany({
+      where: { isActive: true },
+      include: { user: true }
+    });
+
+    const matchingSuppliers = suppliers.filter((supplier) => {
+      try {
+        const supportedMakes = JSON.parse(supplier.supportedMakesJson || '[]');
+        return supportedMakes.includes(request.origin);
+      } catch {
+        return false;
+      }
+    });
+
+    if (matchingSuppliers.length) {
+      await prisma.notification.createMany({
+        data: matchingSuppliers
+          .filter(supplier => supplier.userId)
+          .map(supplier => ({
+            userId: supplier.userId,
+            message: `New lead available: ${request.partName}`,
+            metadataJson: JSON.stringify({
+              type: 'NEW_LEAD',
+              requestId: request.id,
+              partName: request.partName,
+              make: request.make,
+              model: request.model,
+              year: request.year,
+              tab: 'home'
+            })
+          }))
+      });
+    }
+  } catch (error) {
+    console.error('Failed to notify suppliers for new lead', error);
+  }
+
   res.status(201).json({ request });
 }
 
