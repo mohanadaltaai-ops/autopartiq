@@ -234,7 +234,9 @@ const translations = {
     activeOffer: 'Active',
     waiting: 'Waiting',
     processing: 'Processing',
-    newOfferNotification: 'You have a new offer'
+    newOfferNotification: 'You have a new offer',
+    created: 'Created',
+    noOrders: 'No orders yet.'
   },
 
   ar: {
@@ -470,7 +472,9 @@ const translations = {
     activeOffer: 'نشط',
     waiting: 'قيد الانتظار',
     processing: 'قيد المعالجة',
-    newOfferNotification: 'لديك عرض جديد'
+    newOfferNotification: 'لديك عرض جديد',
+    created: 'تاريخ الإنشاء',
+    noOrders: 'لا توجد طلبات حالياً.'
   }
 };
 
