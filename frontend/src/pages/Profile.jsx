@@ -8,6 +8,7 @@ export default function Profile() {
   const { t, language, toggleLanguage } = useLanguage();
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const [customerRequests, setCustomerRequests] = useState([]);
+  const [customerOrders, setCustomerOrders] = useState([]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -17,9 +18,18 @@ export default function Profile() {
   useEffect(() => {
     if (user?.role !== 'CUSTOMER' || !token) return;
 
-    api('/requests/mine', { token })
-      .then(result => setCustomerRequests(result.requests || []))
-      .catch(() => setCustomerRequests([]));
+    Promise.all([
+      api('/requests/mine', { token }),
+      api('/orders/mine', { token })
+    ])
+      .then(([requestsResult, ordersResult]) => {
+        setCustomerRequests(requestsResult.requests || []);
+        setCustomerOrders(ordersResult.orders || []);
+      })
+      .catch(() => {
+        setCustomerRequests([]);
+        setCustomerOrders([]);
+      });
   }, [user?.role, token]);
 
   const roleLabel =
@@ -31,7 +41,7 @@ export default function Profile() {
   const customerStats = {
     total: customerRequests.length,
     active: customerRequests.filter(req => !['COMPLETED', 'CANCELLED'].includes(req.status)).length,
-    completed: customerRequests.filter(req => req.status === 'COMPLETED').length,
+    completed: customerOrders.filter(order => order.status === 'COMPLETED').length,
     cancelled: customerRequests.filter(req => req.status === 'CANCELLED').length
   };
 
@@ -119,7 +129,7 @@ export default function Profile() {
             </div>
 
             <div className="rounded-2xl bg-slate-50 p-3">
-              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'المكتملة' : 'Completed'}</div>
+              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'الطلبات المكتملة' : 'Completed Orders'}</div>
               <div className="text-xl font-black text-green-700">{customerStats.completed}</div>
             </div>
 
