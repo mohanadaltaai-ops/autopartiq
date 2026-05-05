@@ -383,7 +383,7 @@ const translations = {
     light: 'فاتح',
     support: 'الدعم',
     supportWhatsapp: 'الدعم / واتساب',
-    supportEmail: 'البريد الإلكتروني للدعم',
+    supportEmail: 'البريد الإلكتروني',
     logout: 'تسجيل الخروج',
     email: 'البريد الإلكتروني',
     phone: 'الهاتف',
