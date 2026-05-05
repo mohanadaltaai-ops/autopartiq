@@ -22,6 +22,16 @@ function Empty({ text }) {
   return <div className="bg-white rounded-2xl border border-dashed p-6 text-center text-sm text-slate-400">{text}</div>;
 }
 
+
+function SummaryRow({ label, value }) {
+  return (
+    <div className="flex justify-between gap-3">
+      <span className="text-slate-400">{label}</span>
+      <strong className="text-slate-700 text-right">{value || '-'}</strong>
+    </div>
+  );
+}
+
 function requestStatusLabel(status, t) {
   if (status === 'WAITING') return t('pending');
   if (status === 'CANCELLED') return t('cancelled');
