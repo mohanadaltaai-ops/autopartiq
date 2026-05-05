@@ -5,6 +5,14 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../lib/api';
 import logo from '../assets/logo.png';
 
+function parseNotificationMetadata(item) {
+  try {
+    return JSON.parse(item.metadataJson || '{}');
+  } catch {
+    return {};
+  }
+}
+
 export default function Layout({ tab, setTab, children }) {
   const { user, token } = useAuth();
   const { language, t, toggleLanguage } = useLanguage();
@@ -42,6 +50,16 @@ export default function Layout({ tab, setTab, children }) {
     }
   }
 
+  function openNotification(item) {
+    const metadata = parseNotificationMetadata(item);
+    if (metadata.requestId || metadata.offerId || metadata.orderId) {
+      localStorage.setItem('notificationTarget', JSON.stringify(metadata));
+      setShowNotifications(false);
+      setTab(metadata.orderId ? 'orders' : 'home');
+      window.dispatchEvent(new CustomEvent('autopartiq:navigate-notification', { detail: metadata }));
+    }
+  }
+
   useEffect(() => { loadNotifications().catch(() => {}); }, [token, user?.role]);
 
   return <div className="min-h-screen h-screen flex items-center justify-center p-5 bg-slate-600 overflow-hidden">
@@ -71,7 +89,10 @@ export default function Layout({ tab, setTab, children }) {
       {showNotifications && <div className="absolute top-16 right-4 left-4 z-20 bg-white rounded-2xl border shadow-xl p-4 space-y-2">
         <div className="flex items-center justify-between"><h3 className="font-black text-slate-900">{t('notifications')}</h3><button onClick={() => setShowNotifications(false)} className="text-slate-400 text-sm">{t('close')}</button></div>
         {notifications.length === 0 && <div className="text-sm text-slate-400 py-4 text-center">{t('noNotifications')}</div>}
-        {notifications.map(item => <div key={item.id} className="text-sm bg-slate-50 rounded-xl p-3 text-slate-700">{item.message}</div>)}
+        {notifications.map(item => <button key={item.id} onClick={() => openNotification(item)} className="w-full text-left text-sm bg-slate-50 rounded-xl p-3 text-slate-700 hover:bg-orange-50">
+          <div>{item.message}</div>
+          {(parseNotificationMetadata(item).requestId || parseNotificationMetadata(item).offerId || parseNotificationMetadata(item).orderId) && <div className="text-[10px] text-orange-600 font-bold mt-1">Tap to open</div>}
+        </button>)}
       </div>}
       <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain pb-2">{children}</main>
       <nav className="shrink-0 bg-white border-t border-slate-200 flex overflow-x-auto">
