@@ -1,5 +1,5 @@
-﻿import React, { useEffect, useState } from 'react';
-import { Bell, Home, Package, User, BarChart3, Users, Languages, ShieldCheck, UserPlus } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Bell, Home, Package, User, BarChart3, Users, Languages, ShieldCheck, UserPlus, Wallet } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../lib/api';
@@ -86,6 +86,7 @@ export default function Layout({ tab, setTab, children }) {
         ['home', BarChart3, t('dashboard')],
         ['suppliers', Users, t('suppliers')],
         ['orders', Package, t('orders')],
+        ['settlements', Wallet, 'Settlements'],
         ['audit', ShieldCheck, t('audit')],
         ['manage', UserPlus, t('users')],
         ['profile', User, t('profile')]
@@ -99,7 +100,8 @@ export default function Layout({ tab, setTab, children }) {
           ['home', BarChart3, t('dashboard')],
           ['suppliers', Users, t('suppliers')],
           ['orders', Package, t('orders')],
-          ['audit', ShieldCheck, t('audit')],
+        ['settlements', Wallet, 'Settlements'],
+        ['audit', ShieldCheck, t('audit')],
           ['profile', User, t('profile')]
         ];
 
@@ -140,7 +142,7 @@ export default function Layout({ tab, setTab, children }) {
     if (metadata.requestId || metadata.offerId || metadata.orderId) {
       localStorage.setItem('notificationTarget', JSON.stringify(metadata));
       setShowNotifications(false);
-      setTab(metadata.orderId ? 'orders' : 'home');
+      setTab(metadata.tab || (metadata.orderId ? 'orders' : 'home'));
       window.dispatchEvent(new CustomEvent('autopartiq:navigate-notification', { detail: metadata }));
     }
   }

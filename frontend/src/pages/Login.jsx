@@ -12,11 +12,29 @@ export default function Login() {
   const [error, setError] = useState('');
 
   async function submit() {
+    const cleanOtp = otp.trim();
+
+    if (!cleanOtp) {
+      setError(t('otpRequired'));
+      return;
+    }
+
     try {
       setError('');
-      await login(phone, otp);
+      await login(phone, cleanOtp);
     } catch (e) {
-      setError(e.message);
+      const message = e.message || '';
+
+      if (
+        message.includes('Failed to reach API') ||
+        message.includes('Internal server error') ||
+        message.includes('API request failed with status')
+      ) {
+        setError(t('loginServerError'));
+        return;
+      }
+
+      setError(t('incorrectOtp'));
     }
   }
 

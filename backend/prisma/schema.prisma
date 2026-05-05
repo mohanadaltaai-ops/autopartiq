@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -54,120 +55,158 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum PayoutStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+enum PayoutMethod {
+  CASH
+  ZAINCASH
+  MANUAL
+  OTHER
+}
+
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  phone     String   @unique
-  email     String?  @unique
-  username  String?  @unique
-  password  String?
-  role      Role     @default(CUSTOMER)
-  adminPermission String @default("FULL_ADMIN")
-  createdAt DateTime @default(now())
-  supplier  Supplier?
-  requests  PartRequest[]
-  notifications Notification[]
-  auditLogs AuditLog[]
+  id              String         @id @default(cuid())
+  name            String
+  phone           String         @unique
+  email           String?        @unique
+  username        String?        @unique
+  password        String?
+  role            Role           @default(CUSTOMER)
+  adminPermission String         @default("FULL_ADMIN")
+  createdAt       DateTime       @default(now())
+  supplier        Supplier?
+  requests        PartRequest[]
+  notifications   Notification[]
+  auditLogs       AuditLog[]
 }
 
 model Supplier {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id])
-  name      String
-  phone     String
-  location  String
+  id                 String           @id @default(cuid())
+  userId             String           @unique
+  user               User             @relation(fields: [userId], references: [id])
+  name               String
+  phone              String
+  location           String
   supportedMakesJson String
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  offers    Offer[]
-  orders    Order[]
+  isActive           Boolean          @default(true)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  offers             Offer[]
+  orders             Order[]
+  payouts            SupplierPayout[]
 }
 
 model PartRequest {
-  id            String   @id @default(cuid())
-  customerId    String
-  customer      User     @relation(fields: [customerId], references: [id])
-  origin        String
-  make          String
-  model         String
-  year          Int
-  partName      String
-  description   String?
-  partNumber    String?
-  vin           String?
-  location      String?
-  customerPhone String?
-  photoUrlsJson String  @default("[]")
+  id                 String        @id @default(cuid())
+  customerId         String
+  customer           User          @relation(fields: [customerId], references: [id])
+  origin             String
+  make               String
+  model              String
+  year               Int
+  partName           String
+  description        String?
+  partNumber         String?
+  vin                String?
+  location           String?
+  customerPhone      String?
+  photoUrlsJson      String        @default("[]")
   cancellationReason String?
-  status        RequestStatus @default(WAITING)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  offers        Offer[]
+  status             RequestStatus @default(WAITING)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  offers             Offer[]
 }
 
 model Offer {
-  id              String   @id @default(cuid())
-  requestId       String
-  request         PartRequest @relation(fields: [requestId], references: [id])
-  supplierId      String
-  supplier        Supplier @relation(fields: [supplierId], references: [id])
-  supplierPrice   Int
-  customerPrice   Int
-  platformRevenue Int
-  condition       PartCondition
-  notes           String?
+  id                 String        @id @default(cuid())
+  requestId          String
+  request            PartRequest   @relation(fields: [requestId], references: [id])
+  supplierId         String
+  supplier           Supplier      @relation(fields: [supplierId], references: [id])
+  supplierPrice      Int
+  customerPrice      Int
+  platformRevenue    Int
+  condition          PartCondition
+  notes              String?
   cancellationReason String?
-  photoUrl        String?
-  photoUrlsJson   String @default("[]")
-  status          OfferStatus @default(ACTIVE)
-  createdAt       DateTime @default(now())
-  order           Order?
+  photoUrl           String?
+  photoUrlsJson      String        @default("[]")
+  status             OfferStatus   @default(ACTIVE)
+  createdAt          DateTime      @default(now())
+  order              Order?
 }
 
 model Order {
-  id              String @id @default(cuid())
-  orderNumber     String @unique
-  offerId         String @unique
-  offer           Offer @relation(fields: [offerId], references: [id])
-  supplierId      String
-  supplier        Supplier @relation(fields: [supplierId], references: [id])
-  customerId      String
-  supplierPrice   Int
-  customerPrice   Int
-  deliveryFee     Int @default(6000)
-  platformRevenue Int
-  status          OrderStatus @default(WAITING_PICKUP)
-  paymentMethod   PaymentMethod @default(CASH_ON_DELIVERY)
-  paymentStatus   PaymentStatus @default(PENDING)
-  driverName      String?
-  driverPhone     String?
-  pickupEta       String?
-  deliveryEta     String?
+  id                 String          @id @default(cuid())
+  orderNumber        String          @unique
+  offerId            String          @unique
+  offer              Offer           @relation(fields: [offerId], references: [id])
+  supplierId         String
+  supplier           Supplier        @relation(fields: [supplierId], references: [id])
+  customerId         String
+  supplierPrice      Int
+  customerPrice      Int
+  deliveryFee        Int             @default(6000)
+  platformRevenue    Int
+  status             OrderStatus     @default(WAITING_PICKUP)
+  paymentMethod      PaymentMethod   @default(CASH_ON_DELIVERY)
+  paymentStatus      PaymentStatus   @default(PENDING)
+  driverName         String?
+  driverPhone        String?
+  pickupEta          String?
+  deliveryEta        String?
   proofOfDeliveryUrl String?
-  deliveryNotes   String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  deliveryNotes      String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  payout             SupplierPayout?
+}
+
+model SupplierPayout {
+  id         String  @id @default(cuid())
+  supplierId String
+  orderId    String? @unique
+
+  amount    Int
+  status    PayoutStatus  @default(PENDING)
+  method    PayoutMethod?
+  reference String?
+  notes     String?
+
+  provider              String?
+  providerTransactionId String?
+  metadataJson          String  @default("{}")
+
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+  order    Order?   @relation(fields: [orderId], references: [id])
 }
 
 model Notification {
-  id        String @id @default(cuid())
-  userId    String
-  user      User @relation(fields: [userId], references: [id])
-  message   String
-  metadataJson String @default("{}")
-  read      Boolean @default(false)
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  message      String
+  metadataJson String   @default("{}")
+  read         Boolean  @default(false)
+  createdAt    DateTime @default(now())
 }
 
 model AuditLog {
-  id          String   @id @default(cuid())
-  actorUserId String?
-  actor       User?    @relation(fields: [actorUserId], references: [id])
-  action      String
-  entityType  String
-  entityId    String?
-  metadataJson String  @default("{}")
-  createdAt   DateTime @default(now())
+  id           String   @id @default(cuid())
+  actorUserId  String?
+  actor        User?    @relation(fields: [actorUserId], references: [id])
+  action       String
+  entityType   String
+  entityId     String?
+  metadataJson String   @default("{}")
+  createdAt    DateTime @default(now())
 }

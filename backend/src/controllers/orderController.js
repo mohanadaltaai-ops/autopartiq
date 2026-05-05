@@ -37,7 +37,7 @@ export async function updateOrderStatus(req, res) {
   if (!ALLOWED_STATUSES.includes(status)) return res.status(400).json({ message: 'Invalid order status' });
   if (!['ADMIN', 'SUPER_ADMIN'].includes(req.user.role)) return res.status(403).json({ message: 'Only Admin can update order status' });
 
-  const existing = await prisma.order.findUnique({ where: { id: req.params.id }, include: { offer: { include: { request: true, supplier: true } } } });
+  const existing = await prisma.order.findUnique({ where: { id: req.params.id }, include: { offer: { include: { request: true, supplier: true } }, payout: true } });
   if (!existing) return res.status(404).json({ message: 'Order not found' });
 
   const order = await prisma.$transaction(async (tx) => {
@@ -52,12 +52,49 @@ export async function updateOrderStatus(req, res) {
         where: { id: updatedOrder.offer.requestId },
         data: { status: 'COMPLETED' }
       });
+
+      await tx.supplierPayout.upsert({
+        where: { orderId: updatedOrder.id },
+        update: {
+          supplierId: updatedOrder.supplierId,
+          amount: updatedOrder.supplierPrice,
+          status: 'PENDING',
+          metadataJson: JSON.stringify({
+            source: 'ORDER_COMPLETED',
+            orderNumber: existing.orderNumber
+          })
+        },
+        create: {
+          supplierId: updatedOrder.supplierId,
+          orderId: updatedOrder.id,
+          amount: updatedOrder.supplierPrice,
+          status: 'PENDING',
+          metadataJson: JSON.stringify({
+            source: 'ORDER_COMPLETED',
+            orderNumber: existing.orderNumber
+          })
+        }
+      });
     }
 
     if (status === 'CANCELLED') {
       await tx.partRequest.update({
         where: { id: updatedOrder.offer.requestId },
         data: { status: 'CANCELLED' }
+      });
+
+      await tx.supplierPayout.updateMany({
+        where: {
+          orderId: updatedOrder.id,
+          status: 'PENDING'
+        },
+        data: {
+          status: 'CANCELLED',
+          metadataJson: JSON.stringify({
+            source: 'ORDER_CANCELLED',
+            orderNumber: existing.orderNumber
+          })
+        }
       });
     }
 
@@ -98,11 +135,27 @@ export async function updateOrderStatus(req, res) {
     });
   }
 
+  if (status === 'COMPLETED' && existing.offer?.supplier?.userId && !existing.payout) {
+    await prisma.notification.create({
+      data: {
+        userId: existing.offer.supplier.userId,
+        message: `New payout pending for order ${order.orderNumber}`,
+        metadataJson: JSON.stringify({
+          type: 'SUPPLIER_PAYOUT_PENDING',
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          amount: order.supplierPrice,
+          tab: 'earnings'
+        })
+      }
+    });
+  }
+
   res.json({ order });
 }
 
 export async function updatePayment(req, res) {
-  const existing = await prisma.order.findUnique({ where: { id: req.params.id }, include: { offer: { include: { request: true, supplier: true } } } });
+  const existing = await prisma.order.findUnique({ where: { id: req.params.id }, include: { offer: { include: { request: true, supplier: true } }, payout: true } });
   if (!existing) return res.status(404).json({ message: 'Order not found' });
 
   const order = await prisma.order.update({

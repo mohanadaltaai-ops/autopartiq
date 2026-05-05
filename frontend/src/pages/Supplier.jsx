@@ -54,6 +54,8 @@ export default function Supplier({ tab }) {
   const [leads, setLeads] = useState([]);
   const [offers, setOffers] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [payouts, setPayouts] = useState([]);
+  const [payoutSummary, setPayoutSummary] = useState(null);
   const [homeTab, setHomeTab] = useState('leads');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -62,14 +64,18 @@ export default function Supplier({ tab }) {
   async function load() {
     try {
       setError('');
-      const [l, o, sent] = await Promise.all([
+      const [l, o, sent, payoutResult, payoutSummaryResult] = await Promise.all([
         api('/requests/supplier/leads', { token }),
         api('/orders/mine', { token }),
-        api('/offers/mine', { token })
+        api('/offers/mine', { token }),
+        api('/payouts/supplier', { token }),
+        api('/payouts/supplier/summary', { token })
       ]);
       setLeads(l.requests || []);
       setOrders(o.orders || []);
       setOffers(sent.offers || []);
+      setPayouts(payoutResult.payouts || []);
+      setPayoutSummary(payoutSummaryResult.summary || null);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -96,7 +102,7 @@ export default function Supplier({ tab }) {
     </div>;
   }
 
-  if (tab === 'earnings') return <Earnings orders={orders} />;
+  if (tab === 'earnings') return <Earnings orders={orders} payouts={payouts} payoutSummary={payoutSummary} />;
 
   return <div className="p-4 space-y-3">
     <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
@@ -159,7 +165,13 @@ function OrderCard({ order }) {
   </div>;
 }
 
-function Earnings({ orders }) {
+function payoutStatusClass(status) {
+  if (status === 'PAID') return 'bg-green-50 text-green-700 border-green-100';
+  if (status === 'CANCELLED') return 'bg-red-50 text-red-700 border-red-100';
+  return 'bg-amber-50 text-amber-700 border-amber-100';
+}
+
+function Earnings({ orders, payouts = [], payoutSummary }) {
   const { t } = useLanguage();
   const completedOrders = orders.filter(o => o.status === 'COMPLETED');
   const openOrders = orders.filter(o => ['WAITING_PICKUP', 'DELIVERING'].includes(o.status));
@@ -170,6 +182,11 @@ function Earnings({ orders }) {
 
   const recentCompleted = [...completedOrders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   const recentOpen = [...openOrders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const recentPayouts = [...payouts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const pendingPayoutAmount = payoutSummary?.pendingAmount || 0;
+  const paidPayoutAmount = payoutSummary?.paidAmount || 0;
+  const cancelledPayoutAmount = payoutSummary?.cancelledAmount || 0;
 
   return <div className="p-4 space-y-4">
     <div className="bg-blue-600 text-white rounded-3xl p-5 shadow space-y-1">
@@ -199,6 +216,60 @@ function Earnings({ orders }) {
       <div className="text-xs text-slate-400 mt-1">{t('pendingValueNote')}</div>
     </div>
 
+    <h2 className="font-black text-slate-900">{t('supplierPayouts') || 'Supplier Payouts'}</h2>
+
+    <div className="grid grid-cols-3 gap-3">
+      <div className="bg-white rounded-2xl border p-4">
+        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('pendingPayout') || 'Pending Payout'}</div>
+        <div className="mt-1 text-sm font-black text-amber-700">{formatIQD(pendingPayoutAmount)}</div>
+      </div>
+      <div className="bg-white rounded-2xl border p-4">
+        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('paidPayout') || 'Paid Payout'}</div>
+        <div className="mt-1 text-sm font-black text-green-700">{formatIQD(paidPayoutAmount)}</div>
+      </div>
+      <div className="bg-white rounded-2xl border p-4">
+        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('cancelledPayout') || 'Cancelled Payout'}</div>
+        <div className="mt-1 text-sm font-black text-red-700">{formatIQD(cancelledPayoutAmount)}</div>
+      </div>
+    </div>
+
+    <h2 className="font-black text-slate-900">{t('payoutHistory') || 'Payout History'}</h2>
+    {recentPayouts.length === 0 && <Empty text={t('noSupplierPayouts') || 'No supplier payouts yet.'} />}
+    {recentPayouts.map(payout => (
+      <div key={payout.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
+        <div className="flex justify-between gap-3">
+          <div>
+            <div className="font-bold text-slate-900">{payout.order?.offer?.request?.partName || '-'}</div>
+            <div className="text-xs text-slate-500">{payout.order?.orderNumber || payout.metadata?.orderNumber || '-'}</div>
+            <div className="text-[11px] text-slate-400 mt-1">{new Date(payout.createdAt).toLocaleString()}</div>
+          </div>
+          <div className="text-right">
+            <div className="font-black text-slate-900">{formatIQD(payout.amount)}</div>
+            <div className={`inline-flex mt-1 px-2 py-1 rounded-full border text-[10px] font-black ${payoutStatusClass(payout.status)}`}>
+              {payout.status}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="bg-slate-50 rounded-xl p-3">
+            <div className="text-[10px] uppercase font-black text-slate-400">{t('payoutMethod') || 'Method'}</div>
+            <div className="font-bold text-slate-700">{payout.method || 'MANUAL'}</div>
+          </div>
+          <div className="bg-slate-50 rounded-xl p-3">
+            <div className="text-[10px] uppercase font-black text-slate-400">{t('payoutReference') || 'Reference'}</div>
+            <div className="font-bold text-slate-700 break-all">{payout.reference || '-'}</div>
+          </div>
+          <div className="bg-slate-50 rounded-xl p-3 col-span-2">
+            <div className="text-[10px] uppercase font-black text-slate-400">{t('paidAt') || 'Paid At'}</div>
+            <div className="font-bold text-slate-700">{payout.paidAt ? new Date(payout.paidAt).toLocaleString() : '-'}</div>
+          </div>
+        </div>
+
+        {payout.notes && <div className="text-xs bg-slate-50 text-slate-600 rounded-xl p-3">{payout.notes}</div>}
+      </div>
+    ))}
+
     <h2 className="font-black text-slate-900">{t('openTransactions')}</h2>
     {recentOpen.length === 0 && <Empty text={t('noPendingValue')} />}
     {recentOpen.map(o => (
@@ -224,6 +295,7 @@ function Earnings({ orders }) {
     ))}
   </div>;
 }
+
 
 function SentOffers({ offers, token, reload, onToast }) {
   const { t } = useLanguage();

@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { api, formatIQD } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -8,6 +8,7 @@ import AuditLogViewer from '../components/admin/AuditLogViewer';
 import OrderPaymentControls from '../components/admin/OrderPaymentControls';
 import OrderDeliveryControls from '../components/admin/OrderDeliveryControls';
 import SuperAdminEnroll from '../components/admin/SuperAdminEnroll';
+import AdminPayoutManager from '../components/admin/AdminPayoutManager';
 
 function StatCard({ label, value }) {
   return <div className="bg-white rounded-2xl border p-4 shadow-sm">
@@ -267,6 +268,13 @@ export default function Admin({ tab }) {
     </div>;
   }
 
+
+  if (tab === 'settlements') {
+    return <div className="p-4 space-y-4">
+      <h1 className="font-black text-xl text-slate-900">Supplier Settlements</h1>
+      <AdminPayoutManager token={token} />
+    </div>;
+  }
   if (tab === 'orders') {
     const filteredOrders = [...data.orders]
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))

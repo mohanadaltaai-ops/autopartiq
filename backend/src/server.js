@@ -13,6 +13,7 @@ import aiRoutes from './routes/aiRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import auditRoutes from './routes/auditRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import payoutRoutes from './routes/payoutRoutes.js';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -53,6 +54,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/audit-logs', auditRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/payouts', payoutRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err);
