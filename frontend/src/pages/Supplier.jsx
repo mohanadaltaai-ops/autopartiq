@@ -166,7 +166,7 @@ function SentOffers({ offers, token, reload, onToast }) {
           {photos.length > 0 && <div className="flex gap-2 overflow-x-auto">{photos.map(url => <ImagePreview key={url} src={url} alt="Offer" className="w-16 h-16 rounded-xl object-cover border" />)}</div>}
           {canCancel && <div className="border-t pt-3 space-y-2">
             {openCancelId !== offer.id ? <button onClick={() => setOpenCancelId(offer.id)} className="text-xs font-bold text-red-600">Cancel sent offer</button> : <>
-              <textarea className="w-full p-3 rounded-xl border text-sm" placeholder="Cancellation reason required" value={cancelReasonById[offer.id] || ''} onChange={e => setCancelReasonById(current => ({ ...current, [offer.id]: e.target.value }))} />
+              <textarea className="w-full p-3 rounded-xl border text-sm" placeholder="Reason for cancellation" value={cancelReasonById[offer.id] || ''} onChange={e => setCancelReasonById(current => ({ ...current, [offer.id]: e.target.value }))} />
               <button onClick={() => cancelOffer(offer.id)} disabled={!cancelReasonById[offer.id]?.trim()} className="w-full py-2 rounded-xl bg-red-600 text-white text-sm font-bold disabled:opacity-40">Confirm cancellation</button>
             </>}
           </div>}
@@ -280,7 +280,7 @@ function Lead({ req, token, reload, onSubmitted, existingCount, onToast }) {
             {uploading ? 'Uploading...' : 'Upload offer photo'}
             <input type="file" accept="image/*" className="hidden" disabled={uploading || draft.photoUrls.length >= 5} onChange={e => handleOfferPhotoUpload(e.target.files?.[0])} />
           </label>
-          <div className="text-[10px] text-slate-400">Optional. JPG, PNG, WEBP, or GIF. Max 5MB per image.</div>
+          <div className="text-[10px] text-slate-400">JPG, PNG, WEBP, or GIF. Max 5MB per image.</div>
           {draft.photoUrls.length > 0 && <div className="flex gap-2 overflow-x-auto">{draft.photoUrls.map((url, index) => <div key={`${url}-${index}`} className="relative"><ImagePreview src={url} alt="Offer preview" className="w-16 h-16 rounded-xl object-cover border" /><button onClick={() => removePhoto(index)} type="button" className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold">×</button></div>)}</div>}
         </div>
         <input className="w-full p-3 rounded-xl border" placeholder="Notes" value={draft.notes} onChange={e => setDraft(current => ({ ...current, notes: e.target.value }))} />

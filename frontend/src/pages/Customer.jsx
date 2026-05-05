@@ -157,7 +157,7 @@ function RequestCard({ req, token, reload, onToast, focus }) {
       </div>
       {canCancel && <div className="border-t pt-3 space-y-2">
         {!showCancel ? <button onClick={() => setShowCancel(true)} className="text-xs font-bold text-red-600">Cancel request</button> : <>
-          <textarea className="w-full p-3 rounded-xl border text-sm" placeholder="Reason for cancellation required" value={reason} onChange={e => setReason(e.target.value)} />
+          <textarea className="w-full p-3 rounded-xl border text-sm" placeholder="Reason for cancellation" value={reason} onChange={e => setReason(e.target.value)} />
           {error && <div className="text-xs text-red-600">{error}</div>}
           <div className="flex gap-2"><button onClick={cancel} disabled={!reason.trim()} className="flex-1 py-2 rounded-xl bg-red-600 text-white text-sm font-bold disabled:opacity-40">Confirm cancel</button><button onClick={() => setShowCancel(false)} className="flex-1 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-bold">Keep request</button></div>
         </>}
@@ -243,12 +243,12 @@ function RequestForm({ token, onDone }) {
     </div>
     <input className="w-full p-3 rounded-xl border" placeholder="Part name" value={form.partName} onChange={e => setForm({...form, partName:e.target.value})}/>
     <div className="grid grid-cols-2 gap-2">
-      <input className="w-full p-3 rounded-xl border" placeholder="Part number optional" value={form.partNumber} onChange={e => setForm({...form, partNumber:e.target.value})}/>
-      <input className="w-full p-3 rounded-xl border" placeholder="VIN / chassis optional" value={form.vin} onChange={e => setForm({...form, vin:e.target.value})}/>
+      <input className="w-full p-3 rounded-xl border" placeholder="Part number" value={form.partNumber} onChange={e => setForm({...form, partNumber:e.target.value})}/>
+      <input className="w-full p-3 rounded-xl border" placeholder="VIN / chassis" value={form.vin} onChange={e => setForm({...form, vin:e.target.value})}/>
     </div>
     <textarea className="w-full p-3 rounded-xl border" placeholder="Description" value={form.description} onChange={e => setForm({...form, description:e.target.value})}/>
     <div className="bg-slate-50 rounded-2xl p-3 space-y-2">
-      <div className="text-xs font-bold text-slate-500">Request photos optional — up to 4</div>
+      <div className="text-xs font-bold text-slate-500">Request photos — up to 4</div>
       <label className="block w-full py-3 rounded-xl bg-slate-900 text-white text-center text-sm font-bold cursor-pointer">
         {uploading ? 'Uploading...' : 'Upload photo'}
         <input type="file" accept="image/*" className="hidden" disabled={uploading || form.photoUrls.length >= 4} onChange={e => handlePhotoUpload(e.target.files?.[0])} />
@@ -256,8 +256,8 @@ function RequestForm({ token, onDone }) {
       <div className="text-[10px] text-slate-400">JPG, PNG, WEBP, or GIF. Max 5MB per image.</div>
       {form.photoUrls.length > 0 && <div className="flex gap-2 overflow-x-auto">{form.photoUrls.map((url, index) => <div key={url} className="relative"><ImagePreview src={url} alt="Request preview" className="w-16 h-16 rounded-xl object-cover border" /><button onClick={() => removePhotoUrl(index)} type="button" className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold">×</button></div>)}</div>}
     </div>
-    <input className="w-full p-3 rounded-xl border" placeholder="Your phone required" value={form.customerPhone} onChange={e => setForm({...form, customerPhone:e.target.value})}/>
-    <input className="w-full p-3 rounded-xl border" placeholder="Detailed location required" value={form.location} onChange={e => setForm({...form, location:e.target.value})}/>
+    <input className="w-full p-3 rounded-xl border" placeholder="Your phone" value={form.customerPhone} onChange={e => setForm({...form, customerPhone:e.target.value})}/>
+    <input className="w-full p-3 rounded-xl border" placeholder="Detailed location" value={form.location} onChange={e => setForm({...form, location:e.target.value})}/>
     {error && <div className="text-xs text-red-600">{error}</div>}
     <button onClick={submit} disabled={!form.origin || !form.make || !form.model || !form.year || !form.partName || !form.customerPhone || !form.location || saving} className="w-full py-3 rounded-2xl bg-slate-900 text-white font-black disabled:opacity-40">{saving ? 'Submitting...' : 'Submit Request'}</button>
   </div>;
