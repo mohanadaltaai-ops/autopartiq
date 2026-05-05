@@ -90,11 +90,9 @@ export default function Layout({ tab, setTab, children }) {
   const adminTabs = user?.role === 'SUPER_ADMIN'
     ? [
         ['home', BarChart3, t('dashboard')],
-        ['suppliers', Users, t('suppliers')],
         ['orders', Package, t('orders')],
+        ['suppliers', Users, t('suppliers')],
         ['settlements', Wallet, 'Settlements'],
-        ['audit', ShieldCheck, t('audit')],
-        ['manage', UserPlus, t('users')],
         ['profile', User, t('profile')]
       ]
     : user?.adminPermission === 'ORDERS_ONLY'
@@ -104,10 +102,9 @@ export default function Layout({ tab, setTab, children }) {
         ]
       : [
           ['home', BarChart3, t('dashboard')],
-          ['suppliers', Users, t('suppliers')],
           ['orders', Package, t('orders')],
-        ['settlements', Wallet, 'Settlements'],
-        ['audit', ShieldCheck, t('audit')],
+          ['suppliers', Users, t('suppliers')],
+          ['settlements', Wallet, 'Settlements'],
           ['profile', User, t('profile')]
         ];
 
