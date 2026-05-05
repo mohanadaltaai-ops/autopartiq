@@ -26,6 +26,26 @@ function statusLabel(status, t) {
   return labels[status] || status;
 }
 
+function paymentMethodLabel(method, t) {
+  const labels = {
+    CASH_ON_DELIVERY: t('cashOnDelivery'),
+    CARD: t('card'),
+    WALLET: t('wallet'),
+    BANK_TRANSFER: t('bankTransfer')
+  };
+  return labels[method] || method;
+}
+
+function paymentStatusLabel(status, t) {
+  const labels = {
+    PENDING: t('pending'),
+    PAID: t('paid'),
+    FAILED: t('failed'),
+    REFUNDED: t('refunded')
+  };
+  return labels[status] || status;
+}
+
 function StatusBadge({ status }) {
   const { t } = useLanguage();
   const colors = {
@@ -91,8 +111,8 @@ function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token
           <span>{t('revenue')}: {formatIQD(order.platformRevenue)}</span>
         </>}
         <span>{t('delivery')}: {formatIQD(order.deliveryFee)}</span>
-        <span>{t('payment')}: {order.paymentMethod}</span>
-        <span>{t('status')}: {order.paymentStatus}</span>
+        <span>{t('payment')}: {paymentMethodLabel(order.paymentMethod, t)}</span>
+        <span>{t('status')}: {paymentStatusLabel(order.paymentStatus, t)}</span>
         <span>{t('driver')}: {order.driverName || t('notAssigned')}</span>
         <span>{t('deliveryEta')}: {order.deliveryEta || t('pending')}</span>
         <span className="col-span-2">{t('location')}: {order.offer.request.location || 'N/A'}</span>
