@@ -123,7 +123,7 @@ const translations = {
     completedTransactions: 'Completed Transactions',
     noCompletedEarnings: 'No completed earnings transactions yet.',
     orderReadOnly: 'Order status is managed by Admin. Supplier view is read-only.',
-    activeOrders: 'Active Orders',
+    activeOrders: 'Open Orders',
 
     settings: 'Settings',
     language: 'Language',
@@ -375,7 +375,7 @@ const translations = {
     completedTransactions: 'العمليات المكتملة',
     noCompletedEarnings: 'لا توجد أرباح مكتملة حالياً.',
     orderReadOnly: 'حالة الطلب تُدار من قبل الإدارة. عرض المورد للقراءة فقط.',
-    activeOrders: 'الطلبات النشطة',
+    activeOrders: 'الطلبات المفتوحة',
 
     settings: 'الإعدادات',
     language: 'اللغة',
