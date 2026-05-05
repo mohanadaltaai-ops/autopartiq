@@ -146,7 +146,10 @@ const translations = {
     validSupplierPrice: 'Valid supplier price is needed',
     addAtLeastOneItem: 'Add at least one item before submitting.',
     upload4: 'You can upload up to 4 request photos.',
-    upload5: 'You can upload up to 5 offer photos.'
+    upload5: 'You can upload up to 5 offer photos.',
+    rejected: 'Rejected',
+    accepted: 'Accepted',
+    allVisibleOffers: 'All visible offers'
   },
 
   ar: {
@@ -294,7 +297,10 @@ const translations = {
     validSupplierPrice: 'أدخل سعراً صحيحاً من المورد',
     addAtLeastOneItem: 'أضف عرضاً واحداً على الأقل قبل الإرسال.',
     upload4: 'يمكنك رفع حتى 4 صور للطلب.',
-    upload5: 'يمكنك رفع حتى 5 صور للعرض.'
+    upload5: 'يمكنك رفع حتى 5 صور للعرض.',
+    rejected: 'مرفوض',
+    accepted: 'مقبول',
+    allVisibleOffers: 'كل العروض الظاهرة'
   }
 };
 
