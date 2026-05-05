@@ -233,7 +233,12 @@ function SentOffers({ offers, token, reload, onToast }) {
   const [error, setError] = useState('');
   const [statusFilter, setStatusFilter] = useState('ACTIVE');
 
-  const visibleOffers = offers
+  const visibleSentOffers = offers.filter(offer => offer.status !== 'ACCEPTED');
+  const activeOffersCount = visibleSentOffers.filter(offer => offer.status === 'ACTIVE').length;
+  const rejectedOffersCount = visibleSentOffers.filter(offer => offer.status === 'REJECTED').length;
+  const cancelledOffersCount = visibleSentOffers.filter(offer => offer.status === 'CANCELLED').length;
+
+  const visibleOffers = visibleSentOffers
     .filter(offer => offer.status !== 'ACCEPTED')
     .filter(offer => statusFilter === 'ALL' || offer.status === statusFilter);
 
@@ -253,11 +258,41 @@ function SentOffers({ offers, token, reload, onToast }) {
   return <div className="space-y-3">
     {error && <div className="text-xs text-red-600 bg-red-50 rounded-xl p-2">{error}</div>}
 
+    <div className="grid grid-cols-3 gap-2">
+      <div className="bg-white rounded-2xl border p-3">
+        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('activeOffers')}</div>
+        <div className="mt-1 text-xl leading-none font-black tabular-nums text-blue-700">{activeOffersCount}</div>
+      </div>
+      <div className="bg-white rounded-2xl border p-3">
+        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('rejected')}</div>
+        <div className="mt-1 text-xl leading-none font-black tabular-nums text-slate-700">{rejectedOffersCount}</div>
+      </div>
+      <div className="bg-white rounded-2xl border p-3">
+        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('cancelled')}</div>
+        <div className="mt-1 text-xl leading-none font-black tabular-nums text-red-700">{cancelledOffersCount}</div>
+      </div>
+    </div>
+
+    <div className="grid grid-cols-4 gap-2">
+      <button onClick={() => setStatusFilter('ACTIVE')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'ACTIVE' ? 'bg-blue-600 text-white' : 'bg-white border text-slate-600'}`}>
+        {t('active')}
+      </button>
+      <button onClick={() => setStatusFilter('REJECTED')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'REJECTED' ? 'bg-slate-700 text-white' : 'bg-white border text-slate-600'}`}>
+        {t('rejected')}
+      </button>
+      <button onClick={() => setStatusFilter('CANCELLED')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'CANCELLED' ? 'bg-red-600 text-white' : 'bg-white border text-slate-600'}`}>
+        {t('cancelled')}
+      </button>
+      <button onClick={() => setStatusFilter('ALL')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'ALL' ? 'bg-slate-900 text-white' : 'bg-white border text-slate-600'}`}>
+        {t('all')}
+      </button>
+    </div>
+
     <select className="w-full p-3 rounded-xl border text-sm bg-white" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-      <option value="ACTIVE">{t('pending')}</option>
-      <option value="REJECTED">{t('rejected') || 'Rejected'}</option>
+      <option value="ACTIVE">{t('active')}</option>
+      <option value="REJECTED">{t('rejected')}</option>
       <option value="CANCELLED">{t('cancelled')}</option>
-      <option value="ALL">{t('allVisibleOffers') || 'All visible offers'}</option>
+      <option value="ALL">{t('allVisibleOffers')}</option>
     </select>
 
     {visibleOffers.length === 0 && <Empty text={t('noMatchingSentOffers')} />}
@@ -282,6 +317,14 @@ function SentOffers({ offers, token, reload, onToast }) {
 
         {open && <>
           <div className="rounded-xl bg-slate-50 p-3 space-y-1">
+            <div className="text-[10px] uppercase font-black text-slate-400">{t('requestDetails')}</div>
+            <SummaryRow label={t('part')} value={offer.request?.partName || '-'} />
+            <SummaryRow label={t('make')} value={`${offer.request?.make || '-'} ${offer.request?.model || ''}`.trim()} />
+            <SummaryRow label={t('year')} value={offer.request?.year || '-'} />
+          </div>
+
+          <div className="rounded-xl bg-slate-50 p-3 space-y-1">
+            <div className="text-[10px] uppercase font-black text-slate-400">{t('offerDetails')}</div>
             <SummaryRow label={t('yourPrice')} value={formatIQD(offer.supplierPrice)} />
             <SummaryRow label={t('condition')} value={conditionLabel(offer.condition, t)} />
             <SummaryRow label={t('status')} value={offerStatusLabel(offer.status, t)} />
