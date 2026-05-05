@@ -104,18 +104,44 @@ function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token
     </button>
 
     {open && <>
-      <div className="text-xs text-slate-500 grid grid-cols-2 gap-1 rounded-xl bg-slate-50 p-3">
-        {user?.role === 'SUPER_ADMIN' && <>
-          <span>{t('supplier')}: {formatIQD(order.supplierPrice)}</span>
-          <span>{t('customer')}: {formatIQD(order.customerPrice)}</span>
-          <span>{t('revenue')}: {formatIQD(order.platformRevenue)}</span>
-        </>}
-        <span>{t('delivery')}: {formatIQD(order.deliveryFee)}</span>
-        <span>{t('payment')}: {paymentMethodLabel(order.paymentMethod, t)}</span>
-        <span>{t('status')}: {paymentStatusLabel(order.paymentStatus, t)}</span>
-        <span>{t('driver')}: {order.driverName || t('notAssigned')}</span>
-        <span>{t('deliveryEta')}: {order.deliveryEta || t('pending')}</span>
-        <span className="col-span-2">{t('location')}: {order.offer.request.location || t('notAvailable')}</span>
+      <div className="space-y-2 text-xs">
+        <div className="rounded-xl bg-slate-50 p-3 space-y-1">
+          <div className="text-[10px] uppercase font-black text-slate-400">{t('partDetails')}</div>
+          <div className="text-slate-700 font-bold">{order.offer.request.partName}</div>
+          <div className="text-slate-500">{order.offer.request.origin} / {order.offer.request.make} / {order.offer.request.model} / {order.offer.request.year}</div>
+          <div className="text-slate-500">{t('condition')}: {order.offer.condition === 'NEW' ? t('new') : t('used')}</div>
+        </div>
+
+        <div className="rounded-xl bg-slate-50 p-3 space-y-1">
+          <div className="text-[10px] uppercase font-black text-slate-400">{t('customer')}</div>
+          <div className="text-slate-500">{t('customerPhone')}: {order.offer.request.customerPhone || t('notAvailable')}</div>
+          <div className="text-slate-500">{t('location')}: {order.offer.request.location || t('notAvailable')}</div>
+        </div>
+
+        <div className="rounded-xl bg-slate-50 p-3 space-y-1">
+          <div className="text-[10px] uppercase font-black text-slate-400">{t('supplier')}</div>
+          <div className="text-slate-700 font-bold">{order.offer.supplier.name}</div>
+          {user?.role === 'SUPER_ADMIN' && (
+            <div className="grid grid-cols-1 gap-1 pt-1">
+              <div className="text-slate-500">{t('supplier')}: {formatIQD(order.supplierPrice)}</div>
+              <div className="text-slate-500">{t('customer')}: {formatIQD(order.customerPrice)}</div>
+              <div className="text-slate-500">{t('revenue')}: {formatIQD(order.platformRevenue)}</div>
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-xl bg-slate-50 p-3 space-y-1">
+          <div className="text-[10px] uppercase font-black text-slate-400">{t('payment')}</div>
+          <div className="text-slate-500">{t('payment')}: {paymentMethodLabel(order.paymentMethod, t)}</div>
+          <div className="text-slate-500">{t('status')}: {paymentStatusLabel(order.paymentStatus, t)}</div>
+        </div>
+
+        <div className="rounded-xl bg-slate-50 p-3 space-y-1">
+          <div className="text-[10px] uppercase font-black text-slate-400">{t('delivery')}</div>
+          <div className="text-slate-500">{t('delivery')}: {formatIQD(order.deliveryFee)}</div>
+          <div className="text-slate-500">{t('driver')}: {order.driverName || t('notAssigned')}</div>
+          <div className="text-slate-500">{t('deliveryEta')}: {order.deliveryEta || t('pending')}</div>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-2">
