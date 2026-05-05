@@ -223,22 +223,42 @@ export default function Admin({ tab }) {
     return <div className="p-4 space-y-4">
       <h1 className="font-black text-xl text-slate-900">{t('suppliers')}</h1>
 
-      <div className="bg-white rounded-2xl border p-4 space-y-3 shadow-sm">
-        <input className="w-full p-3 rounded-xl border" placeholder={t('supplierName')} value={supplierForm.name} onChange={e => setSupplierForm({ ...supplierForm, name: e.target.value })} />
-        <input className="w-full p-3 rounded-xl border" placeholder={t('phone')} value={supplierForm.phone} onChange={e => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
-        <input className="w-full p-3 rounded-xl border" placeholder={t('location')} value={supplierForm.location} onChange={e => setSupplierForm({ ...supplierForm, location: e.target.value })} />
-
-        <div className="grid grid-cols-2 gap-2">
-          {Object.keys(carData).map(origin => <label key={origin} className="text-xs bg-slate-50 rounded-xl p-2 flex gap-2 items-center text-slate-700">
-            <input type="checkbox" checked={supplierForm.supportedMakes.includes(origin)} onChange={e => setSupplierForm(current => ({
-              ...current,
-              supportedMakes: e.target.checked ? [...current.supportedMakes, origin] : current.supportedMakes.filter(item => item !== origin)
-            }))} />
-            <span>{origin}</span>
-          </label>)}
+      <div className="bg-white rounded-2xl border p-4 space-y-4 shadow-sm">
+        <div>
+          <div className="font-black text-slate-900">{t('addSupplier')}</div>
+          <div className="text-xs text-slate-400">{t('addSupplierHint')}</div>
         </div>
 
-        <button onClick={addSupplier} disabled={!supplierForm.name || !supplierForm.phone} className="w-full py-3 rounded-2xl bg-purple-600 text-white font-black disabled:opacity-40">
+        <div className="rounded-2xl bg-slate-50 p-3 space-y-2">
+          <div className="text-[10px] uppercase font-black text-slate-400">{t('supplierDetails')}</div>
+          <input className="w-full p-3 rounded-xl border text-sm" placeholder={t('supplierName')} value={supplierForm.name} onChange={e => setSupplierForm({ ...supplierForm, name: e.target.value })} />
+          <input className="w-full p-3 rounded-xl border text-sm" placeholder={t('phone')} value={supplierForm.phone} onChange={e => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
+          <input className="w-full p-3 rounded-xl border text-sm" placeholder={t('location')} value={supplierForm.location} onChange={e => setSupplierForm({ ...supplierForm, location: e.target.value })} />
+        </div>
+
+        <div className="rounded-2xl bg-slate-50 p-3 space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <div className="text-[10px] uppercase font-black text-slate-400">{t('supportedMakes')}</div>
+              <div className="text-[10px] text-slate-400">{t('supportedMakesHint')}</div>
+            </div>
+            <div className="text-[10px] font-bold text-slate-500">
+              {supplierForm.supportedMakes.length} / {Object.keys(carData).length}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            {Object.keys(carData).map(origin => <label key={origin} className={`text-xs rounded-xl p-2 flex gap-2 items-center border ${supplierForm.supportedMakes.includes(origin) ? 'bg-purple-50 border-purple-200 text-purple-700 font-bold' : 'bg-white border-slate-200 text-slate-600'}`}>
+              <input type="checkbox" checked={supplierForm.supportedMakes.includes(origin)} onChange={e => setSupplierForm(current => ({
+                ...current,
+                supportedMakes: e.target.checked ? [...current.supportedMakes, origin] : current.supportedMakes.filter(item => item !== origin)
+              }))} />
+              <span>{origin}</span>
+            </label>)}
+          </div>
+        </div>
+
+        <button onClick={addSupplier} disabled={!supplierForm.name || !supplierForm.phone || !supplierForm.location} className="w-full py-3 rounded-2xl bg-purple-600 text-white font-black disabled:opacity-40">
           {t('addSupplier')}
         </button>
       </div>
