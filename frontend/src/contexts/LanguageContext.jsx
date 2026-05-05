@@ -225,7 +225,15 @@ const translations = {
     deliveryFee: 'Delivery fee',
     total: 'Total',
     paymentPlaceholder: 'Cash on delivery is active for MVP. Card and wallet payment can be connected later.',
-    confirming: 'Confirming...'
+    confirming: 'Confirming...',
+    notAvailable: 'N/A',
+    origin: 'Origin',
+    make: 'Make',
+    model: 'Model',
+    year: 'Year',
+    activeOffer: 'Active',
+    waiting: 'Waiting',
+    processing: 'Processing'
   },
 
   ar: {
@@ -452,7 +460,15 @@ const translations = {
     deliveryFee: 'رسوم التوصيل',
     total: 'الإجمالي',
     paymentPlaceholder: 'الدفع عند الاستلام مفعل حالياً. يمكن ربط الدفع بالبطاقة أو المحفظة لاحقاً.',
-    confirming: 'جارٍ التأكيد...'
+    confirming: 'جارٍ التأكيد...',
+    notAvailable: 'غير متوفر',
+    origin: 'المنشأ',
+    make: 'الشركة المصنعة',
+    model: 'الموديل',
+    year: 'السنة',
+    activeOffer: 'نشط',
+    waiting: 'قيد الانتظار',
+    processing: 'قيد المعالجة'
   }
 };
 

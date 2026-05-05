@@ -178,7 +178,7 @@ function Earnings({ orders }) {
       <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm flex justify-between gap-3">
         <div>
           <div className="font-bold text-slate-900">{o.offer.request.partName}</div>
-          <div className="text-xs text-slate-500">{o.orderNumber} • COMPLETED</div>
+          <div className="text-xs text-slate-500">{o.orderNumber} • {t('completed')}</div>
         </div>
         <div className="font-black text-blue-600">{formatIQD(o.supplierPrice)}</div>
       </div>
@@ -245,7 +245,7 @@ function SentOffers({ offers, token, reload, onToast }) {
           <div className="rounded-xl bg-slate-50 p-3 space-y-1">
             <SummaryRow label={t('yourPrice')} value={formatIQD(offer.supplierPrice)} />
             <SummaryRow label={t('condition')} value={conditionLabel(offer.condition, t)} />
-            <SummaryRow label="Status" value={offerStatusLabel(offer.status, t)} />
+            <SummaryRow label={t('status')} value={offerStatusLabel(offer.status, t)} />
           </div>
 
           {offer.notes && <div className="text-xs text-slate-600 bg-slate-50 rounded-xl p-2">{offer.notes}</div>}
@@ -367,10 +367,10 @@ function Lead({ req, token, reload, onSubmitted, existingCount, onToast }) {
 
     {open && <>
       <div className="rounded-xl bg-slate-50 p-3 space-y-1">
-        <SummaryRow label="Origin" value={req.origin} />
-        <SummaryRow label="Make" value={req.make} />
-        <SummaryRow label="Model" value={req.model} />
-        <SummaryRow label="Year" value={req.year} />
+        <SummaryRow label={t('origin')} value={req.origin} />
+        <SummaryRow label={t('make')} value={req.make} />
+        <SummaryRow label={t('model')} value={req.model} />
+        <SummaryRow label={t('year')} value={req.year} />
         <SummaryRow label={t('partName')} value={req.partName} />
         {req.partNumber && <SummaryRow label={t('partNumber')} value={req.partNumber} />}
         {req.vin && <SummaryRow label={t('vinChassis')} value={req.vin} />}

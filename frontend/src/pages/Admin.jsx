@@ -92,9 +92,9 @@ function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token
       <div>
         <div className="font-black text-orange-600">{order.orderNumber}</div>
         <div className="font-bold text-slate-900">{order.offer.request.partName}</div>
-        <div className="text-xs text-slate-400">{t('created')}: {toDateInputValue(order.createdAt) || 'N/A'}</div>
+        <div className="text-xs text-slate-400">{t('created')}: {toDateInputValue(order.createdAt) || t('notAvailable')}</div>
         <div className="text-xs text-slate-500">{t('supplier')}: {order.offer.supplier.name}</div>
-        <div className="text-xs text-slate-500">{t('customerPhone')}: {order.offer.request.customerPhone || 'N/A'}</div>
+        <div className="text-xs text-slate-500">{t('customerPhone')}: {order.offer.request.customerPhone || t('notAvailable')}</div>
       </div>
 
       <div className="text-right">
@@ -115,7 +115,7 @@ function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token
         <span>{t('status')}: {paymentStatusLabel(order.paymentStatus, t)}</span>
         <span>{t('driver')}: {order.driverName || t('notAssigned')}</span>
         <span>{t('deliveryEta')}: {order.deliveryEta || t('pending')}</span>
-        <span className="col-span-2">{t('location')}: {order.offer.request.location || 'N/A'}</span>
+        <span className="col-span-2">{t('location')}: {order.offer.request.location || t('notAvailable')}</span>
       </div>
 
       <div className="grid grid-cols-3 gap-2">
