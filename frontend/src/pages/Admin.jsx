@@ -224,23 +224,42 @@ export default function Admin({ tab }) {
     return <div className="p-4 space-y-4">
       <h1 className="font-black text-xl text-slate-900">{t('more')}</h1>
 
-      <div className="bg-white rounded-2xl border p-4 shadow-sm space-y-4">
-        <div>
-          <div className="font-black text-slate-900">{t('auditLogs')}</div>
-          <div className="text-xs text-slate-400">{t('audit')}</div>
-        </div>
-        <AuditLogViewer token={token} />
-      </div>
-
-      {user?.role === 'SUPER_ADMIN' && (
-        <div className="bg-white rounded-2xl border p-4 shadow-sm space-y-4">
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          onClick={() => setTab('audit')}
+          className="bg-white rounded-3xl border p-4 shadow-sm text-left min-h-32 flex flex-col justify-between"
+        >
+          <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center text-xl">🛡️</div>
           <div>
-            <div className="font-black text-slate-900">{t('adminUsers')}</div>
-            <div className="text-xs text-slate-400">{t('users')}</div>
+            <div className="font-black text-slate-900">{t('auditLogs')}</div>
+            <div className="text-xs text-slate-400 mt-1">{t('audit')}</div>
           </div>
-          <SuperAdminEnroll token={token} />
-        </div>
-      )}
+        </button>
+
+        {user?.role === 'SUPER_ADMIN' && (
+          <button
+            onClick={() => setTab('manage')}
+            className="bg-white rounded-3xl border p-4 shadow-sm text-left min-h-32 flex flex-col justify-between"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center text-xl">👥</div>
+            <div>
+              <div className="font-black text-slate-900">{t('adminUsers')}</div>
+              <div className="text-xs text-slate-400 mt-1">{t('users')}</div>
+            </div>
+          </button>
+        )}
+
+        <button
+          onClick={() => setTab('profile')}
+          className="bg-white rounded-3xl border p-4 shadow-sm text-left min-h-32 flex flex-col justify-between"
+        >
+          <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center text-xl">👤</div>
+          <div>
+            <div className="font-black text-slate-900">{t('profile')}</div>
+            <div className="text-xs text-slate-400 mt-1">{t('language')}</div>
+          </div>
+        </button>
+      </div>
     </div>;
   }
 
