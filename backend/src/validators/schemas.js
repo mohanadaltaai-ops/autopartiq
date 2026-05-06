@@ -6,6 +6,10 @@ const optionalText = z.preprocess(emptyToNull, z.string().max(500).optional().nu
 const optionalUrl = z.preprocess(emptyToNull, z.string().url().optional().nullable());
 const photoUrls = z.array(z.string().url()).max(5).optional().default([]);
 
+export const requestOtpSchema = z.object({
+  phone
+});
+
 export const loginSchema = z.object({
   phone,
   otp: z.string().min(4).max(8)

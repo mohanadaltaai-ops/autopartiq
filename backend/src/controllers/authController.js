@@ -1,15 +1,29 @@
 import { prisma } from '../db.js';
 import { signToken } from '../middleware/auth.js';
+import { sendLoginOtp, verifyLoginOtp } from '../services/otpService.js';
 
 const EMERGENCY_SUPERADMIN_USERNAME = process.env.EMERGENCY_SUPERADMIN_USERNAME || 'superadmin';
 const EMERGENCY_SUPERADMIN_PASSWORD = process.env.EMERGENCY_SUPERADMIN_PASSWORD;
 const ADMIN_PERMISSIONS = ['FULL_ADMIN', 'ORDERS_ONLY'];
 const ENROLLABLE_ROLES = ['ADMIN', 'SUPER_ADMIN'];
 
+export async function requestLoginOtp(req, res) {
+  const { phone } = req.body;
+  if (!phone) return res.status(400).json({ message: 'Phone is required' });
+
+  const result = await sendLoginOtp(phone);
+  if (!result.ok) return res.status(400).json({ message: result.message });
+
+  res.json({ ok: true, provider: result.provider, expiresInMinutes: result.expiresInMinutes });
+}
+
 export async function login(req, res) {
   const { phone, otp } = req.body;
   if (!phone) return res.status(400).json({ message: 'Phone is required' });
   if (!otp) return res.status(400).json({ message: 'OTP is required' });
+
+  const otpResult = await verifyLoginOtp({ phone, otp });
+  if (!otpResult.ok) return res.status(401).json({ message: otpResult.message || 'Incorrect OTP. Please try again.' });
 
   let user = await prisma.user.findUnique({ where: { phone }, include: { supplier: true } });
   if (!user) {
