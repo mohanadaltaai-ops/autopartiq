@@ -40,15 +40,16 @@ function CustomerStatCard({ label, value, tone = 'blue' }) {
 function OriginButton({ origin, data, selected, onClick }) {
   const previewMakes = Object.keys(data.makes).slice(0, 3).join(', ');
   const brandCount = Object.keys(data.makes).length;
+  const originCode = origin.slice(0, 2).toUpperCase();
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`relative text-left rounded-[24px] border p-4 transition-all shadow-sm ${
+      className={`relative text-left rounded-[24px] border p-4 min-h-[150px] transition-all shadow-sm ${
         selected
-          ? 'bg-[#EEF4FF] border-[#6EA8FF] ring-2 ring-[#B9D4FF] shadow-md dark:bg-[#14213D] dark:border-[#5B8CFF] dark:ring-[#3559B7]'
-          : 'bg-white border-slate-200 hover:border-[#B9D4FF] hover:bg-[#F8FBFF] dark:bg-[#0F172A] dark:border-slate-700 dark:hover:border-[#3559B7] dark:hover:bg-[#111C34]'
+          ? '!bg-[#EEF4FF] !border-[#4F7DFF] ring-2 ring-[#B9D4FF] shadow-md dark:!bg-[#14213D] dark:!border-[#5B8CFF] dark:ring-[#3559B7]'
+          : '!bg-white !border-slate-200 hover:!bg-[#F8FBFF] hover:!border-[#B9D4FF] dark:!bg-[#0F172A] dark:!border-slate-700 dark:hover:!bg-[#111C34] dark:hover:!border-[#3559B7]'
       }`}
     >
       {selected && (
@@ -57,34 +58,27 @@ function OriginButton({ origin, data, selected, onClick }) {
         </div>
       )}
 
-      <div className={`text-xs font-black mb-2 ${
+      <div className={`text-xs font-black mb-3 ${
         selected
-          ? 'text-[#5D7DBB] dark:text-[#9DB8FF]'
-          : 'text-slate-500 dark:text-slate-400'
+          ? '!text-[#4169C7] dark:!text-[#9DB8FF]'
+          : '!text-slate-500 dark:!text-slate-400'
       }`}>
-        {data.emoji} {origin}
+        {originCode} {origin}
       </div>
 
-      <div className={`text-[2rem] leading-none font-black mb-3 ${
+      <div className={`flex items-end gap-2 ${
         selected
-          ? 'text-[#122B57] dark:text-white'
-          : 'text-[#0F172A] dark:text-white'
+          ? '!text-[#081B4B] dark:!text-white'
+          : '!text-[#081B4B] dark:!text-white'
       }`}>
-        {brandCount}
+        <span className="text-[34px] leading-none font-black">{brandCount}</span>
+        <span className="text-lg leading-none font-black mb-1">{brandCount === 1 ? 'brand' : 'brands'}</span>
       </div>
 
-      <div className={`text-lg font-black leading-tight mb-3 ${
+      <div className={`mt-4 text-sm leading-relaxed font-semibold ${
         selected
-          ? 'text-[#122B57] dark:text-white'
-          : 'text-[#0F172A] dark:text-white'
-      }`}>
-        {brandCount === 1 ? 'brand' : 'brands'}
-      </div>
-
-      <div className={`text-sm leading-relaxed ${
-        selected
-          ? 'text-[#5B6B85] dark:text-slate-300'
-          : 'text-slate-500 dark:text-slate-400'
+          ? '!text-[#5B6B85] dark:!text-slate-300'
+          : '!text-slate-500 dark:!text-slate-400'
       }`}>
         {previewMakes}
       </div>
