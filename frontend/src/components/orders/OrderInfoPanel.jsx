@@ -21,29 +21,31 @@ function paymentStatusLabel(status, t) {
   return labels[status] || status;
 }
 
+function InfoRow({ label, value }) {
+  return (
+    <div className="flex justify-between gap-3 py-1">
+      <span className="text-slate-400 font-bold">{label}</span>
+      <strong className="text-slate-800 text-right">{value || '-'}</strong>
+    </div>
+  );
+}
+
 export default function OrderInfoPanel({ order }) {
   const { t } = useLanguage();
 
   return (
-    <div className="rounded-xl bg-slate-50 p-3 text-xs text-slate-500 space-y-2">
-      <div className="grid grid-cols-2 gap-1">
-        <span>{t('payment')}</span>
-        <strong className="text-slate-700">{paymentMethodLabel(order.paymentMethod || 'CASH_ON_DELIVERY', t)}</strong>
+    <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 text-xs space-y-3">
+      <div className="text-[10px] uppercase font-black text-blue-600">
+        {t('orderDetails')}
+      </div>
 
-        <span>{t('paymentStatus')}</span>
-        <strong className="text-slate-700">{paymentStatusLabel(order.paymentStatus || 'PENDING', t)}</strong>
-
-        <span>{t('driver')}</span>
-        <strong className="text-slate-700">{order.driverName || t('notAssigned')}</strong>
-
-        <span>{t('driverPhone')}</span>
-        <strong className="text-slate-700">{order.driverPhone || t('pending')}</strong>
-
-        <span>{t('pickupEta')}</span>
-        <strong className="text-slate-700">{order.pickupEta || t('pending')}</strong>
-
-        <span>{t('deliveryEta')}</span>
-        <strong className="text-slate-700">{order.deliveryEta || t('pending')}</strong>
+      <div className="space-y-1">
+        <InfoRow label={t('payment')} value={paymentMethodLabel(order.paymentMethod || 'CASH_ON_DELIVERY', t)} />
+        <InfoRow label={t('paymentStatus')} value={paymentStatusLabel(order.paymentStatus || 'PENDING', t)} />
+        <InfoRow label={t('driver')} value={order.driverName || t('notAssigned')} />
+        <InfoRow label={t('driverPhone')} value={order.driverPhone || t('pending')} />
+        <InfoRow label={t('pickupEta')} value={order.pickupEta || t('pending')} />
+        <InfoRow label={t('deliveryEta')} value={order.deliveryEta || t('pending')} />
       </div>
 
       {order.proofOfDeliveryUrl && (
@@ -51,16 +53,16 @@ export default function OrderInfoPanel({ order }) {
           href={order.proofOfDeliveryUrl}
           target="_blank"
           rel="noreferrer"
-          className="block rounded-xl bg-white border p-2 text-blue-700 font-bold break-all"
+          className="block rounded-[18px] bg-white border border-slate-200 p-3 text-blue-700 font-black break-all"
         >
           {t('viewProofOfDelivery')}
         </a>
       )}
 
       {order.deliveryNotes && (
-        <div className="rounded-xl bg-white border p-2">
-          <div className="font-bold text-slate-700 mb-1">{t('deliveryComments')}</div>
-          <div>{order.deliveryNotes}</div>
+        <div className="rounded-[18px] bg-white border border-slate-200 p-3">
+          <div className="font-black text-slate-800 mb-1">{t('deliveryComments')}</div>
+          <div className="text-slate-500 font-semibold leading-relaxed">{order.deliveryNotes}</div>
         </div>
       )}
     </div>
