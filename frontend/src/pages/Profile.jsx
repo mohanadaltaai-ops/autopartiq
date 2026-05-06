@@ -45,6 +45,13 @@ export default function Profile() {
     cancelled: customerRequests.filter(req => req.status === 'CANCELLED').length
   };
 
+  const deletionSubject = encodeURIComponent('AutoParts IQ account deletion request');
+  const deletionBody = encodeURIComponent(`Please delete my AutoParts IQ account and related personal data.
+
+Phone: ${user?.phone || '-'}
+Role: ${user?.role || '-'}
+Name: ${user?.name || '-'}`);
+
   return (
     <div className="p-4 space-y-4">
       <div className="bg-white rounded-3xl border p-5 shadow-sm space-y-2">
@@ -189,6 +196,20 @@ export default function Profile() {
           >
             <div className="text-xs text-slate-400 font-bold">{t('supportEmail')}</div>
             <div className="font-bold text-slate-800 break-all dir-ltr text-left">support@autopartiq.com</div>
+          </a>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-3xl border p-5 shadow-sm space-y-3">
+        <div className="text-xs font-bold text-slate-400 uppercase">{t('accountDeletion')}</div>
+        <div className="rounded-2xl bg-red-50 border border-red-100 p-3 space-y-2">
+          <div className="font-black text-red-700">{t('deleteAccountRequest')}</div>
+          <div className="text-xs text-red-600 leading-relaxed">{t('deleteAccountHelp')}</div>
+          <a
+            href={`mailto:support@autopartiq.com?subject=${deletionSubject}&body=${deletionBody}`}
+            className="block w-full text-center py-3 rounded-2xl bg-red-600 text-white text-sm font-black"
+          >
+            {t('requestAccountDeletion')}
           </a>
         </div>
       </div>
