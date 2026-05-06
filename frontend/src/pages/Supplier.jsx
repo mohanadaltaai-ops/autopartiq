@@ -64,6 +64,7 @@ export default function Supplier({ tab }) {
   const [payouts, setPayouts] = useState([]);
   const [payoutSummary, setPayoutSummary] = useState(null);
   const [homeTab, setHomeTab] = useState('leads');
+  const [orderFilter, setOrderFilter] = useState('ALL');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
@@ -97,6 +98,18 @@ export default function Supplier({ tab }) {
     return map;
   }, {}), [offers]);
 
+  const visibleSupplierOrders = useMemo(() => {
+    if (orderFilter === 'ALL') return orders;
+    return orders.filter(order => order.status === orderFilter);
+  }, [orders, orderFilter]);
+
+  useEffect(() => {
+    const visibleSentOffers = offers.filter(offer => offer.status !== 'ACCEPTED');
+    if (!loading && homeTab === 'leads' && leads.length === 0 && visibleSentOffers.length > 0) {
+      setHomeTab('sent');
+    }
+  }, [loading, homeTab, leads.length, offers]);
+
   if (loading) {
     return (
       <div className="p-4">
@@ -118,6 +131,14 @@ export default function Supplier({ tab }) {
   }
 
   if (tab === 'orders') {
+    const orderFilters = [
+      ['ALL', t('all')],
+      ['WAITING_PICKUP', t('waitingPickup')],
+      ['DELIVERING', t('delivering')],
+      ['COMPLETED', t('completed')],
+      ['CANCELLED', t('cancelled')]
+    ];
+
     return <div className="p-4 space-y-4 pb-6">
       <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
 
@@ -127,12 +148,27 @@ export default function Supplier({ tab }) {
         </div>
         <h1 className="font-black text-2xl text-slate-950 mt-3">{t('activeOrders')}</h1>
         <div className="text-xs font-semibold text-slate-500 mt-1">
-          {orders.length === 0 ? t('noAcceptedOrders') : `${orders.length} ${t('orders')}`}
+          {visibleSupplierOrders.length === 0 ? t('noAcceptedOrders') : `${visibleSupplierOrders.length} ${t('orders')}`}
         </div>
       </div>
 
-      {orders.length === 0 && <Empty text={t('noAcceptedOrders')} />}
-      {orders.map(o => <OrderCard key={o.id} order={o} />)}
+      <div className="flex gap-2 overflow-x-auto bg-white rounded-[24px] border border-slate-200 p-2 shadow-sm">
+        {orderFilters.map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setOrderFilter(id)}
+            className={`shrink-0 px-3 py-2.5 rounded-[16px] text-[11px] font-black transition ${
+              orderFilter === id ? 'bg-[#27439C] text-white shadow-sm' : 'text-slate-500'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {visibleSupplierOrders.length === 0 && <Empty text={t('noAcceptedOrders')} />}
+      {visibleSupplierOrders.map(o => <OrderCard key={o.id} order={o} />)}
     </div>;
   }
 
@@ -142,26 +178,26 @@ export default function Supplier({ tab }) {
     <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
 
     <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
-      <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10" />
-      <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/20" />
+      <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
+      <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/10 pointer-events-none" />
 
       <div className="relative">
         <div className="text-xs font-bold text-white/70">{t('supplierWorkspace')}</div>
         <div className="text-2xl font-black leading-tight mt-1">{t('offersLeads')}</div>
         <div className="text-xs font-semibold text-white/70 mt-2 max-w-[260px]">{t('availableRequests')}</div>
 
-        <div className="grid grid-cols-3 gap-3 mt-5">
-          <div className="rounded-2xl bg-white/12 border border-white/10 p-3">
-            <div className="text-[10px] font-black uppercase text-white/60">{t('leads')}</div>
-            <div className="text-2xl font-black mt-1">{leads.length}</div>
+        <div className="grid grid-cols-3 gap-2 mt-5 relative z-10">
+          <div className="rounded-2xl bg-white/12 border border-white/10 p-3 min-h-[82px] flex flex-col justify-between">
+            <div className="text-[9px] leading-tight font-black uppercase text-white/65">{t('leads')}</div>
+            <div className="text-2xl leading-none font-black tabular-nums">{leads.length}</div>
           </div>
-          <div className="rounded-2xl bg-white/12 border border-white/10 p-3">
-            <div className="text-[10px] font-black uppercase text-white/60">{t('sentOffers')}</div>
-            <div className="text-2xl font-black mt-1">{offers.length}</div>
+          <div className="rounded-2xl bg-white/12 border border-white/10 p-3 min-h-[82px] flex flex-col justify-between">
+            <div className="text-[9px] leading-tight font-black uppercase text-white/65">{t('sentOffers')}</div>
+            <div className="text-2xl leading-none font-black tabular-nums">{offers.filter(offer => offer.status !== 'ACCEPTED').length}</div>
           </div>
-          <div className="rounded-2xl bg-white/12 border border-white/10 p-3">
-            <div className="text-[10px] font-black uppercase text-white/60">{t('orders')}</div>
-            <div className="text-2xl font-black mt-1">{orders.length}</div>
+          <div className="rounded-2xl bg-white/12 border border-white/10 p-3 min-h-[82px] flex flex-col justify-between">
+            <div className="text-[9px] leading-tight font-black uppercase text-white/65">{t('orders')}</div>
+            <div className="text-2xl leading-none font-black tabular-nums">{orders.length}</div>
           </div>
         </div>
       </div>
@@ -271,6 +307,7 @@ function Earnings({ orders, payouts = [], payoutSummary }) {
   const pendingPayoutAmount = payoutSummary?.pendingAmount || 0;
   const paidPayoutAmount = payoutSummary?.paidAmount || 0;
   const cancelledPayoutAmount = payoutSummary?.cancelledAmount || 0;
+  const displayedEarnings = (Number(paidPayoutAmount) + Number(pendingPayoutAmount)) || totalCompleted;
 
   const Stat = ({ label, value, tone = 'blue' }) => {
     const toneClass = tone === 'green'
@@ -286,7 +323,7 @@ function Earnings({ orders, payouts = [], payoutSummary }) {
         <div className={`inline-flex px-2.5 py-1 rounded-full border text-[10px] font-black uppercase ${toneClass}`}>
           {label}
         </div>
-        <div className="mt-3 text-xl leading-tight font-black tabular-nums text-slate-950">{value}</div>
+        <div className="mt-2 text-[17px] leading-tight font-black tabular-nums text-slate-950 break-words">{value}</div>
       </div>
     );
   };
@@ -308,13 +345,13 @@ function Earnings({ orders, payouts = [], payoutSummary }) {
   return (
     <div className="p-4 space-y-4 pb-6">
       <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
-        <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10" />
-        <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/20" />
+        <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
+        <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/10 pointer-events-none" />
 
         <div className="relative">
           <div className="text-xs font-bold text-white/70">{t('completedEarningsOnly')}</div>
-          <div className="text-3xl font-black mt-2">{formatIQD(totalCompleted)}</div>
-          <div className="text-[11px] text-white/70 font-semibold mt-2">{t('pendingValue')}: {formatIQD(pendingValue)}</div>
+          <div className="text-[30px] leading-tight font-black mt-2">{formatIQD(displayedEarnings)}</div>
+          <div className="text-[11px] text-white/70 font-semibold mt-2">{t('pendingPayout') || 'Pending Payout'}: {formatIQD(pendingPayoutAmount)}</div>
         </div>
       </div>
 
@@ -334,7 +371,7 @@ function Earnings({ orders, payouts = [], payoutSummary }) {
 
       <div>
         <h2 className="font-black text-slate-950 mb-3">{t('supplierPayouts') || 'Supplier Payouts'}</h2>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2">
           <Stat label={t('pendingPayout') || 'Pending Payout'} value={formatIQD(pendingPayoutAmount)} tone="amber" />
           <Stat label={t('paidPayout') || 'Paid Payout'} value={formatIQD(paidPayoutAmount)} tone="green" />
           <Stat label={t('cancelledPayout') || 'Cancelled Payout'} value={formatIQD(cancelledPayoutAmount)} tone="red" />
