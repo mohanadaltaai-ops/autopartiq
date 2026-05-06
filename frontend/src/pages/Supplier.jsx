@@ -372,109 +372,152 @@ function SentOffers({ offers, token, reload, onToast }) {
     }
   }
 
-  return <div className="space-y-3">
-    {error && <div className="text-xs text-red-600 bg-red-50 rounded-xl p-2">{error}</div>}
+  function statusClass(status) {
+    if (status === 'REJECTED') return 'bg-slate-100 text-slate-700 border-slate-200';
+    if (status === 'CANCELLED') return 'bg-red-50 text-red-700 border-red-100';
+    return 'bg-blue-50 text-blue-700 border-blue-100';
+  }
 
-    <div className="grid grid-cols-3 gap-2">
-      <div className="bg-white rounded-2xl border p-3">
-        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('activeOffers')}</div>
-        <div className="mt-1 text-xl leading-none font-black tabular-nums text-blue-700">{activeOffersCount}</div>
+  const filters = [
+    ['ACTIVE', t('active')],
+    ['REJECTED', t('rejected')],
+    ['CANCELLED', t('cancelled')],
+    ['ALL', t('all')]
+  ];
+
+  return (
+    <div className="space-y-4">
+      {error && <div className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-2xl p-3 font-bold">{error}</div>}
+
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-white rounded-[24px] border border-slate-200 p-4 shadow-sm">
+          <div className="text-[10px] text-slate-400 font-black uppercase">{t('activeOffers')}</div>
+          <div className="mt-2 text-2xl leading-none font-black tabular-nums text-blue-700">{activeOffersCount}</div>
+        </div>
+        <div className="bg-white rounded-[24px] border border-slate-200 p-4 shadow-sm">
+          <div className="text-[10px] text-slate-400 font-black uppercase">{t('rejected')}</div>
+          <div className="mt-2 text-2xl leading-none font-black tabular-nums text-slate-700">{rejectedOffersCount}</div>
+        </div>
+        <div className="bg-white rounded-[24px] border border-slate-200 p-4 shadow-sm">
+          <div className="text-[10px] text-slate-400 font-black uppercase">{t('cancelled')}</div>
+          <div className="mt-2 text-2xl leading-none font-black tabular-nums text-red-700">{cancelledOffersCount}</div>
+        </div>
       </div>
-      <div className="bg-white rounded-2xl border p-3">
-        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('rejected')}</div>
-        <div className="mt-1 text-xl leading-none font-black tabular-nums text-slate-700">{rejectedOffersCount}</div>
+
+      <div className="grid grid-cols-4 gap-2 bg-white rounded-[24px] border border-slate-200 p-2 shadow-sm">
+        {filters.map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setStatusFilter(id)}
+            className={`py-2.5 rounded-[16px] text-[11px] font-black transition ${
+              statusFilter === id ? 'bg-[#27439C] text-white shadow-sm' : 'text-slate-500'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
-      <div className="bg-white rounded-2xl border p-3">
-        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('cancelled')}</div>
-        <div className="mt-1 text-xl leading-none font-black tabular-nums text-red-700">{cancelledOffersCount}</div>
-      </div>
+
+      {visibleOffers.length === 0 && <Empty text={t('noMatchingSentOffers')} />}
+
+      {visibleOffers.map(offer => {
+        const photos = parseJsonArray(offer.photoUrlsJson);
+        const canCancel = offer.status === 'ACTIVE';
+        const open = openId === offer.id;
+
+        return (
+          <div key={offer.id} className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm space-y-3">
+            <button type="button" onClick={() => setOpenId(open ? '' : offer.id)} className="w-full text-left flex justify-between gap-3">
+              <div className="min-w-0">
+                <div className={`inline-flex px-2.5 py-1 rounded-full border text-[10px] font-black mb-2 ${statusClass(offer.status)}`}>
+                  {offerStatusLabel(offer.status, t)}
+                </div>
+
+                <div className="font-black text-slate-950 text-lg leading-tight">{offer.request?.partName}</div>
+                <div className="text-xs text-slate-500 font-bold mt-1">
+                  {offer.request?.make} {offer.request?.model} • {conditionLabel(offer.condition, t)}
+                </div>
+                <div className="text-sm font-black text-blue-600 mt-2">{formatIQD(offer.supplierPrice)}</div>
+              </div>
+
+              <div className="text-right shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 font-black">
+                  {open ? '−' : '+'}
+                </div>
+                <div className="text-[10px] text-slate-400 font-black mt-2">{open ? t('hide') : t('details')}</div>
+              </div>
+            </button>
+
+            {open && (
+              <div className="space-y-3">
+                <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1">
+                  <div className="text-[10px] uppercase font-black text-blue-600">{t('requestDetails')}</div>
+                  <SummaryRow label={t('part')} value={offer.request?.partName || '-'} />
+                  <SummaryRow label={t('make')} value={`${offer.request?.make || '-'} ${offer.request?.model || ''}`.trim()} />
+                  <SummaryRow label={t('year')} value={offer.request?.year || '-'} />
+                </div>
+
+                <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1">
+                  <div className="text-[10px] uppercase font-black text-blue-600">{t('offerDetails')}</div>
+                  <SummaryRow label={t('yourPrice')} value={formatIQD(offer.supplierPrice)} />
+                  <SummaryRow label={t('condition')} value={conditionLabel(offer.condition, t)} />
+                  <SummaryRow label={t('status')} value={offerStatusLabel(offer.status, t)} />
+                </div>
+
+                {offer.notes && (
+                  <div className="text-xs text-slate-600 bg-slate-50 border border-slate-100 rounded-[18px] p-3 font-semibold leading-relaxed">
+                    {offer.notes}
+                  </div>
+                )}
+
+                {offer.cancellationReason && (
+                  <div className="text-xs bg-red-50 border border-red-100 text-red-700 rounded-[18px] p-3 font-bold">
+                    {t('reasonForCancellation')}: {offer.cancellationReason}
+                  </div>
+                )}
+
+                {photos.length > 0 && (
+                  <div className="flex gap-2 overflow-x-auto">
+                    {photos.map(url => (
+                      <ImagePreview key={url} src={url} alt="Offer" className="w-20 h-20 rounded-2xl object-cover border border-slate-200" />
+                    ))}
+                  </div>
+                )}
+
+                {canCancel && (
+                  <div className="border-t border-slate-100 pt-3 space-y-2">
+                    {openCancelId !== offer.id ? (
+                      <button type="button" onClick={() => setOpenCancelId(offer.id)} className="text-xs font-black text-red-600">
+                        {t('cancelSentOffer')}
+                      </button>
+                    ) : (
+                      <>
+                        <textarea
+                          className="w-full p-3 rounded-2xl border text-sm"
+                          placeholder={t('reasonForCancellation')}
+                          value={cancelReasonById[offer.id] || ''}
+                          onChange={e => setCancelReasonById(current => ({ ...current, [offer.id]: e.target.value }))}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => cancelOffer(offer.id)}
+                          disabled={!cancelReasonById[offer.id]?.trim()}
+                          className="w-full py-3 rounded-2xl bg-red-600 text-white text-sm font-black disabled:opacity-40"
+                        >
+                          {t('confirmCancellation')}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
-
-    <div className="grid grid-cols-4 gap-2">
-      <button onClick={() => setStatusFilter('ACTIVE')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'ACTIVE' ? 'bg-blue-600 text-white' : 'bg-white border text-slate-600'}`}>
-        {t('active')}
-      </button>
-      <button onClick={() => setStatusFilter('REJECTED')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'REJECTED' ? 'bg-slate-700 text-white' : 'bg-white border text-slate-600'}`}>
-        {t('rejected')}
-      </button>
-      <button onClick={() => setStatusFilter('CANCELLED')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'CANCELLED' ? 'bg-red-600 text-white' : 'bg-white border text-slate-600'}`}>
-        {t('cancelled')}
-      </button>
-      <button onClick={() => setStatusFilter('ALL')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'ALL' ? 'bg-slate-900 text-white' : 'bg-white border text-slate-600'}`}>
-        {t('all')}
-      </button>
-    </div>
-
-    <select className="w-full p-3 rounded-xl border text-sm bg-white" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-      <option value="ACTIVE">{t('active')}</option>
-      <option value="REJECTED">{t('rejected')}</option>
-      <option value="CANCELLED">{t('cancelled')}</option>
-      <option value="ALL">{t('allVisibleOffers')}</option>
-    </select>
-
-    {visibleOffers.length === 0 && <Empty text={t('noMatchingSentOffers')} />}
-
-    {visibleOffers.map(offer => {
-      const photos = parseJsonArray(offer.photoUrlsJson);
-      const canCancel = offer.status === 'ACTIVE';
-      const open = openId === offer.id;
-
-      return <div key={offer.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
-        <button onClick={() => setOpenId(open ? '' : offer.id)} className="w-full text-left flex justify-between gap-3">
-          <div>
-            <div className="font-bold text-slate-900">{offer.request?.partName}</div>
-            <div className="text-xs text-slate-500">{offer.request?.make} {offer.request?.model} • {conditionLabel(offer.condition, t)}</div>
-            <div className="text-sm font-black text-blue-600 mt-1">{formatIQD(offer.supplierPrice)}</div>
-          </div>
-          <div className="text-right">
-            <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full h-fit font-bold whitespace-nowrap inline-flex items-center shrink-0">{offerStatusLabel(offer.status, t)}</span>
-            <div className="text-[10px] text-slate-400 mt-2">{open ? t('hide') : t('details')}</div>
-          </div>
-        </button>
-
-        {open && <>
-          <div className="rounded-xl bg-slate-50 p-3 space-y-1">
-            <div className="text-[10px] uppercase font-black text-slate-400">{t('requestDetails')}</div>
-            <SummaryRow label={t('part')} value={offer.request?.partName || '-'} />
-            <SummaryRow label={t('make')} value={`${offer.request?.make || '-'} ${offer.request?.model || ''}`.trim()} />
-            <SummaryRow label={t('year')} value={offer.request?.year || '-'} />
-          </div>
-
-          <div className="rounded-xl bg-slate-50 p-3 space-y-1">
-            <div className="text-[10px] uppercase font-black text-slate-400">{t('offerDetails')}</div>
-            <SummaryRow label={t('yourPrice')} value={formatIQD(offer.supplierPrice)} />
-            <SummaryRow label={t('condition')} value={conditionLabel(offer.condition, t)} />
-            <SummaryRow label={t('status')} value={offerStatusLabel(offer.status, t)} />
-          </div>
-
-          {offer.notes && <div className="text-xs text-slate-600 bg-slate-50 rounded-xl p-2">{offer.notes}</div>}
-          {offer.cancellationReason && <div className="text-xs bg-red-50 text-red-700 rounded-xl p-2">{t('reasonForCancellation')}: {offer.cancellationReason}</div>}
-
-          {photos.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto">
-              {photos.map(url => <ImagePreview key={url} src={url} alt="Offer" className="w-16 h-16 rounded-xl object-cover border" />)}
-            </div>
-          )}
-
-          {canCancel && <div className="border-t pt-3 space-y-2">
-            {openCancelId !== offer.id ? (
-              <button onClick={() => setOpenCancelId(offer.id)} className="text-xs font-bold text-red-600">{t('cancelSentOffer')}</button>
-            ) : <>
-              <textarea
-                className="w-full p-3 rounded-xl border text-sm"
-                placeholder={t('reasonForCancellation')}
-                value={cancelReasonById[offer.id] || ''}
-                onChange={e => setCancelReasonById(current => ({ ...current, [offer.id]: e.target.value }))}
-              />
-              <button onClick={() => cancelOffer(offer.id)} disabled={!cancelReasonById[offer.id]?.trim()} className="w-full py-2 rounded-xl bg-red-600 text-white text-sm font-bold disabled:opacity-40">
-                {t('confirmCancellation')}
-              </button>
-            </>}
-          </div>}
-        </>}
-      </div>;
-    })}
-  </div>;
+  );
 }
 
 function Lead({ req, token, reload, onSubmitted, existingCount, onToast }) {
