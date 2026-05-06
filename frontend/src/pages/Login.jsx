@@ -42,7 +42,7 @@ export default function Login() {
     <div className="phone-frame bg-white rounded-[40px] border-8 border-slate-900 overflow-hidden shadow-2xl flex flex-col relative">
       <button
         onClick={toggleLanguage}
-        className="absolute bottom-4 left-4 z-10 px-3 h-9 rounded-full bg-white/90 text-slate-900 text-xs font-black shadow-lg border border-white/50"
+        className="absolute bottom-4 left-4 z-10 px-3 h-9 rounded-full bg-slate-950/90 text-white text-xs font-black shadow-lg border border-white/20 ring-1 ring-white/20 backdrop-blur"
         title={t('language')}
       >
         {language === 'en' ? 'AR' : 'EN'}
