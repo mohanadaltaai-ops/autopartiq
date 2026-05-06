@@ -69,17 +69,11 @@ export default function Layout({ tab, setTab, children }) {
   const [showNotifications, setShowNotifications] = useState(false);
 
   const roleColor = {
-    CUSTOMER: 'text-orange-600',
+    CUSTOMER: 'text-blue-600',
     SUPPLIER: 'text-blue-600',
-    ADMIN: 'text-purple-600',
-    SUPER_ADMIN: 'text-red-600'
+    ADMIN: 'text-blue-600',
+    SUPER_ADMIN: 'text-blue-600'
   }[user?.role] || 'text-slate-800';
-
-  const activeColor = user?.role === 'SUPPLIER'
-    ? 'text-blue-600'
-    : ['ADMIN', 'SUPER_ADMIN'].includes(user?.role)
-      ? 'text-purple-600'
-      : 'text-orange-600';
 
   const roleLabel =
     user?.role === 'CUSTOMER' ? t('roleCustomer') :
@@ -167,12 +161,12 @@ export default function Layout({ tab, setTab, children }) {
 
         <div className="flex items-center gap-2">
           {tab !== 'home' && user?.adminPermission !== 'ORDERS_ONLY' && (
-            <button onClick={() => setTab('home')} className="px-3 h-9 rounded-2xl bg-slate-50 border text-xs font-black shadow-sm">
+            <button onClick={() => setTab('home')} className="px-3 h-9 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-black shadow-sm">
               {t('home')}
             </button>
           )}
 
-          <button onClick={() => setTab('profile')} className={`w-10 h-10 rounded-2xl border flex items-center justify-center shadow-sm transition ${tab === 'profile' ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-600 border-slate-200'}`} title={t('profile')}>
+          <button onClick={() => setTab('profile')} className={`w-10 h-10 rounded-2xl border flex items-center justify-center shadow-sm transition ${tab === 'profile' ? 'bg-[#0F172A] text-white border-[#0F172A]' : 'bg-slate-50 text-slate-600 border-slate-200'}`} title={t('profile')}>
             <User size={18}/>
             <span className="sr-only">{t('profile')}</span>
           </button>
@@ -200,9 +194,9 @@ export default function Layout({ tab, setTab, children }) {
             const clickable = metadata.requestId || metadata.offerId || metadata.orderId;
 
             return (
-              <button key={item.id} onClick={() => openNotification(item)} className="w-full text-left text-sm bg-slate-50 rounded-2xl p-3 text-slate-700 hover:bg-orange-50 border border-transparent hover:border-orange-100 transition">
+              <button key={item.id} onClick={() => openNotification(item)} className="w-full text-left text-sm bg-slate-50 rounded-2xl p-3 text-slate-700 hover:bg-blue-50 border border-transparent hover:border-blue-100 transition">
                 <div className="font-bold">{notificationText(item, t)}</div>
-                {clickable && <div className="text-[10px] text-orange-600 font-black mt-1">{t('tapToOpen')}</div>}
+                {clickable && <div className="text-[10px] text-blue-600 font-black mt-1">{t('tapToOpen')}</div>}
               </button>
             );
           })}
@@ -213,7 +207,7 @@ export default function Layout({ tab, setTab, children }) {
 
       <nav className="shrink-0 bg-white/95 backdrop-blur border-t border-slate-200 px-2 pt-2 pb-3 flex gap-1 overflow-x-auto">
         {tabs.map(([id, Icon, label]) => (
-          <button key={id} onClick={() => setTab(id)} className={`min-w-[64px] flex-1 py-2.5 px-2 rounded-2xl text-[10px] font-black flex flex-col items-center gap-1 transition ${tab === id ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-50'}`}>
+          <button key={id} onClick={() => setTab(id)} className={`min-w-[64px] flex-1 py-2.5 px-2 rounded-2xl text-[10px] font-black flex flex-col items-center gap-1 transition ${tab === id ? 'bg-[#0F172A] text-white shadow-sm' : 'text-slate-400 hover:bg-slate-50'}`}>
             <Icon size={18}/>
             <span className="leading-tight">{label}</span>
           </button>
