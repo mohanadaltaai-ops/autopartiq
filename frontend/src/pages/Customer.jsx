@@ -19,7 +19,40 @@ function parseJsonArray(value) {
 }
 
 function Empty({ text }) {
-  return <div className="bg-white rounded-2xl border border-dashed p-6 text-center text-sm text-slate-400">{text}</div>;
+  return <div className="bg-white rounded-3xl border border-dashed p-6 text-center text-sm text-slate-400">{text}</div>;
+}
+
+function CustomerStatCard({ label, value, tone = 'blue' }) {
+  const toneClass = tone === 'orange'
+    ? 'bg-orange-50 text-orange-700 border-orange-100'
+    : 'bg-blue-50 text-blue-700 border-blue-100';
+
+  return (
+    <div className="bg-white rounded-3xl border border-slate-200 p-4 shadow-sm">
+      <div className={`inline-flex px-2.5 py-1 rounded-full border text-[10px] font-black uppercase ${toneClass}`}>
+        {label}
+      </div>
+      <div className="text-2xl font-black text-slate-950 mt-3">{value}</div>
+    </div>
+  );
+}
+
+function OriginButton({ origin, data, selected, onClick }) {
+  const previewMakes = Object.keys(data.makes).slice(0, 3).join(', ');
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-[26px] border p-4 text-left min-h-[132px] bg-white shadow-sm transition ${
+        selected ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200'
+      }`}
+    >
+      <div className="text-3xl">{data.emoji}</div>
+      <div className="font-black text-slate-950 mt-3">{origin}</div>
+      <div className="text-[11px] text-slate-400 font-bold mt-1 leading-4">{previewMakes}</div>
+    </button>
+  );
 }
 
 
@@ -128,21 +161,38 @@ export default function Customer({ tab }) {
   return <div className="p-4 space-y-4">
     <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
 
-    <div className="rounded-3xl bg-gradient-to-br from-orange-600 to-orange-500 text-white p-5 shadow">
-      <div className="text-sm opacity-80">{t('hello')} {user?.name}</div>
-      <div className="text-xl font-black">{t('findParts')}</div>
+    <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
+      <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10" />
+      <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/20" />
+
+      <div className="relative">
+        <div className="text-xs font-bold text-white/70">{t('hello')} {user?.name}</div>
+        <div className="text-2xl font-black leading-tight mt-1">{t('findParts')}</div>
+        <div className="text-xs font-semibold text-white/70 mt-2 max-w-[260px]">{t('landingSubtitle')}</div>
+
+        <div className="grid grid-cols-2 gap-3 mt-5">
+          <div className="rounded-2xl bg-white/12 border border-white/10 p-3">
+            <div className="text-[10px] font-black uppercase text-white/60">{t('myRequests')}</div>
+            <div className="text-2xl font-black mt-1">{requests.length}</div>
+          </div>
+          <div className="rounded-2xl bg-white/12 border border-white/10 p-3">
+            <div className="text-[10px] font-black uppercase text-white/60">{t('orders')}</div>
+            <div className="text-2xl font-black mt-1">{orders.length}</div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div className="grid grid-cols-2 gap-2 bg-white rounded-2xl border p-2">
+    <div className="grid grid-cols-2 gap-2 bg-white rounded-[24px] border border-slate-200 p-2 shadow-sm">
       <button
         onClick={() => setHomeTab('new')}
-        className={`py-2 rounded-xl text-sm font-bold ${homeTab === 'new' ? 'bg-orange-600 text-white' : 'text-slate-500'}`}
+        className={`py-3 rounded-[18px] text-sm font-black transition ${homeTab === 'new' ? 'bg-[#27439C] text-white shadow-sm' : 'text-slate-500'}`}
       >
         {t('newRequest')}
       </button>
       <button
         onClick={() => setHomeTab('requests')}
-        className={`py-2 rounded-xl text-sm font-bold ${homeTab === 'requests' ? 'bg-orange-600 text-white' : 'text-slate-500'}`}
+        className={`py-3 rounded-[18px] text-sm font-black transition ${homeTab === 'requests' ? 'bg-[#27439C] text-white shadow-sm' : 'text-slate-500'}`}
       >
         {t('myRequests')}
       </button>
@@ -351,32 +401,39 @@ function RequestForm({ token, onDone }) {
   }
 
   return <div className="space-y-4">
-    <div className="rounded-3xl bg-gradient-to-br from-orange-600 to-orange-500 text-white p-5 shadow">
-      <div className="text-sm opacity-80">{t('newRequest')}</div>
-      <div className="text-2xl font-black leading-tight">{t('findParts')}</div>
-      <div className="text-xs opacity-80 mt-2">{t('landingSubtitle')}</div>
+    <div className="rounded-[30px] bg-white border border-slate-200 p-5 shadow-sm">
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black border border-blue-100">
+        {t('newRequest')}
+      </div>
+      <div className="text-2xl font-black leading-tight text-slate-950 mt-3">{t('findParts')}</div>
+      <div className="text-xs font-semibold text-slate-500 mt-2">{t('landingSubtitle')}</div>
     </div>
 
-    <div className="bg-white rounded-3xl border p-4 space-y-3 shadow-sm">
+    <div className="bg-white rounded-[30px] border border-slate-200 p-4 space-y-4 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[10px] text-orange-600 font-black uppercase">{t('step')} 1</div>
-          <h2 className="font-black text-slate-900">{t('vehicleDetails')}</h2>
+          <div className="text-[10px] text-blue-600 font-black uppercase">{t('step')} 1</div>
+          <h2 className="font-black text-slate-950">{t('vehicleDetails')}</h2>
         </div>
-        <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center font-black">🚗</div>
+        <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black">🚗</div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.origin} onChange={e => setForm({ ...form, origin: e.target.value, make: '', model: '' })}>
-          <option value="">{t('selectOrigin')}</option>
-          {Object.keys(carData).map(o => <option key={o} value={o}>{o}</option>)}
-        </select>
-
-        <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.year} onChange={e => setForm({ ...form, year: e.target.value })}>
-          <option value="">{t('selectYear')}</option>
-          {years.map(y => <option key={y} value={y}>{y}</option>)}
-        </select>
+      <div className="grid grid-cols-2 gap-3">
+        {Object.entries(carData).slice(0, 8).map(([origin, data]) => (
+          <OriginButton
+            key={origin}
+            origin={origin}
+            data={data}
+            selected={form.origin === origin}
+            onClick={() => setForm({ ...form, origin, make: '', model: '' })}
+          />
+        ))}
       </div>
+
+      <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.year} onChange={e => setForm({ ...form, year: e.target.value })}>
+        <option value="">{t('selectYear')}</option>
+        {years.map(y => <option key={y} value={y}>{y}</option>)}
+      </select>
 
       <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.make} disabled={!form.origin} onChange={e => setForm({ ...form, make: e.target.value, model: '' })}>
         <option value="">{t('selectMake')}</option>
@@ -392,15 +449,15 @@ function RequestForm({ token, onDone }) {
     <div className="bg-white rounded-3xl border p-4 space-y-3 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[10px] text-orange-600 font-black uppercase">{t('step')} 2</div>
+          <div className="text-[10px] text-blue-600 font-black uppercase">{t('step')} 2</div>
           <h2 className="font-black text-slate-900">{t('partDetails')}</h2>
         </div>
-        <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center font-black">🔧</div>
+        <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black">🔧</div>
       </div>
 
-      <div className="bg-orange-50 rounded-2xl p-3 space-y-2 border border-orange-100">
+      <div className="bg-blue-50 rounded-2xl p-3 space-y-2 border border-blue-100">
         <input className="w-full p-3 rounded-xl border bg-white" placeholder={t('describeProblem')} value={problem} onChange={e => setProblem(e.target.value)} />
-        <button onClick={ai} disabled={loading || !problem.trim()} className="w-full py-2 rounded-xl bg-orange-600 text-white font-bold disabled:opacity-40">
+        <button onClick={ai} disabled={loading || !problem.trim()} className="w-full py-2 rounded-xl bg-[#27439C] text-white font-bold disabled:opacity-40">
           {loading ? t('analyzing') : t('aiIdentify')}
         </button>
       </div>
@@ -418,11 +475,11 @@ function RequestForm({ token, onDone }) {
     <div className="bg-white rounded-3xl border p-4 space-y-3 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[10px] text-orange-600 font-black uppercase">{t('step')} 3</div>
+          <div className="text-[10px] text-blue-600 font-black uppercase">{t('step')} 3</div>
           <h2 className="font-black text-slate-900">{t('requestPhotosUpTo4')}</h2>
           <div className="text-xs text-slate-400 mt-1">{t('imageHelp')}</div>
         </div>
-        <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center font-black">📷</div>
+        <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black">📷</div>
       </div>
 
       {form.photoUrls.length > 0 && (
@@ -436,7 +493,7 @@ function RequestForm({ token, onDone }) {
         </div>
       )}
 
-      <label className="block w-full py-3 rounded-2xl bg-slate-900 text-white text-center text-sm font-black cursor-pointer">
+      <label className="block w-full py-3 rounded-2xl bg-[#27439C] text-white text-center text-sm font-black cursor-pointer">
         {uploading ? t('uploading') : t('uploadPhoto')}
         <input type="file" accept="image/*" className="hidden" disabled={uploading || form.photoUrls.length >= 4} onChange={e => handlePhotoUpload(e.target.files?.[0])} />
       </label>
@@ -445,10 +502,10 @@ function RequestForm({ token, onDone }) {
     <div className="bg-white rounded-3xl border p-4 space-y-3 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[10px] text-orange-600 font-black uppercase">{t('step')} 4</div>
+          <div className="text-[10px] text-blue-600 font-black uppercase">{t('step')} 4</div>
           <h2 className="font-black text-slate-900">{t('deliveryDetails')}</h2>
         </div>
-        <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center font-black">📍</div>
+        <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black">📍</div>
       </div>
 
       <input className="w-full p-3 rounded-2xl border bg-slate-50" placeholder={t('yourPhone')} value={form.customerPhone} onChange={e => setForm({ ...form, customerPhone: e.target.value })} />
@@ -460,7 +517,7 @@ function RequestForm({ token, onDone }) {
     <button
       onClick={submit}
       disabled={!form.origin || !form.make || !form.model || !form.year || !form.partName || !form.customerPhone || !form.location || saving}
-      className="w-full py-4 rounded-3xl bg-slate-900 text-white font-black shadow-lg disabled:opacity-40"
+      className="w-full py-4 rounded-3xl bg-[#27439C] text-white font-black shadow-lg disabled:opacity-40"
     >
       {saving ? t('uploading') : t('submitRequest')}
     </button>
