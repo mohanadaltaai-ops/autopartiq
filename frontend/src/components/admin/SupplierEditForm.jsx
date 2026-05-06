@@ -56,8 +56,8 @@ export default function SupplierEditForm({ supplier, onSave, onCancel }) {
             return (
               <label key={origin} className={`text-xs rounded-2xl p-3 flex gap-2 items-center border transition ${
                 selected
-                  ? 'bg-blue-50 border-blue-200 text-blue-700 font-black'
-                  : 'bg-white border-slate-200 text-slate-600 font-bold'
+                  ? 'bg-blue-50 border-blue-200 text-blue-700 font-black dark:bg-[#1A2549] dark:border-blue-400 dark:text-blue-100'
+                  : 'bg-white border-slate-200 text-slate-600 font-bold dark:bg-[#101A33] dark:border-slate-700 dark:text-slate-200'
               }`}>
                 <input type="checkbox" checked={selected} onChange={e => setForm(current => ({
                   ...current,
