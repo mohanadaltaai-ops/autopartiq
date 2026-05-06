@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Bell, Home, Package, User, BarChart3, Users, Languages, ShieldCheck, UserPlus, Wallet } from 'lucide-react';
+import { Bell, Home, Package, User, BarChart3, Users, Languages, ShieldCheck, UserPlus, Wallet, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../lib/api';
@@ -92,7 +92,8 @@ export default function Layout({ tab, setTab, children }) {
         ['home', BarChart3, t('dashboard')],
         ['orders', Package, t('orders')],
         ['suppliers', Users, t('suppliers')],
-        ['settlements', Wallet, 'Settlements']
+        ['settlements', Wallet, 'Settlements'],
+        ['more', MoreHorizontal, t('more')]
       ]
     : user?.adminPermission === 'ORDERS_ONLY'
       ? [
@@ -102,7 +103,8 @@ export default function Layout({ tab, setTab, children }) {
           ['home', BarChart3, t('dashboard')],
           ['orders', Package, t('orders')],
           ['suppliers', Users, t('suppliers')],
-          ['settlements', Wallet, 'Settlements']
+          ['settlements', Wallet, 'Settlements'],
+          ['more', MoreHorizontal, t('more')]
         ];
 
   const tabs = user?.role === 'CUSTOMER'

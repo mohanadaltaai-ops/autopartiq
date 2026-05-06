@@ -220,6 +220,30 @@ export default function Admin({ tab }) {
     </div>;
   }
 
+  if (tab === 'more') {
+    return <div className="p-4 space-y-4">
+      <h1 className="font-black text-xl text-slate-900">{t('more')}</h1>
+
+      <div className="bg-white rounded-2xl border p-4 shadow-sm space-y-4">
+        <div>
+          <div className="font-black text-slate-900">{t('auditLogs')}</div>
+          <div className="text-xs text-slate-400">{t('audit')}</div>
+        </div>
+        <AuditLogViewer token={token} />
+      </div>
+
+      {user?.role === 'SUPER_ADMIN' && (
+        <div className="bg-white rounded-2xl border p-4 shadow-sm space-y-4">
+          <div>
+            <div className="font-black text-slate-900">{t('adminUsers')}</div>
+            <div className="text-xs text-slate-400">{t('users')}</div>
+          </div>
+          <SuperAdminEnroll token={token} />
+        </div>
+      )}
+    </div>;
+  }
+
   if (tab === 'suppliers') {
     return <div className="p-4 space-y-4">
       <h1 className="font-black text-xl text-slate-900">{t('suppliers')}</h1>
