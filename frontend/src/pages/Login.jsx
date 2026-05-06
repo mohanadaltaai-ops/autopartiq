@@ -1,4 +1,5 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useMemo, useState } from 'react';
+import { ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import logo from '../assets/logo.png';
@@ -10,6 +11,50 @@ export default function Login() {
   const [screen, setScreen] = useState('landing');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
+
+  const copy = useMemo(() => {
+    return language === 'ar'
+      ? {
+          market: 'سوق قطع الغيار العراقي',
+          heroTitle: 'اعثر على أي قطعة سيارة.\nواحصل على عروض خلال دقائق.',
+          heroSubtitle: 'أرسل طلباً واحداً — وسيتنافس الموردون المعتمدون في العراق لتلبيته.',
+          getStarted: 'ابدأ الآن',
+          haveAccount: 'لديك حساب؟',
+          logIn: 'تسجيل الدخول',
+          popularPart: 'قطعة شائعة',
+          partName: 'Brake Pad',
+          price: '120,000 د.ع',
+          offers: '+3 عروض',
+          phoneTitle: 'تسجيل الدخول برقم الهاتف',
+          phoneHint: 'أدخل رقم هاتفك للمتابعة',
+          otpTitle: 'أدخل رمز التحقق',
+          otpHint: 'أدخل رمز التحقق المكوّن من 4 أرقام',
+          continue: 'متابعة',
+          verify: 'تحقق وتسجيل الدخول',
+          back: 'رجوع',
+          changeNumber: 'تغيير الرقم'
+        }
+      : {
+          market: 'Iraqi spare parts marketplace',
+          heroTitle: 'Find any car part.\nQuoted in minutes.',
+          heroSubtitle: 'Send one request — verified suppliers across Iraq compete to fulfill it.',
+          getStarted: 'Get started',
+          haveAccount: 'Have an account?',
+          logIn: 'Log in',
+          popularPart: 'Popular part',
+          partName: 'Brake Pad',
+          price: '120,000 IQD',
+          offers: '+3 offers',
+          phoneTitle: 'Phone number sign in',
+          phoneHint: 'Enter your phone number to continue',
+          otpTitle: 'Enter verification code',
+          otpHint: 'Enter your 4-digit verification code',
+          continue: 'Continue',
+          verify: 'Verify & sign in',
+          back: 'Back',
+          changeNumber: 'Change number'
+        };
+  }, [language]);
 
   async function submit() {
     const cleanOtp = otp.trim();
@@ -38,175 +83,200 @@ export default function Login() {
     }
   }
 
-  return <div className="min-h-screen flex items-center justify-center bg-slate-600 p-4">
-    <div className="phone-frame rounded-[42px] border-[7px] border-slate-950 overflow-hidden shadow-2xl flex flex-col relative apiq-page">
-      <button
-        onClick={toggleLanguage}
-        className="absolute top-5 left-5 z-10 px-3 h-9 rounded-2xl bg-white/90 text-slate-900 text-xs font-black shadow-lg border border-white/60 backdrop-blur"
-        title={t('language')}
-      >
-        {language === 'en' ? 'AR' : 'EN'}
-      </button>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-600 p-4">
+      <div className="phone-frame rounded-[42px] border-[7px] border-slate-950 overflow-hidden shadow-2xl flex flex-col relative bg-[#F5F7FC]">
+        <button
+          onClick={toggleLanguage}
+          className="absolute top-6 left-6 z-20 px-4 h-11 rounded-[18px] bg-white text-slate-800 text-sm font-black shadow-md border border-slate-200"
+          title={t('language')}
+        >
+          {language === 'en' ? 'AR' : 'EN'}
+        </button>
 
-      <button
-        onClick={() => { window.location.href = '/super-access'; }}
-        className="absolute top-5 right-5 z-10 px-3 h-9 rounded-2xl bg-slate-950/80 text-white text-[10px] font-black shadow-lg border border-white/10 backdrop-blur"
-        title={t('adminAccess')}
-      >
-        SA
-      </button>
+        <button
+          onClick={() => {
+            window.location.href = '/super-access';
+          }}
+          className="absolute top-6 right-6 z-20 px-4 h-11 rounded-[18px] bg-[#2E3346] text-white text-sm font-black shadow-md border border-slate-700"
+          title={t('adminAccess')}
+        >
+          SA
+        </button>
 
-      {screen === 'landing' ? (
-        <div className="flex-1 p-7 flex flex-col justify-between relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.18),transparent_35%),radial-gradient(circle_at_top_right,rgba(30,58,138,0.20),transparent_40%)]" />
-
-          <div className="relative pt-16 space-y-7">
-            <div className="logo-surface w-24 h-24 rounded-[28px] shadow-2xl flex items-center justify-center p-2 border border-white/70">
-              <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain scale-95" />
+        {screen === 'landing' ? (
+          <div className="flex-1 px-8 pt-24 pb-6 flex flex-col bg-[linear-gradient(135deg,#F6F0EC_0%,#EEF3FF_55%,#F4F7FF_100%)]">
+            <div className="flex justify-start">
+              <div className="w-[92px] h-[92px] rounded-[28px] bg-white shadow-sm border border-slate-100 flex items-center justify-center p-3">
+                <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain" />
+              </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 text-orange-700 text-[11px] font-black border border-orange-100">
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-600" />
-                {t('iraqiPartsMarket')}
+            <div className="mt-6 inline-flex items-center gap-2 self-start px-4 py-2 rounded-full bg-[#F9F3EC] border border-[#F6E2CA] text-[#D45A11] text-[12px] font-black">
+              <span className="w-2 h-2 rounded-full bg-[#F97316]" />
+              {copy.market}
+            </div>
+
+            <div className="mt-5">
+              <h1 className="text-[36px] leading-[0.95] font-black tracking-tight text-[#081B4B] whitespace-pre-line">
+                {copy.heroTitle}
+              </h1>
+              <p className="mt-4 text-[15px] leading-8 text-[#7A859E] font-semibold max-w-[300px]">
+                {copy.heroSubtitle}
+              </p>
+            </div>
+
+            <div className="mt-4 flex-1 flex flex-col justify-center">
+              <div className="relative h-[250px]">
+                <div className="absolute left-1/2 top-4 -translate-x-1/2 w-[210px] h-[210px] rounded-full bg-[#E8EEFF]" />
+                <div className="absolute left-1/2 top-[42px] -translate-x-1/2 w-[148px] h-[148px] rounded-full bg-[#FDFDFE] shadow-sm border border-slate-100" />
+
+                <div className="absolute left-1/2 top-[58px] -translate-x-1/2 w-[132px] h-[132px] rounded-[26px] bg-white shadow-[0_12px_30px_rgba(15,23,42,0.08)] border border-slate-100 flex items-center justify-center">
+                  <div
+                    className="w-[92px] h-[70px] rounded-[14px] border border-slate-200 flex items-center justify-center text-[11px] font-black text-[#A2A9BC]"
+                    style={{
+                      background:
+                        'repeating-linear-gradient(135deg, #F1F4FB 0px, #F1F4FB 6px, #EDF1F8 6px, #EDF1F8 12px)'
+                    }}
+                  >
+                    {copy.partName.toUpperCase()}
+                  </div>
+                </div>
+
+                <div className="absolute left-[8px] top-[138px] px-4 py-2.5 rounded-[16px] bg-[#F97316] text-white text-[12px] font-black shadow-[0_8px_20px_rgba(249,115,22,0.28)]">
+                  {copy.price}
+                </div>
+
+                <div className="absolute right-[10px] top-[44px] px-4 py-2.5 rounded-[16px] bg-white text-[#2BB673] text-[12px] font-black shadow-sm border border-slate-100">
+                  {copy.offers}
+                </div>
               </div>
 
-              <div>
-                <h1 className="text-[38px] leading-[0.95] font-black tracking-tight text-slate-950">
-                  AutoParts<br />IQ
+              <div className="mt-2 flex items-center justify-center gap-2">
+                <span className="w-6 h-2 rounded-full bg-[#27439C]" />
+                <span className="w-2 h-2 rounded-full bg-[#D5D9E6]" />
+                <span className="w-2 h-2 rounded-full bg-[#D5D9E6]" />
+              </div>
+            </div>
+
+            <div className="pt-5">
+              <button
+                onClick={() => setScreen('phone')}
+                className="w-full h-14 rounded-[18px] bg-[#27439C] text-white font-black text-[15px] flex items-center justify-center gap-2 shadow-[0_14px_30px_rgba(39,67,156,0.20)]"
+              >
+                <ArrowRight size={18} />
+                {copy.getStarted}
+              </button>
+
+              <div className="mt-3 text-center text-[14px] text-[#8C94A8] font-semibold">
+                {copy.haveAccount}{' '}
+                <button
+                  onClick={() => setScreen('phone')}
+                  className="text-[#27439C] font-black"
+                >
+                  {copy.logIn}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col bg-[linear-gradient(180deg,#F7F9FD_0%,#EEF3FB_100%)]">
+            <div className="px-7 pt-24 pb-6">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-[22px] bg-white shadow-sm border border-slate-100 flex items-center justify-center p-2">
+                  <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain" />
+                </div>
+                <div>
+                  <div className="text-[26px] font-black tracking-tight text-[#081B4B]">AutoParts IQ</div>
+                  <div className="text-[12px] font-bold text-[#8B95A7]">{copy.phoneTitle}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-6 pb-6 flex-1 flex flex-col justify-center gap-4">
+              <div className="space-y-1">
+                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#F97316]">
+                  {screen === 'phone' ? t('phoneNumber') : t('enterOtp')}
+                </div>
+                <h1 className="text-[28px] leading-tight font-black text-[#081B4B]">
+                  {screen === 'phone' ? copy.phoneTitle : copy.otpTitle}
                 </h1>
-                <p className="text-sm text-slate-500 mt-4 leading-relaxed max-w-[260px]">
-                  {t('landingSubtitle')}
+                <p className="text-[14px] text-[#8B95A7] font-semibold">
+                  {screen === 'phone' ? copy.phoneHint : copy.otpHint}
                 </p>
               </div>
-            </div>
-          </div>
 
-          <div className="relative space-y-3">
-            <div className="space-y-3">
-              <div className="apiq-card p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="text-[11px] font-black uppercase tracking-wide text-blue-600">Popular Part</div>
-                    <div className="text-lg font-black text-slate-900 mt-1">Brake Pads</div>
-                    <div className="text-xs font-bold text-slate-500 mt-1">Fast matching from trusted suppliers</div>
+              {screen === 'phone' ? (
+                <>
+                  <div className="bg-white rounded-[24px] border border-slate-200 shadow-sm p-3">
+                    <input
+                      className="w-full h-14 px-4 rounded-[18px] bg-[#F8FAFD] border border-slate-200 outline-none text-[18px] font-bold"
+                      value={phone}
+                      onChange={e => {
+                        setPhone(e.target.value);
+                        setError('');
+                      }}
+                      placeholder={t('phoneNumber')}
+                    />
                   </div>
-                  <div className="apiq-chip">+24</div>
-                </div>
-              </div>
 
-              <div className="apiq-card p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <div className="text-[11px] font-black uppercase tracking-wide text-orange-600">Live Offers</div>
-                    <div className="text-xl font-black text-slate-900 mt-1">12 supplier offers</div>
-                    <div className="text-xs font-bold text-slate-500 mt-1">Best prices, delivery options, and verified sellers</div>
+                  <button
+                    onClick={() => setScreen('otp')}
+                    disabled={!phone.trim()}
+                    className="w-full h-14 rounded-[18px] bg-[#27439C] text-white font-black text-[15px] disabled:opacity-40 shadow-[0_14px_30px_rgba(39,67,156,0.20)]"
+                  >
+                    {copy.continue}
+                  </button>
+
+                  <button
+                    onClick={() => setScreen('landing')}
+                    className="text-[#8B95A7] text-sm font-bold"
+                  >
+                    {copy.back}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="bg-white rounded-[24px] border border-slate-200 shadow-sm p-3">
+                    <input
+                      className="w-full h-16 px-4 rounded-[18px] bg-[#F8FAFD] border border-slate-200 outline-none text-center text-[28px] tracking-[0.45em] font-black"
+                      value={otp}
+                      onChange={e => {
+                        setOtp(e.target.value);
+                        setError('');
+                      }}
+                      maxLength={4}
+                      inputMode="numeric"
+                      placeholder="••••"
+                    />
                   </div>
-                  <div className="flex flex-col gap-2 items-end">
-                    <div className="apiq-chip apiq-status-info">IQD</div>
-                    <div className="apiq-chip">24/7</div>
-                  </div>
+
+                  <button
+                    onClick={submit}
+                    disabled={!otp.trim()}
+                    className="w-full h-14 rounded-[18px] bg-[#27439C] text-white font-black text-[15px] disabled:opacity-40 shadow-[0_14px_30px_rgba(39,67,156,0.20)]"
+                  >
+                    {copy.verify}
+                  </button>
+
+                  <button
+                    onClick={() => setScreen('phone')}
+                    className="text-[#8B95A7] text-sm font-bold"
+                  >
+                    {copy.changeNumber}
+                  </button>
+                </>
+              )}
+
+              {error && (
+                <div className="rounded-[18px] bg-red-50 border border-red-100 text-red-700 text-sm font-bold p-4">
+                  {error}
                 </div>
-
-                <div className="mt-4 flex gap-2 flex-wrap">
-                  <span className="apiq-chip">Fast quotes</span>
-                  <span className="apiq-chip">Trusted suppliers</span>
-                  <span className="apiq-chip">All in one place</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <button onClick={() => setScreen('phone')} className="w-full py-4 apiq-button-primary">
-                {t('enterLogin')}
-              </button>
-
-              <button onClick={() => setScreen('phone')} className="w-full py-4 apiq-button-accent">
-                {t('phoneLogin')}
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="flex-1 flex flex-col">
-          <div className="px-7 pt-20 pb-6 bg-white/80 border-b border-slate-200">
-            <div className="flex items-center gap-4">
-              <div className="logo-surface w-16 h-16 rounded-3xl flex items-center justify-center p-1.5 shadow-lg border border-slate-200">
-                <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain scale-95" />
-              </div>
-              <div>
-                <div className="text-2xl font-black text-slate-950 tracking-tight">AutoParts IQ</div>
-                <div className="text-xs font-bold text-slate-500 mt-1">{t('phoneLogin')}</div>
-              </div>
+              )}
             </div>
           </div>
-
-          <div className="p-6 flex-1 flex flex-col justify-center gap-4">
-            <div className="space-y-1">
-              <div className="text-[11px] font-black text-orange-600 uppercase tracking-wide">
-                {screen === 'phone' ? t('phoneNumber') : t('enterOtp')}
-              </div>
-              <h1 className="text-2xl font-black text-slate-950 tracking-tight">
-                {screen === 'phone' ? t('enterPhone') : t('verifySignIn')}
-              </h1>
-            </div>
-
-            {screen === 'phone' ? (
-              <>
-                <div className="apiq-card p-3">
-                  <input
-                    className="w-full p-4 rounded-2xl bg-slate-50 border outline-none text-lg font-bold"
-                    value={phone}
-                    onChange={e => {
-                      setPhone(e.target.value);
-                      setError('');
-                    }}
-                    placeholder={t('phoneNumber')}
-                  />
-                </div>
-
-                <button onClick={() => setScreen('otp')} disabled={!phone.trim()} className="w-full py-4 apiq-button-primary disabled:opacity-40">
-                  {t('continue')}
-                </button>
-
-                <button onClick={() => setScreen('landing')} className="text-slate-500 text-sm font-bold">
-                  {t('back')}
-                </button>
-              </>
-            ) : (
-              <>
-                <div className="apiq-card p-3">
-                  <input
-                    className="w-full p-4 rounded-2xl bg-slate-50 border outline-none text-center text-2xl tracking-[.5em] font-black"
-                    value={otp}
-                    onChange={e => {
-                      setOtp(e.target.value);
-                      setError('');
-                    }}
-                    maxLength={4}
-                    inputMode="numeric"
-                    placeholder="••••"
-                  />
-                </div>
-
-                <button onClick={submit} disabled={!otp.trim()} className="w-full py-4 apiq-button-primary disabled:opacity-40">
-                  {t('verifySignIn')}
-                </button>
-
-                <button onClick={() => setScreen('phone')} className="text-slate-500 text-sm font-bold">
-                  {t('changeNumber')}
-                </button>
-              </>
-            )}
-
-            {error && (
-              <div className="rounded-2xl bg-red-50 border border-red-100 text-red-700 text-sm font-bold p-3">
-                {error}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
-  </div>;
+  );
 }
