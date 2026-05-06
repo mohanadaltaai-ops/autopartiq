@@ -39,6 +39,7 @@ function CustomerStatCard({ label, value, tone = 'blue' }) {
 
 function OriginButton({ origin, data, selected, onClick }) {
   const previewMakes = Object.keys(data.makes).slice(0, 3).join(', ');
+  const brandCount = Object.keys(data.makes).length;
 
   return (
     <button
@@ -46,25 +47,45 @@ function OriginButton({ origin, data, selected, onClick }) {
       onClick={onClick}
       className={`relative text-left rounded-[24px] border p-4 transition-all shadow-sm ${
         selected
-          ? 'bg-blue-50 border-blue-500 ring-2 ring-blue-200 shadow-md dark:bg-blue-950/40 dark:border-blue-400 dark:ring-blue-500/40'
-          : 'bg-white border-slate-200 hover:border-blue-200 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:hover:border-blue-500/40'
+          ? 'bg-[#EEF4FF] border-[#6EA8FF] ring-2 ring-[#B9D4FF] shadow-md dark:bg-[#14213D] dark:border-[#5B8CFF] dark:ring-[#3559B7]'
+          : 'bg-white border-slate-200 hover:border-[#B9D4FF] hover:bg-[#F8FBFF] dark:bg-[#0F172A] dark:border-slate-700 dark:hover:border-[#3559B7] dark:hover:bg-[#111C34]'
       }`}
     >
       {selected && (
-        <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-blue-600 text-white text-[11px] font-black flex items-center justify-center shadow-sm">
+        <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-[#2F6BFF] text-white text-xs font-black flex items-center justify-center shadow-sm">
           ✓
         </div>
       )}
 
-      <div className={`text-xs font-black mb-2 ${selected ? 'text-blue-700 dark:text-blue-300' : 'text-slate-500 dark:text-slate-400'}`}>
+      <div className={`text-xs font-black mb-2 ${
+        selected
+          ? 'text-[#5D7DBB] dark:text-[#9DB8FF]'
+          : 'text-slate-500 dark:text-slate-400'
+      }`}>
         {data.emoji} {origin}
       </div>
 
-      <div className={`text-lg font-black leading-tight ${selected ? 'text-slate-950 dark:text-white' : 'text-slate-900 dark:text-slate-100'}`}>
-        {Object.keys(data.makes).length} {Object.keys(data.makes).length === 1 ? 'brand' : 'brands'}
+      <div className={`text-[2rem] leading-none font-black mb-3 ${
+        selected
+          ? 'text-[#122B57] dark:text-white'
+          : 'text-[#0F172A] dark:text-white'
+      }`}>
+        {brandCount}
       </div>
 
-      <div className={`mt-2 text-xs leading-relaxed ${selected ? 'text-slate-700 dark:text-slate-200' : 'text-slate-500 dark:text-slate-400'}`}>
+      <div className={`text-lg font-black leading-tight mb-3 ${
+        selected
+          ? 'text-[#122B57] dark:text-white'
+          : 'text-[#0F172A] dark:text-white'
+      }`}>
+        {brandCount === 1 ? 'brand' : 'brands'}
+      </div>
+
+      <div className={`text-sm leading-relaxed ${
+        selected
+          ? 'text-[#5B6B85] dark:text-slate-300'
+          : 'text-slate-500 dark:text-slate-400'
+      }`}>
         {previewMakes}
       </div>
     </button>
