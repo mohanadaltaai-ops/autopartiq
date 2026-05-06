@@ -13,23 +13,23 @@
   --apiq-faint: #8A93A8;
   --apiq-hairline: #E4E8F1;
 
-  --apiq-primary: #1E3A8A;
-  --apiq-primary-deep: #13266A;
-  --apiq-primary-soft: #E7ECFA;
-  --apiq-primary-soft-hover: #D6DEF6;
+  --apiq-primary: #2F5BEA;
+  --apiq-primary-deep: #2147C6;
+  --apiq-primary-soft: #EEF3FF;
+  --apiq-primary-soft-hover: #DCE6FF;
   --apiq-primary-ink: #FFFFFF;
 
-  --apiq-accent: #F97316;
-  --apiq-accent-deep: #C9580E;
-  --apiq-accent-soft: #FFEDD8;
+  --apiq-accent: #FF8A3D;
+  --apiq-accent-deep: #E56C1B;
+  --apiq-accent-soft: #FFF1E7;
 
-  --apiq-success: #0E9F6E;
+  --apiq-success: #10B981;
   --apiq-success-soft: #D6F4E5;
   --apiq-warn: #B45309;
   --apiq-warn-soft: #FFEFD2;
   --apiq-danger: #C12B2B;
   --apiq-danger-soft: #FFE2E2;
-  --apiq-info: #1E40AF;
+  --apiq-info: #3B82F6;
   --apiq-info-soft: #DCE5FA;
 
   --apiq-radius-sm: 14px;
@@ -144,15 +144,16 @@ body {
   color: var(--apiq-primary-ink);
   border-radius: var(--apiq-radius-md);
   font-weight: 900;
-  box-shadow: 0 12px 24px rgba(30, 58, 138, 0.22);
+  box-shadow: 0 12px 24px rgba(47, 91, 234, 0.22);
 }
 
 .apiq-button-accent {
-  background: linear-gradient(135deg, var(--apiq-accent), var(--apiq-accent-deep));
-  color: white;
+  background: var(--apiq-surface);
+  color: var(--apiq-primary);
+  border: 1px solid var(--apiq-hairline);
   border-radius: var(--apiq-radius-md);
   font-weight: 900;
-  box-shadow: 0 12px 24px rgba(249, 115, 22, 0.22);
+  box-shadow: var(--apiq-shadow-soft);
 }
 
 .apiq-button-secondary {

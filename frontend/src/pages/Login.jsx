@@ -83,24 +83,41 @@ export default function Login() {
           </div>
 
           <div className="relative space-y-3">
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="apiq-card-muted p-3">
-                <div className="text-lg font-black text-slate-900">AI</div>
-                <div className="text-[10px] font-bold text-slate-500">{t('aiIdentify')}</div>
+            <div className="space-y-3">
+              <div className="apiq-card p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[11px] font-black uppercase tracking-wide text-blue-600">Popular Part</div>
+                    <div className="text-lg font-black text-slate-900 mt-1">Brake Pads</div>
+                    <div className="text-xs font-bold text-slate-500 mt-1">Fast matching from trusted suppliers</div>
+                  </div>
+                  <div className="apiq-chip">+24</div>
+                </div>
               </div>
-              <div className="apiq-card-muted p-3">
-                <div className="text-lg font-black text-slate-900">24/7</div>
-                <div className="text-[10px] font-bold text-slate-500">{t('support')}</div>
-              </div>
-              <div className="apiq-card-muted p-3">
-                <div className="text-lg font-black text-slate-900">IQD</div>
-                <div className="text-[10px] font-bold text-slate-500">{t('payment')}</div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="apiq-card-muted p-4">
+                  <div className="text-[11px] font-black uppercase tracking-wide text-orange-600">Offers</div>
+                  <div className="text-2xl font-black text-slate-900 mt-1">12</div>
+                  <div className="text-[11px] font-bold text-slate-500 mt-1">Active today</div>
+                </div>
+                <div className="apiq-card-muted p-4">
+                  <div className="text-[11px] font-black uppercase tracking-wide text-blue-600">Suppliers</div>
+                  <div className="text-2xl font-black text-slate-900 mt-1">150+</div>
+                  <div className="text-[11px] font-bold text-slate-500 mt-1">Across العراق</div>
+                </div>
               </div>
             </div>
 
-            <button onClick={() => setScreen('phone')} className="w-full py-4 apiq-button-accent">
-              {t('enterLogin')}
-            </button>
+            <div className="space-y-3">
+              <button onClick={() => setScreen('phone')} className="w-full py-4 apiq-button-primary">
+                {t('enterLogin')}
+              </button>
+
+              <button onClick={() => setScreen('phone')} className="w-full py-4 apiq-button-accent">
+                {t('phoneLogin')}
+              </button>
+            </div>
           </div>
         </div>
       ) : (
@@ -165,7 +182,7 @@ export default function Login() {
                   />
                 </div>
 
-                <button onClick={submit} disabled={!otp.trim()} className="w-full py-4 apiq-button-accent disabled:opacity-40">
+                <button onClick={submit} disabled={!otp.trim()} className="w-full py-4 apiq-button-primary disabled:opacity-40">
                   {t('verifySignIn')}
                 </button>
 
