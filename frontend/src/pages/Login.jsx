@@ -105,7 +105,7 @@ export default function Login() {
         {screen === 'landing' ? (
           <div className="flex-1 px-8 pt-20 pb-5 flex flex-col bg-[linear-gradient(135deg,#F6F0EC_0%,#EEF3FF_55%,#F4F7FF_100%)]">
             <div className="flex justify-start">
-              <div className="w-[88px] h-[88px] rounded-[26px] bg-white shadow-sm border border-slate-100 flex items-center justify-center p-3">
+              <div className="logo-surface w-[88px] h-[88px] rounded-[26px] bg-white shadow-sm border border-slate-100 flex items-center justify-center p-3">
                 <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain" />
               </div>
             </div>
@@ -116,10 +116,10 @@ export default function Login() {
             </div>
 
             <div className="mt-4">
-              <h1 className="text-[31px] leading-[1.0] font-black tracking-tight text-[#081B4B] whitespace-pre-line">
+              <h1 className={`${language === 'ar' ? 'text-[27px] leading-[1.12]' : 'text-[31px] leading-[1.0]'} font-black tracking-tight text-[#081B4B] whitespace-pre-line`}>
                 {copy.heroTitle}
               </h1>
-              <p className="mt-3 text-[14px] leading-7 text-[#7A859E] font-semibold max-w-[300px]">
+              <p className={`${language === 'ar' ? 'mt-2 text-[13px] leading-6' : 'mt-3 text-[14px] leading-7'} text-[#7A859E] font-semibold max-w-[300px]`}>
                 {copy.heroSubtitle}
               </p>
             </div>
@@ -166,7 +166,7 @@ export default function Login() {
                 {copy.getStarted}
               </button>
 
-              <div className="mt-3 text-center text-[14px] text-[#8C94A8] font-semibold">
+              <div className="mt-2 text-center text-[13px] leading-5 text-[#8C94A8] font-semibold">
                 {copy.haveAccount}{' '}
                 <button
                   onClick={() => setScreen('phone')}
@@ -181,7 +181,7 @@ export default function Login() {
           <div className="flex-1 flex flex-col bg-[linear-gradient(180deg,#F7F9FD_0%,#EEF3FB_100%)]">
             <div className="px-7 pt-24 pb-6">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-[22px] bg-white shadow-sm border border-slate-100 flex items-center justify-center p-2">
+                <div className="logo-surface w-16 h-16 rounded-[22px] bg-white shadow-sm border border-slate-100 flex items-center justify-center p-2">
                   <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain" />
                 </div>
                 <div>
