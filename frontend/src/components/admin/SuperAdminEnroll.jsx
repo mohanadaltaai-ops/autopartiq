@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { api } from '../../lib/api';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -50,68 +50,38 @@ export default function SuperAdminEnroll({ token }) {
   }
 
   return (
-    <div className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
-      <h2 className="font-black text-slate-900">{t('createAdminUser')}</h2>
+    <div className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm space-y-3">
+      <div>
+        <div className="inline-flex px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-[10px] font-black mb-2">
+          {t('adminUsers')}
+        </div>
+        <h2 className="font-black text-slate-950 text-lg">{t('createAdminUser')}</h2>
+      </div>
 
-      <select
-        className="w-full p-3 rounded-xl border"
-        value={form.role}
-        onChange={e =>
-          setForm({
-            ...form,
-            role: e.target.value,
-            adminPermission: e.target.value === 'SUPER_ADMIN' ? 'FULL_ADMIN' : form.adminPermission
-          })
-        }
-      >
+      <select className="w-full p-3 rounded-2xl border bg-slate-50 font-bold" value={form.role} onChange={e => setForm({ ...form, role: e.target.value, adminPermission: e.target.value === 'SUPER_ADMIN' ? 'FULL_ADMIN' : form.adminPermission })}>
         <option value="ADMIN">{t('roleAdmin')}</option>
         <option value="SUPER_ADMIN">{t('roleSuperAdmin')}</option>
       </select>
 
       {form.role === 'ADMIN' && (
-        <select
-          className="w-full p-3 rounded-xl border"
-          value={form.adminPermission}
-          onChange={e => setForm({ ...form, adminPermission: e.target.value })}
-        >
+        <select className="w-full p-3 rounded-2xl border bg-slate-50 font-bold" value={form.adminPermission} onChange={e => setForm({ ...form, adminPermission: e.target.value })}>
           <option value="FULL_ADMIN">{t('fullAdminDescription')}</option>
           <option value="ORDERS_ONLY">{t('ordersOnlyDescription')}</option>
         </select>
       )}
 
-      <input
-        className="w-full p-3 rounded-xl border"
-        placeholder={t('fullName')}
-        value={form.name}
-        onChange={e => setForm({ ...form, name: e.target.value })}
-      />
+      <input className="w-full p-3 rounded-2xl border bg-slate-50 font-bold" placeholder={t('fullName')} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+      <input className="w-full p-3 rounded-2xl border bg-slate-50 font-bold" placeholder={t('phoneNumberForLogin')} value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+      <input className="w-full p-3 rounded-2xl border bg-slate-50 font-bold" placeholder={t('email')} value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
 
-      <input
-        className="w-full p-3 rounded-xl border"
-        placeholder={t('phoneNumberForLogin')}
-        value={form.phone}
-        onChange={e => setForm({ ...form, phone: e.target.value })}
-      />
-
-      <input
-        className="w-full p-3 rounded-xl border"
-        placeholder={t('email')}
-        value={form.email}
-        onChange={e => setForm({ ...form, email: e.target.value })}
-      />
-
-      <div className="text-xs text-slate-500 bg-slate-50 rounded-xl p-3">
+      <div className="text-xs text-slate-500 bg-slate-50 border border-slate-100 rounded-[18px] p-3 font-semibold leading-relaxed">
         {t('adminPhoneLoginNote')}
       </div>
 
-      {message && <div className="text-xs text-green-700 bg-green-50 rounded-xl p-2">{message}</div>}
-      {error && <div className="text-xs text-red-700 bg-red-50 rounded-xl p-2">{error}</div>}
+      {message && <div className="text-xs text-green-700 bg-green-50 border border-green-100 rounded-2xl p-3 font-bold">{message}</div>}
+      {error && <div className="text-xs text-red-700 bg-red-50 border border-red-100 rounded-2xl p-3 font-bold">{error}</div>}
 
-      <button
-        onClick={submit}
-        disabled={saving || !form.name.trim() || !form.phone.trim()}
-        className="w-full py-3 rounded-2xl bg-purple-700 text-white font-black disabled:opacity-40"
-      >
+      <button onClick={submit} disabled={saving || !form.name.trim() || !form.phone.trim()} className="w-full py-3.5 rounded-2xl bg-[#27439C] text-white font-black disabled:opacity-40 shadow-sm">
         {saving ? t('saving') : t('createUser')}
       </button>
     </div>
