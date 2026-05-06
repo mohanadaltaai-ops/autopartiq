@@ -17,7 +17,14 @@ function parseJsonArray(value) {
 }
 
 function Empty({ text }) {
-  return <div className="bg-white rounded-2xl border border-dashed p-6 text-center text-sm text-slate-400">{text}</div>;
+  return (
+    <div className="bg-white rounded-[28px] border border-dashed border-slate-200 p-6 text-center shadow-sm">
+      <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black mb-3">
+        —
+      </div>
+      <div className="text-sm font-bold text-slate-500">{text}</div>
+    </div>
+  );
 }
 
 function SummaryRow({ label, value }) {
@@ -90,8 +97,25 @@ export default function Supplier({ tab }) {
     return map;
   }, {}), [offers]);
 
-  if (loading) return <div className="p-4 text-slate-500">{t('loadingSupplier')}</div>;
-  if (error) return <div className="p-4 text-red-600 text-sm">{error}</div>;
+  if (loading) {
+    return (
+      <div className="p-4">
+        <div className="bg-white rounded-[28px] border border-slate-200 p-5 shadow-sm text-sm font-bold text-slate-500">
+          {t('loadingSupplier')}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4">
+        <div className="bg-red-50 rounded-[28px] border border-red-100 p-5 shadow-sm text-sm font-bold text-red-700">
+          {error}
+        </div>
+      </div>
+    );
+  }
 
   if (tab === 'orders') {
     return <div className="p-4 space-y-3">
@@ -104,19 +128,40 @@ export default function Supplier({ tab }) {
 
   if (tab === 'earnings') return <Earnings orders={orders} payouts={payouts} payoutSummary={payoutSummary} />;
 
-  return <div className="p-4 space-y-3">
+  return <div className="p-4 space-y-4 pb-6">
     <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
 
-    <div className="rounded-3xl bg-gradient-to-br from-blue-600 to-blue-500 text-white p-5 shadow">
-      <div className="text-sm opacity-80">{t('supplierWorkspace')}</div>
-      <div className="text-xl font-black">{t('offersLeads')}</div>
+    <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
+      <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10" />
+      <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/20" />
+
+      <div className="relative">
+        <div className="text-xs font-bold text-white/70">{t('supplierWorkspace')}</div>
+        <div className="text-2xl font-black leading-tight mt-1">{t('offersLeads')}</div>
+        <div className="text-xs font-semibold text-white/70 mt-2 max-w-[260px]">{t('availableRequests')}</div>
+
+        <div className="grid grid-cols-3 gap-3 mt-5">
+          <div className="rounded-2xl bg-white/12 border border-white/10 p-3">
+            <div className="text-[10px] font-black uppercase text-white/60">{t('leads')}</div>
+            <div className="text-2xl font-black mt-1">{leads.length}</div>
+          </div>
+          <div className="rounded-2xl bg-white/12 border border-white/10 p-3">
+            <div className="text-[10px] font-black uppercase text-white/60">{t('sentOffers')}</div>
+            <div className="text-2xl font-black mt-1">{offers.length}</div>
+          </div>
+          <div className="rounded-2xl bg-white/12 border border-white/10 p-3">
+            <div className="text-[10px] font-black uppercase text-white/60">{t('orders')}</div>
+            <div className="text-2xl font-black mt-1">{orders.length}</div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div className="grid grid-cols-2 gap-2 bg-white rounded-2xl border p-2">
-      <button onClick={() => setHomeTab('leads')} className={`py-2 rounded-xl text-sm font-bold ${homeTab === 'leads' ? 'bg-blue-600 text-white' : 'text-slate-500'}`}>
+    <div className="grid grid-cols-2 gap-2 bg-white rounded-[24px] border border-slate-200 p-2 shadow-sm">
+      <button onClick={() => setHomeTab('leads')} className={`py-3 rounded-[18px] text-sm font-black transition ${homeTab === 'leads' ? 'bg-[#27439C] text-white shadow-sm' : 'text-slate-500'}`}>
         {t('leads')}
       </button>
-      <button onClick={() => setHomeTab('sent')} className={`py-2 rounded-xl text-sm font-bold ${homeTab === 'sent' ? 'bg-blue-600 text-white' : 'text-slate-500'}`}>
+      <button onClick={() => setHomeTab('sent')} className={`py-3 rounded-[18px] text-sm font-black transition ${homeTab === 'sent' ? 'bg-[#27439C] text-white shadow-sm' : 'text-slate-500'}`}>
         {t('sentOffers')}
       </button>
     </div>
@@ -509,96 +554,144 @@ function Lead({ req, token, reload, onSubmitted, existingCount, onToast }) {
     }
   }
 
-  return <div className="bg-white rounded-2xl border p-4 space-y-3 shadow-sm">
-    <button onClick={() => setOpen(value => !value)} className="w-full text-left flex justify-between gap-3">
-      <div>
-        <div className="font-bold">{req.partName}</div>
-        <div className="text-xs text-slate-500">{req.make} {req.model} ({req.year})</div>
-        <div className="text-xs text-slate-400 mt-1">{existingCount ? `${existingCount} ${t('sentOffers')}` : t('noMatchingSentOffers')}</div>
-      </div>
-      <div className="text-[10px] text-blue-600 font-bold mt-1">{open ? t('hide') : t('open')}</div>
-    </button>
-
-    {open && <>
-      <div className="rounded-xl bg-slate-50 p-3 space-y-1">
-        <SummaryRow label={t('origin')} value={req.origin} />
-        <SummaryRow label={t('make')} value={req.make} />
-        <SummaryRow label={t('model')} value={req.model} />
-        <SummaryRow label={t('year')} value={req.year} />
-        <SummaryRow label={t('partName')} value={req.partName} />
-        {req.partNumber && <SummaryRow label={t('partNumber')} value={req.partNumber} />}
-        {req.vin && <SummaryRow label={t('vinChassis')} value={req.vin} />}
-      </div>
-
-      {req.description && <p className="text-xs text-slate-500 bg-slate-50 rounded-xl p-3">{req.description}</p>}
-
-      {requestPhotos.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto">
-          {requestPhotos.map(url => <ImagePreview key={url} src={url} alt="Request" className="w-16 h-16 rounded-xl object-cover border" />)}
+  return (
+    <div className="bg-white rounded-[28px] border border-slate-200 p-4 space-y-3 shadow-sm">
+      <button type="button" onClick={() => setOpen(value => !value)} className="w-full text-left flex justify-between gap-3">
+        <div className="min-w-0">
+          <div className="inline-flex px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-[10px] font-black mb-2">
+            {existingCount ? `${existingCount} ${t('sentOffers')}` : t('open')}
+          </div>
+          <div className="font-black text-slate-950 text-lg leading-tight">{req.partName}</div>
+          <div className="text-xs text-slate-500 font-bold mt-1">{req.make} {req.model} ({req.year})</div>
+          <div className="text-[11px] text-slate-400 font-bold mt-2">{req.origin}</div>
         </div>
-      )}
 
-      <div className="rounded-2xl bg-blue-50 border border-blue-100 p-3 space-y-2">
-        <div className="text-xs font-black text-blue-700">{t('addOfferItem')}</div>
+        <div className="text-right shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 font-black">
+            {open ? '−' : '+'}
+          </div>
+          <div className="text-[10px] text-slate-400 font-black mt-2">{open ? t('hide') : t('details')}</div>
+        </div>
+      </button>
 
-        <input className="w-full p-3 rounded-xl border" placeholder={t('netPriceIqd')} value={draft.supplierPrice} onChange={e => setDraft(current => ({ ...current, supplierPrice: e.target.value }))} inputMode="numeric" />
+      {open && (
+        <div className="space-y-3">
+          <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1">
+            <div className="text-[10px] uppercase font-black text-blue-600">{t('requestDetails')}</div>
+            <SummaryRow label={t('origin')} value={req.origin} />
+            <SummaryRow label={t('make')} value={req.make} />
+            <SummaryRow label={t('model')} value={req.model} />
+            <SummaryRow label={t('year')} value={req.year} />
+            <SummaryRow label={t('partName')} value={req.partName} />
+            {req.partNumber && <SummaryRow label={t('partNumber')} value={req.partNumber} />}
+            {req.vin && <SummaryRow label={t('vinChassis')} value={req.vin} />}
+          </div>
 
-        <select className="w-full p-3 rounded-xl border" value={draft.condition} onChange={e => setDraft(current => ({ ...current, condition: e.target.value }))}>
-          <option value="NEW">{t('new')}</option>
-          <option value="USED">{t('used')}</option>
-        </select>
+          {req.description && (
+            <p className="text-xs text-slate-600 bg-slate-50 border border-slate-100 rounded-[18px] p-3 font-semibold leading-relaxed">
+              {req.description}
+            </p>
+          )}
 
-        <div className="space-y-2">
-          <label className="block w-full py-3 rounded-xl bg-blue-600 text-white text-center text-sm font-bold cursor-pointer">
-            {uploading ? t('uploading') : t('uploadOfferPhoto')}
-            <input type="file" accept="image/*" className="hidden" disabled={uploading || draft.photoUrls.length >= 5} onChange={e => handleOfferPhotoUpload(e.target.files?.[0])} />
-          </label>
-          <div className="text-[10px] text-slate-400">{t('imageHelp')}</div>
-
-          {draft.photoUrls.length > 0 && (
+          {requestPhotos.length > 0 && (
             <div className="flex gap-2 overflow-x-auto">
-              {draft.photoUrls.map((url, index) => (
-                <div key={`${url}-${index}`} className="relative">
-                  <ImagePreview src={url} alt="Offer preview" className="w-16 h-16 rounded-xl object-cover border" />
-                  <button onClick={() => removePhoto(index)} type="button" className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold whitespace-nowrap inline-flex items-center shrink-0">×</button>
+              {requestPhotos.map(url => (
+                <ImagePreview key={url} src={url} alt="Request" className="w-20 h-20 rounded-2xl object-cover border border-slate-200" />
+              ))}
+            </div>
+          )}
+
+          <div className="rounded-[24px] bg-blue-50 border border-blue-100 p-4 space-y-3">
+            <div>
+              <div className="text-[10px] uppercase font-black text-blue-600">{t('addOfferItem')}</div>
+              <div className="text-xs text-slate-500 font-semibold mt-1">{t('submitOfferItems')}</div>
+            </div>
+
+            <input
+              className="w-full p-3 rounded-2xl border bg-white font-bold"
+              placeholder={t('netPriceIqd')}
+              value={draft.supplierPrice}
+              onChange={e => setDraft(current => ({ ...current, supplierPrice: e.target.value }))}
+              inputMode="numeric"
+            />
+
+            <select
+              className="w-full p-3 rounded-2xl border bg-white font-bold"
+              value={draft.condition}
+              onChange={e => setDraft(current => ({ ...current, condition: e.target.value }))}
+            >
+              <option value="NEW">{t('new')}</option>
+              <option value="USED">{t('used')}</option>
+            </select>
+
+            <label className="block w-full py-3 rounded-2xl bg-[#27439C] text-white text-center text-sm font-black cursor-pointer">
+              {uploading ? t('uploading') : t('uploadOfferPhoto')}
+              <input type="file" accept="image/*" className="hidden" disabled={uploading || draft.photoUrls.length >= 5} onChange={e => handleOfferPhotoUpload(e.target.files?.[0])} />
+            </label>
+
+            <div className="text-[10px] text-slate-500 font-semibold">{t('imageHelp')}</div>
+
+            {draft.photoUrls.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto">
+                {draft.photoUrls.map((url, index) => (
+                  <div key={`${url}-${index}`} className="relative">
+                    <ImagePreview src={url} alt="Offer preview" className="w-20 h-20 rounded-2xl object-cover border border-slate-200" />
+                    <button onClick={() => removePhoto(index)} type="button" className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 text-white text-xs font-black whitespace-nowrap inline-flex items-center justify-center">×</button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <input
+              className="w-full p-3 rounded-2xl border bg-white font-bold"
+              placeholder={t('notes')}
+              value={draft.notes}
+              onChange={e => setDraft(current => ({ ...current, notes: e.target.value }))}
+            />
+
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" onClick={addOrUpdateItem} className="py-3 rounded-2xl bg-[#27439C] text-white font-black">
+                {editIndex === null ? t('addItem') : t('updateItem')}
+              </button>
+              <button type="button" onClick={resetDraft} className="py-3 rounded-2xl bg-white border text-slate-600 font-black">
+                {t('clear')}
+              </button>
+            </div>
+          </div>
+
+          {items.length > 0 && (
+            <div className="space-y-2">
+              <div className="text-xs font-black text-slate-500">{t('itemsReady')}: {items.length}</div>
+              {items.map((item, index) => (
+                <div key={`${item.condition}-${item.supplierPrice}-${index}`} className="rounded-[20px] border border-slate-200 bg-slate-50 p-3 space-y-2">
+                  <div className="flex justify-between gap-3">
+                    <div>
+                      <div className="font-black text-sm text-slate-900">{conditionLabel(item.condition, t)} • {formatIQD(item.supplierPrice)}</div>
+                      {item.notes && <div className="text-xs text-slate-500 font-semibold mt-1">{item.notes}</div>}
+                      <div className="text-[10px] text-slate-400 font-bold mt-1">{t('requestPhotosUpTo4')}: {item.photoUrls?.length || 0}</div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button type="button" onClick={() => editItem(index)} className="text-xs font-black text-blue-600">{t('edit')}</button>
+                      <button type="button" onClick={() => removeItem(index)} className="text-xs font-black text-red-600">{t('remove')}</button>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           )}
+
+          {error && <div className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-2xl p-3 font-bold">{error}</div>}
+
+          <button
+            type="button"
+            onClick={submitItems}
+            disabled={!items.length || sending}
+            className="w-full py-3 rounded-2xl bg-[#27439C] text-white font-black disabled:opacity-40 shadow-sm"
+          >
+            {sending ? t('uploading') : `${t('submitOfferItems')} ${items.length || ''}`}
+          </button>
         </div>
-
-        <input className="w-full p-3 rounded-xl border" placeholder={t('notes')} value={draft.notes} onChange={e => setDraft(current => ({ ...current, notes: e.target.value }))} />
-
-        <div className="grid grid-cols-2 gap-2">
-          <button onClick={addOrUpdateItem} className="py-2 rounded-xl bg-blue-600 text-white font-bold">{editIndex === null ? t('addItem') : t('updateItem')}</button>
-          <button onClick={resetDraft} type="button" className="py-2 rounded-xl bg-white border text-slate-600 font-bold">{t('clear')}</button>
-        </div>
-      </div>
-
-      {items.length > 0 && <div className="space-y-2">
-        <div className="text-xs font-black text-slate-500">{t('itemsReady')}: {items.length}</div>
-        {items.map((item, index) => (
-          <div key={`${item.condition}-${item.supplierPrice}-${index}`} className="rounded-xl border bg-slate-50 p-3 space-y-2">
-            <div className="flex justify-between gap-3">
-              <div>
-                <div className="font-bold text-sm">{conditionLabel(item.condition, t)} • {formatIQD(item.supplierPrice)}</div>
-                {item.notes && <div className="text-xs text-slate-500">{item.notes}</div>}
-                <div className="text-[10px] text-slate-400">{t('requestPhotosUpTo4')}: {item.photoUrls?.length || 0}</div>
-              </div>
-              <div className="flex gap-2">
-                <button onClick={() => editItem(index)} className="text-xs font-bold text-blue-600">{t('edit')}</button>
-                <button onClick={() => removeItem(index)} className="text-xs font-bold text-red-600">{t('remove')}</button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>}
-
-      {error && <div className="text-xs text-red-600 bg-red-50 rounded-xl p-2">{error}</div>}
-
-      <button onClick={submitItems} disabled={!items.length || sending} className="w-full py-3 rounded-2xl bg-blue-600 text-white font-black disabled:opacity-40">
-        {sending ? t('uploading') : `${t('submitOfferItems')} ${items.length || ''}`}
-      </button>
-    </>}
-  </div>;
+      )}
+    </div>
+  );
 }
