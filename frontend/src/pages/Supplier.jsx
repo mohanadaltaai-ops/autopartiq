@@ -272,112 +272,138 @@ function Earnings({ orders, payouts = [], payoutSummary }) {
   const paidPayoutAmount = payoutSummary?.paidAmount || 0;
   const cancelledPayoutAmount = payoutSummary?.cancelledAmount || 0;
 
-  return <div className="p-4 space-y-4">
-    <div className="bg-blue-600 text-white rounded-3xl p-5 shadow space-y-1">
-      <div className="text-sm opacity-80">{t('completedEarningsOnly')}</div>
-      <div className="text-2xl font-black">{formatIQD(totalCompleted)}</div>
-      <div className="text-[11px] opacity-80">{t('pendingValue')}: {formatIQD(pendingValue)}</div>
-    </div>
+  const Stat = ({ label, value, tone = 'blue' }) => {
+    const toneClass = tone === 'green'
+      ? 'text-green-700 bg-green-50 border-green-100'
+      : tone === 'red'
+        ? 'text-red-700 bg-red-50 border-red-100'
+        : tone === 'amber'
+          ? 'text-amber-700 bg-amber-50 border-amber-100'
+          : 'text-blue-700 bg-blue-50 border-blue-100';
 
-    <div className="grid grid-cols-3 gap-3">
-      <div className="bg-white rounded-2xl border p-4">
-        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('completedOrders')}</div>
-        <div className="mt-1 text-2xl leading-none font-black tabular-nums text-green-700">{completedOrders.length}</div>
+    return (
+      <div className="bg-white rounded-[24px] border border-slate-200 p-4 shadow-sm">
+        <div className={`inline-flex px-2.5 py-1 rounded-full border text-[10px] font-black uppercase ${toneClass}`}>
+          {label}
+        </div>
+        <div className="mt-3 text-xl leading-tight font-black tabular-nums text-slate-950">{value}</div>
       </div>
-      <div className="bg-white rounded-2xl border p-4">
-        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('openOrders')}</div>
-        <div className="mt-1 text-2xl leading-none font-black tabular-nums text-blue-700">{openOrders.length}</div>
-      </div>
-      <div className="bg-white rounded-2xl border p-4">
-        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('cancelled')}</div>
-        <div className="mt-1 text-2xl leading-none font-black tabular-nums text-red-700">{cancelledOrders.length}</div>
-      </div>
-    </div>
+    );
+  };
 
-    <div className="rounded-2xl bg-white border p-4 shadow-sm">
-      <div className="text-[10px] text-slate-400 font-bold uppercase">{t('pendingValue')}</div>
-      <div className="text-xl font-black text-slate-900 mt-1">{formatIQD(pendingValue)}</div>
-      <div className="text-xs text-slate-400 mt-1">{t('pendingValueNote')}</div>
-    </div>
-
-    <h2 className="font-black text-slate-900">{t('supplierPayouts') || 'Supplier Payouts'}</h2>
-
-    <div className="grid grid-cols-3 gap-3">
-      <div className="bg-white rounded-2xl border p-4">
-        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('pendingPayout') || 'Pending Payout'}</div>
-        <div className="mt-1 text-sm font-black text-amber-700">{formatIQD(pendingPayoutAmount)}</div>
+  const TransactionCard = ({ order, type }) => (
+    <div className="bg-white rounded-[24px] border border-slate-200 p-4 shadow-sm flex justify-between gap-3">
+      <div className="min-w-0">
+        <div className="font-black text-slate-950 leading-tight">{order.offer.request.partName}</div>
+        <div className="text-xs text-slate-500 font-bold mt-1">
+          {order.orderNumber} • {type === 'completed' ? t('completed') : orderStatusLabel(order.status, t)}
+        </div>
       </div>
-      <div className="bg-white rounded-2xl border p-4">
-        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('paidPayout') || 'Paid Payout'}</div>
-        <div className="mt-1 text-sm font-black text-green-700">{formatIQD(paidPayoutAmount)}</div>
-      </div>
-      <div className="bg-white rounded-2xl border p-4">
-        <div className="text-[10px] text-slate-400 font-bold uppercase">{t('cancelledPayout') || 'Cancelled Payout'}</div>
-        <div className="mt-1 text-sm font-black text-red-700">{formatIQD(cancelledPayoutAmount)}</div>
+      <div className={`font-black shrink-0 ${type === 'completed' ? 'text-green-700' : 'text-blue-700'}`}>
+        {formatIQD(order.supplierPrice)}
       </div>
     </div>
+  );
 
-    <h2 className="font-black text-slate-900">{t('payoutHistory') || 'Payout History'}</h2>
-    {recentPayouts.length === 0 && <Empty text={t('noSupplierPayouts') || 'No supplier payouts yet.'} />}
-    {recentPayouts.map(payout => (
-      <div key={payout.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
-        <div className="flex justify-between gap-3">
-          <div>
-            <div className="font-bold text-slate-900">{payout.order?.offer?.request?.partName || '-'}</div>
-            <div className="text-xs text-slate-500">{payout.order?.orderNumber || payout.metadata?.orderNumber || '-'}</div>
-            <div className="text-[11px] text-slate-400 mt-1">{new Date(payout.createdAt).toLocaleString()}</div>
-          </div>
-          <div className="text-right">
-            <div className="font-black text-slate-900">{formatIQD(payout.amount)}</div>
-            <div className={`inline-flex mt-1 px-2 py-1 rounded-full border text-[10px] font-black ${payoutStatusClass(payout.status)}`}>
-              {payout.status}
+  return (
+    <div className="p-4 space-y-4 pb-6">
+      <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
+        <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10" />
+        <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/20" />
+
+        <div className="relative">
+          <div className="text-xs font-bold text-white/70">{t('completedEarningsOnly')}</div>
+          <div className="text-3xl font-black mt-2">{formatIQD(totalCompleted)}</div>
+          <div className="text-[11px] text-white/70 font-semibold mt-2">{t('pendingValue')}: {formatIQD(pendingValue)}</div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        <Stat label={t('completedOrders')} value={completedOrders.length} tone="green" />
+        <Stat label={t('openOrders')} value={openOrders.length} tone="blue" />
+        <Stat label={t('cancelled')} value={cancelledOrders.length} tone="red" />
+      </div>
+
+      <div className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm">
+        <div className="inline-flex px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-[10px] font-black uppercase">
+          {t('pendingValue')}
+        </div>
+        <div className="text-2xl font-black text-slate-950 mt-3">{formatIQD(pendingValue)}</div>
+        <div className="text-xs text-slate-500 font-semibold mt-1">{t('pendingValueNote')}</div>
+      </div>
+
+      <div>
+        <h2 className="font-black text-slate-950 mb-3">{t('supplierPayouts') || 'Supplier Payouts'}</h2>
+        <div className="grid grid-cols-3 gap-3">
+          <Stat label={t('pendingPayout') || 'Pending Payout'} value={formatIQD(pendingPayoutAmount)} tone="amber" />
+          <Stat label={t('paidPayout') || 'Paid Payout'} value={formatIQD(paidPayoutAmount)} tone="green" />
+          <Stat label={t('cancelledPayout') || 'Cancelled Payout'} value={formatIQD(cancelledPayoutAmount)} tone="red" />
+        </div>
+      </div>
+
+      <div>
+        <h2 className="font-black text-slate-950 mb-3">{t('payoutHistory') || 'Payout History'}</h2>
+        {recentPayouts.length === 0 && <Empty text={t('noSupplierPayouts') || 'No supplier payouts yet.'} />}
+
+        <div className="space-y-3">
+          {recentPayouts.map(payout => (
+            <div key={payout.id} className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm space-y-3">
+              <div className="flex justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-black text-slate-950 leading-tight">{payout.order?.offer?.request?.partName || '-'}</div>
+                  <div className="text-xs text-slate-500 font-bold mt-1">{payout.order?.orderNumber || payout.metadata?.orderNumber || '-'}</div>
+                  <div className="text-[11px] text-slate-400 font-semibold mt-1">{new Date(payout.createdAt).toLocaleString()}</div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="font-black text-slate-950">{formatIQD(payout.amount)}</div>
+                  <div className={`inline-flex mt-1 px-2.5 py-1 rounded-full border text-[10px] font-black ${payoutStatusClass(payout.status)}`}>
+                    {payout.status}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-slate-50 border border-slate-100 rounded-[18px] p-3">
+                  <div className="text-[10px] uppercase font-black text-slate-400">{t('payoutMethod') || 'Method'}</div>
+                  <div className="font-bold text-slate-700 mt-1">{payout.method || 'MANUAL'}</div>
+                </div>
+                <div className="bg-slate-50 border border-slate-100 rounded-[18px] p-3">
+                  <div className="text-[10px] uppercase font-black text-slate-400">{t('payoutReference') || 'Reference'}</div>
+                  <div className="font-bold text-slate-700 break-all mt-1">{payout.reference || '-'}</div>
+                </div>
+                <div className="bg-slate-50 border border-slate-100 rounded-[18px] p-3 col-span-2">
+                  <div className="text-[10px] uppercase font-black text-slate-400">{t('paidAt') || 'Paid At'}</div>
+                  <div className="font-bold text-slate-700 mt-1">{payout.paidAt ? new Date(payout.paidAt).toLocaleString() : '-'}</div>
+                </div>
+              </div>
+
+              {payout.notes && (
+                <div className="text-xs bg-slate-50 border border-slate-100 text-slate-600 rounded-[18px] p-3 font-semibold leading-relaxed">
+                  {payout.notes}
+                </div>
+              )}
             </div>
-          </div>
+          ))}
         </div>
-
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="bg-slate-50 rounded-xl p-3">
-            <div className="text-[10px] uppercase font-black text-slate-400">{t('payoutMethod') || 'Method'}</div>
-            <div className="font-bold text-slate-700">{payout.method || 'MANUAL'}</div>
-          </div>
-          <div className="bg-slate-50 rounded-xl p-3">
-            <div className="text-[10px] uppercase font-black text-slate-400">{t('payoutReference') || 'Reference'}</div>
-            <div className="font-bold text-slate-700 break-all">{payout.reference || '-'}</div>
-          </div>
-          <div className="bg-slate-50 rounded-xl p-3 col-span-2">
-            <div className="text-[10px] uppercase font-black text-slate-400">{t('paidAt') || 'Paid At'}</div>
-            <div className="font-bold text-slate-700">{payout.paidAt ? new Date(payout.paidAt).toLocaleString() : '-'}</div>
-          </div>
-        </div>
-
-        {payout.notes && <div className="text-xs bg-slate-50 text-slate-600 rounded-xl p-3">{payout.notes}</div>}
       </div>
-    ))}
 
-    <h2 className="font-black text-slate-900">{t('openTransactions')}</h2>
-    {recentOpen.length === 0 && <Empty text={t('noPendingValue')} />}
-    {recentOpen.map(o => (
-      <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm flex justify-between gap-3">
-        <div>
-          <div className="font-bold text-slate-900">{o.offer.request.partName}</div>
-          <div className="text-xs text-slate-500">{o.orderNumber} • {orderStatusLabel(o.status, t)}</div>
+      <div>
+        <h2 className="font-black text-slate-950 mb-3">{t('openTransactions')}</h2>
+        {recentOpen.length === 0 && <Empty text={t('noPendingValue')} />}
+        <div className="space-y-3">
+          {recentOpen.map(o => <TransactionCard key={o.id} order={o} type="open" />)}
         </div>
-        <div className="font-black text-blue-600">{formatIQD(o.supplierPrice)}</div>
       </div>
-    ))}
 
-    <h2 className="font-black text-slate-900">{t('completedTransactions')}</h2>
-    {recentCompleted.length === 0 && <Empty text={t('noCompletedEarnings')} />}
-    {recentCompleted.map(o => (
-      <div key={o.id} className="bg-white rounded-2xl border p-4 shadow-sm flex justify-between gap-3">
-        <div>
-          <div className="font-bold text-slate-900">{o.offer.request.partName}</div>
-          <div className="text-xs text-slate-500">{o.orderNumber} • {t('completed')}</div>
+      <div>
+        <h2 className="font-black text-slate-950 mb-3">{t('completedTransactions')}</h2>
+        {recentCompleted.length === 0 && <Empty text={t('noCompletedEarnings')} />}
+        <div className="space-y-3">
+          {recentCompleted.map(o => <TransactionCard key={o.id} order={o} type="completed" />)}
         </div>
-        <div className="font-black text-green-600">{formatIQD(o.supplierPrice)}</div>
       </div>
-    ))}
-  </div>;
+    </div>
+  );
 }
 
 
