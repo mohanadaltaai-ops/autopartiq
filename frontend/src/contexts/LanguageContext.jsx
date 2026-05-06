@@ -2,8 +2,11 @@ import React, { createContext, useContext, useMemo, useState } from 'react';
 
 const translations = {
   en: {
-    
-    requestVolume: 'Request volume',
+    unread: 'unread',
+    requestAccountDeletion: 'Request account deletion',
+    deleteAccountHelp: 'Request permanent deletion of your account and data.',
+    deleteAccountRequest: 'Delete account request',
+    accountDeletion: 'Account deletion',    requestVolume: 'Request volume',
     last30Days: 'Last 30 days',
     average: 'Average',
 appName: 'AutoParts IQ',
@@ -242,7 +245,15 @@ appName: 'AutoParts IQ',
     payoutFilterCANCELLED: 'Cancelled',
     searchSupplierOrderPart: 'Search supplier, order, or part',
     allSuppliers: 'All suppliers',
-    showingPayouts: 'Showing {shown} of {total} payouts',
+    showingPayouts: 'Showing {
+    unread: 'غير مقروء',
+    requestAccountDeletion: 'طلب حذف الحساب',
+    deleteAccountHelp: 'اطلب حذف حسابك وبياناتك بشكل نهائي.',
+    deleteAccountRequest: 'طلب حذف الحساب',
+    accountDeletion: 'حذف الحساب',
+    average: 'المعدل',
+    last30Days: 'آخر 30 يوم',
+    requestVolume: 'حجم الطلبات',shown} of {total} payouts',
     noSupplierPayoutsFound: 'No supplier payouts found.',
     loadingSettlements: 'Loading settlements...',
     payoutStatusPENDING: 'Pending',
