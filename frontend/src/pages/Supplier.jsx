@@ -118,9 +118,19 @@ export default function Supplier({ tab }) {
   }
 
   if (tab === 'orders') {
-    return <div className="p-4 space-y-3">
+    return <div className="p-4 space-y-4 pb-6">
       <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
-      <h1 className="font-black text-xl">{t('activeOrders')}</h1>
+
+      <div className="rounded-[30px] bg-white border border-slate-200 p-5 shadow-sm">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black border border-blue-100">
+          {t('orders')}
+        </div>
+        <h1 className="font-black text-2xl text-slate-950 mt-3">{t('activeOrders')}</h1>
+        <div className="text-xs font-semibold text-slate-500 mt-1">
+          {orders.length === 0 ? t('noAcceptedOrders') : `${orders.length} ${t('orders')}`}
+        </div>
+      </div>
+
       {orders.length === 0 && <Empty text={t('noAcceptedOrders')} />}
       {orders.map(o => <OrderCard key={o.id} order={o} />)}
     </div>;
@@ -189,25 +199,54 @@ function OrderCard({ order }) {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
 
-  return <div className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
-    <button onClick={() => setOpen(value => !value)} className="w-full text-left flex items-start justify-between gap-3">
-      <div>
-        <div className="font-bold">{order.offer.request.partName}</div>
-        <div className="text-xs text-slate-500">{order.offer.request.make} {order.offer.request.model} • {conditionLabel(order.offer.condition, t)}</div>
-        <div className="text-xs text-slate-500 mt-1">{t('yourPrice')}: {formatIQD(order.supplierPrice)}</div>
-      </div>
-      <div className="text-right">
-        <div className="text-[10px] inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-bold whitespace-nowrap inline-flex items-center shrink-0">{orderStatusLabel(order.status, t)}</div>
-        <div className="text-[10px] text-slate-400 mt-2">{open ? t('hide') : t('details')}</div>
-      </div>
-    </button>
+  const statusTone = order.status === 'COMPLETED'
+    ? 'bg-green-50 text-green-700 border-green-100'
+    : order.status === 'CANCELLED'
+      ? 'bg-red-50 text-red-700 border-red-100'
+      : 'bg-blue-50 text-blue-700 border-blue-100';
 
-    {open && <>
-      <OrderInfoPanel order={order} />
-      <DeliveryWorkflow status={order.status} />
-      <div className="rounded-xl bg-slate-50 text-slate-500 text-xs p-3">{t('orderReadOnly')}</div>
-    </>}
-  </div>;
+  return (
+    <div className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm space-y-3">
+      <button
+        type="button"
+        onClick={() => setOpen(value => !value)}
+        className="w-full text-left flex items-start justify-between gap-3"
+      >
+        <div className="min-w-0">
+          <div className={`inline-flex px-2.5 py-1 rounded-full border text-[10px] font-black mb-2 ${statusTone}`}>
+            {orderStatusLabel(order.status, t)}
+          </div>
+
+          <div className="font-black text-slate-950 text-lg leading-tight">{order.offer.request.partName}</div>
+          <div className="text-xs text-slate-500 font-bold mt-1">
+            {order.offer.request.make} {order.offer.request.model} • {conditionLabel(order.offer.condition, t)}
+          </div>
+
+          <div className="mt-3 inline-flex items-center gap-2 rounded-2xl bg-slate-50 border border-slate-100 px-3 py-2">
+            <span className="text-[10px] font-black text-slate-400 uppercase">{t('yourPrice')}</span>
+            <span className="text-sm font-black text-blue-700">{formatIQD(order.supplierPrice)}</span>
+          </div>
+        </div>
+
+        <div className="text-right shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 font-black">
+            {open ? '−' : '+'}
+          </div>
+          <div className="text-[10px] text-slate-400 font-black mt-2">{open ? t('hide') : t('details')}</div>
+        </div>
+      </button>
+
+      {open && (
+        <div className="space-y-3">
+          <OrderInfoPanel order={order} />
+          <DeliveryWorkflow status={order.status} />
+          <div className="rounded-[20px] bg-slate-50 border border-slate-100 text-slate-500 text-xs p-3 font-bold">
+            {t('orderReadOnly')}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function payoutStatusClass(status) {
