@@ -76,11 +76,11 @@ Name: ${user?.name || '-'}`);
 
       {user?.role === 'SUPPLIER' && user?.supplier && (
         <div className="bg-white rounded-3xl border p-5 shadow-sm space-y-3">
-          <div className="text-xs font-bold text-slate-400 uppercase">{language === 'ar' ? 'بيانات المورد' : 'Supplier Details'}</div>
+          <div className="text-xs font-bold text-slate-400 uppercase">{t('supplierDetails')}</div>
 
           <div className="grid grid-cols-1 gap-2 text-sm">
             <div className="rounded-2xl bg-slate-50 p-3">
-              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'اسم المورد' : 'Supplier Name'}</div>
+              <div className="text-xs text-slate-400 font-bold">{t('supplierName')}</div>
               <div className="font-bold text-slate-800">{user.supplier.name || '-'}</div>
             </div>
 
@@ -90,12 +90,12 @@ Name: ${user?.name || '-'}`);
             </div>
 
             <div className="rounded-2xl bg-slate-50 p-3">
-              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'الموقع' : 'Location'}</div>
+              <div className="text-xs text-slate-400 font-bold">{t('location')}</div>
               <div className="font-bold text-slate-800">{user.supplier.location || '-'}</div>
             </div>
 
             <div className="rounded-2xl bg-slate-50 p-3">
-              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'الأنواع المدعومة' : 'Supported Makes'}</div>
+              <div className="text-xs text-slate-400 font-bold">{t('supportedMakes')}</div>
               <div className="font-bold text-slate-800">
                 {(() => {
                   try {
@@ -109,11 +109,11 @@ Name: ${user?.name || '-'}`);
             </div>
 
             <div className="rounded-2xl bg-slate-50 p-3">
-              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'الحالة' : 'Status'}</div>
+              <div className="text-xs text-slate-400 font-bold">{t('status')}</div>
               <div className={`font-bold ${user.supplier.isActive ? 'text-green-700' : 'text-red-700'}`}>
                 {user.supplier.isActive
-                  ? (language === 'ar' ? 'نشط' : 'Active')
-                  : (language === 'ar' ? 'غير نشط' : 'Inactive')}
+                  ? t('active')
+                  : t('inactive')}
               </div>
             </div>
           </div>
@@ -122,26 +122,26 @@ Name: ${user?.name || '-'}`);
 
       {user?.role === 'CUSTOMER' && (
         <div className="bg-white rounded-3xl border p-5 shadow-sm space-y-3">
-          <div className="text-xs font-bold text-slate-400 uppercase">{language === 'ar' ? 'ملخص العميل' : 'Customer Summary'}</div>
+          <div className="text-xs font-bold text-slate-400 uppercase">{t('customerSummary')}</div>
 
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div className="rounded-2xl bg-slate-50 p-3">
-              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'كل الطلبات' : 'Total Requests'}</div>
+              <div className="text-xs text-slate-400 font-bold">{t('totalRequests')}</div>
               <div className="text-xl font-black text-slate-900">{customerStats.total}</div>
             </div>
 
             <div className="rounded-2xl bg-slate-50 p-3">
-              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'النشطة' : 'Active'}</div>
+              <div className="text-xs text-slate-400 font-bold">{t('active')}</div>
               <div className="text-xl font-black text-blue-700">{customerStats.active}</div>
             </div>
 
             <div className="rounded-2xl bg-slate-50 p-3">
-              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'الطلبات المكتملة' : 'Completed Orders'}</div>
+              <div className="text-xs text-slate-400 font-bold">{t('completedOrders')}</div>
               <div className="text-xl font-black text-green-700">{customerStats.completed}</div>
             </div>
 
             <div className="rounded-2xl bg-slate-50 p-3">
-              <div className="text-xs text-slate-400 font-bold">{language === 'ar' ? 'الملغية' : 'Cancelled'}</div>
+              <div className="text-xs text-slate-400 font-bold">{t('cancelled')}</div>
               <div className="text-xl font-black text-red-700">{customerStats.cancelled}</div>
             </div>
           </div>
