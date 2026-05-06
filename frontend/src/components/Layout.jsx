@@ -92,7 +92,7 @@ export default function Layout({ tab, setTab, children }) {
         ['home', BarChart3, t('dashboard')],
         ['orders', Package, t('orders')],
         ['suppliers', Users, t('suppliers')],
-        ['settlements', Wallet, 'Settlements'],
+        ['settlements', Wallet, t('settlements')],
         ['more', MoreHorizontal, t('more')]
       ]
     : user?.adminPermission === 'ORDERS_ONLY'
@@ -103,7 +103,7 @@ export default function Layout({ tab, setTab, children }) {
           ['home', BarChart3, t('dashboard')],
           ['orders', Package, t('orders')],
           ['suppliers', Users, t('suppliers')],
-          ['settlements', Wallet, 'Settlements'],
+          ['settlements', Wallet, t('settlements')],
           ['more', MoreHorizontal, t('more')]
         ];
 
