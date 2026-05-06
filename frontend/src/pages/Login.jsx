@@ -21,8 +21,7 @@ export default function Login() {
           getStarted: 'ابدأ الآن',
           haveAccount: 'لديك حساب؟',
           logIn: 'تسجيل الدخول',
-          popularPart: 'قطعة شائعة',
-          partName: 'Brake Pad',
+          partName: 'BRAKE PAD',
           price: '120,000 د.ع',
           offers: '+3 عروض',
           phoneTitle: 'تسجيل الدخول برقم الهاتف',
@@ -41,8 +40,7 @@ export default function Login() {
           getStarted: 'Get started',
           haveAccount: 'Have an account?',
           logIn: 'Log in',
-          popularPart: 'Popular part',
-          partName: 'Brake Pad',
+          partName: 'BRAKE PAD',
           price: '120,000 IQD',
           offers: '+3 offers',
           phoneTitle: 'Phone number sign in',
@@ -105,61 +103,61 @@ export default function Login() {
         </button>
 
         {screen === 'landing' ? (
-          <div className="flex-1 px-8 pt-24 pb-6 flex flex-col bg-[linear-gradient(135deg,#F6F0EC_0%,#EEF3FF_55%,#F4F7FF_100%)]">
+          <div className="flex-1 px-8 pt-20 pb-5 flex flex-col bg-[linear-gradient(135deg,#F6F0EC_0%,#EEF3FF_55%,#F4F7FF_100%)]">
             <div className="flex justify-start">
-              <div className="w-[92px] h-[92px] rounded-[28px] bg-white shadow-sm border border-slate-100 flex items-center justify-center p-3">
+              <div className="w-[88px] h-[88px] rounded-[26px] bg-white shadow-sm border border-slate-100 flex items-center justify-center p-3">
                 <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain" />
               </div>
             </div>
 
-            <div className="mt-6 inline-flex items-center gap-2 self-start px-4 py-2 rounded-full bg-[#F9F3EC] border border-[#F6E2CA] text-[#D45A11] text-[12px] font-black">
+            <div className="mt-5 inline-flex items-center gap-2 self-start px-4 py-2 rounded-full bg-[#F9F3EC] border border-[#F6E2CA] text-[#D45A11] text-[12px] font-black">
               <span className="w-2 h-2 rounded-full bg-[#F97316]" />
               {copy.market}
             </div>
 
-            <div className="mt-5">
-              <h1 className="text-[36px] leading-[0.95] font-black tracking-tight text-[#081B4B] whitespace-pre-line">
+            <div className="mt-4">
+              <h1 className="text-[31px] leading-[1.0] font-black tracking-tight text-[#081B4B] whitespace-pre-line">
                 {copy.heroTitle}
               </h1>
-              <p className="mt-4 text-[15px] leading-8 text-[#7A859E] font-semibold max-w-[300px]">
+              <p className="mt-3 text-[14px] leading-7 text-[#7A859E] font-semibold max-w-[300px]">
                 {copy.heroSubtitle}
               </p>
             </div>
 
-            <div className="mt-4 flex-1 flex flex-col justify-center">
-              <div className="relative h-[250px]">
-                <div className="absolute left-1/2 top-4 -translate-x-1/2 w-[210px] h-[210px] rounded-full bg-[#E8EEFF]" />
-                <div className="absolute left-1/2 top-[42px] -translate-x-1/2 w-[148px] h-[148px] rounded-full bg-[#FDFDFE] shadow-sm border border-slate-100" />
+            <div className="mt-3 flex items-center justify-center">
+              <div className="relative h-[200px] w-full max-w-[300px]">
+                <div className="absolute left-1/2 top-[8px] -translate-x-1/2 w-[190px] h-[190px] rounded-full bg-[#E8EEFF]" />
+                <div className="absolute left-1/2 top-[35px] -translate-x-1/2 w-[124px] h-[124px] rounded-full bg-[#FDFDFE]" />
 
-                <div className="absolute left-1/2 top-[58px] -translate-x-1/2 w-[132px] h-[132px] rounded-[26px] bg-white shadow-[0_12px_30px_rgba(15,23,42,0.08)] border border-slate-100 flex items-center justify-center">
+                <div className="absolute left-1/2 top-[48px] -translate-x-1/2 w-[112px] h-[112px] rounded-[24px] bg-white shadow-[0_12px_30px_rgba(15,23,42,0.08)] border border-slate-100 flex items-center justify-center">
                   <div
-                    className="w-[92px] h-[70px] rounded-[14px] border border-slate-200 flex items-center justify-center text-[11px] font-black text-[#A2A9BC]"
+                    className="w-[74px] h-[56px] rounded-[12px] border border-slate-200 flex items-center justify-center text-[10px] font-black text-[#A2A9BC]"
                     style={{
                       background:
                         'repeating-linear-gradient(135deg, #F1F4FB 0px, #F1F4FB 6px, #EDF1F8 6px, #EDF1F8 12px)'
                     }}
                   >
-                    {copy.partName.toUpperCase()}
+                    {copy.partName}
                   </div>
                 </div>
 
-                <div className="absolute left-[8px] top-[138px] px-4 py-2.5 rounded-[16px] bg-[#F97316] text-white text-[12px] font-black shadow-[0_8px_20px_rgba(249,115,22,0.28)]">
+                <div className="absolute left-[4px] top-[132px] px-4 py-2.5 rounded-[16px] bg-[#F97316] text-white text-[12px] font-black shadow-[0_8px_20px_rgba(249,115,22,0.28)]">
                   {copy.price}
                 </div>
 
-                <div className="absolute right-[10px] top-[44px] px-4 py-2.5 rounded-[16px] bg-white text-[#2BB673] text-[12px] font-black shadow-sm border border-slate-100">
+                <div className="absolute right-[6px] top-[44px] px-4 py-2.5 rounded-[16px] bg-white text-[#2BB673] text-[12px] font-black shadow-sm border border-slate-100">
                   {copy.offers}
                 </div>
               </div>
-
-              <div className="mt-2 flex items-center justify-center gap-2">
-                <span className="w-6 h-2 rounded-full bg-[#27439C]" />
-                <span className="w-2 h-2 rounded-full bg-[#D5D9E6]" />
-                <span className="w-2 h-2 rounded-full bg-[#D5D9E6]" />
-              </div>
             </div>
 
-            <div className="pt-5">
+            <div className="mt-1 flex items-center justify-center gap-2">
+              <span className="w-6 h-2 rounded-full bg-[#27439C]" />
+              <span className="w-2 h-2 rounded-full bg-[#D5D9E6]" />
+              <span className="w-2 h-2 rounded-full bg-[#D5D9E6]" />
+            </div>
+
+            <div className="mt-auto pt-4">
               <button
                 onClick={() => setScreen('phone')}
                 className="w-full h-14 rounded-[18px] bg-[#27439C] text-white font-black text-[15px] flex items-center justify-center gap-2 shadow-[0_14px_30px_rgba(39,67,156,0.20)]"
