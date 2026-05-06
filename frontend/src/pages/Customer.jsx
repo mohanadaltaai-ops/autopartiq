@@ -41,15 +41,25 @@ function OriginButton({ origin, data, selected, onClick }) {
   const previewMakes = Object.keys(data.makes).slice(0, 3).join(', ');
   const brandCount = Object.keys(data.makes).length;
   const originCode = origin.slice(0, 2).toUpperCase();
+  const isDarkMode = document.documentElement.classList.contains('dark');
 
-  const cardStyle = {
-    backgroundColor: selected ? '#EEF4FF' : '#FFFFFF',
-    borderColor: selected ? '#4F7DFF' : '#E4E8F1',
-    color: '#081B4B',
-    boxShadow: selected
-      ? '0 12px 30px rgba(47, 107, 255, 0.14)'
-      : '0 10px 24px rgba(15, 23, 42, 0.05)'
-  };
+  const cardStyle = isDarkMode
+    ? {
+        backgroundColor: selected ? '#1A2549' : '#101A33',
+        borderColor: selected ? '#5B8CFF' : '#1B2747',
+        color: '#F1F4FB',
+        boxShadow: selected
+          ? '0 12px 30px rgba(91, 140, 255, 0.18)'
+          : '0 10px 24px rgba(0, 0, 0, 0.20)'
+      }
+    : {
+        backgroundColor: selected ? '#EEF4FF' : '#FFFFFF',
+        borderColor: selected ? '#4F7DFF' : '#E4E8F1',
+        color: '#081B4B',
+        boxShadow: selected
+          ? '0 12px 30px rgba(47, 107, 255, 0.14)'
+          : '0 10px 24px rgba(15, 23, 42, 0.05)'
+      };
 
   return (
     <button
@@ -64,16 +74,22 @@ function OriginButton({ origin, data, selected, onClick }) {
         </div>
       )}
 
-      <div className="text-xs font-black mb-3" style={{ color: selected ? '#4169C7' : '#8A93A8' }}>
+      <div
+        className="text-xs font-black mb-3"
+        style={{ color: selected ? (isDarkMode ? '#9DB8FF' : '#4169C7') : (isDarkMode ? '#A8B1C7' : '#8A93A8') }}
+      >
         {originCode} {origin}
       </div>
 
-      <div className="flex items-end gap-2" style={{ color: '#081B4B' }}>
+      <div className="flex items-end gap-2" style={{ color: isDarkMode ? '#FFFFFF' : '#081B4B' }}>
         <span className="text-[34px] leading-none font-black">{brandCount}</span>
         <span className="text-lg leading-none font-black mb-1">{brandCount === 1 ? 'brand' : 'brands'}</span>
       </div>
 
-      <div className="mt-4 text-sm leading-relaxed font-semibold" style={{ color: '#5B6B85' }}>
+      <div
+        className="mt-4 text-sm leading-relaxed font-semibold"
+        style={{ color: isDarkMode ? '#C2CADD' : '#5B6B85' }}
+      >
         {previewMakes}
       </div>
     </button>
