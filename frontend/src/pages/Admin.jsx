@@ -318,45 +318,62 @@ export default function Admin({ tab, setTab }) {
   }
 
   if (tab === 'suppliers') {
-    return <div className="p-4 space-y-4">
-      <h1 className="font-black text-xl text-slate-900">{t('suppliers')}</h1>
+    return <div className="p-4 space-y-4 pb-6">
+      <div className="rounded-[30px] bg-white border border-slate-200 p-5 shadow-sm">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black border border-blue-100">
+          {t('suppliers')}
+        </div>
+        <h1 className="font-black text-2xl text-slate-950 mt-3">{t('suppliers')}</h1>
+        <div className="text-xs font-semibold text-slate-500 mt-1">
+          {data.suppliers.length} {t('suppliers')}
+        </div>
+      </div>
 
-      <div className="bg-white rounded-2xl border p-4 space-y-4 shadow-sm">
+      <div className="bg-white rounded-[30px] border border-slate-200 p-4 space-y-4 shadow-sm">
         <div>
-          <div className="font-black text-slate-900">{t('addSupplier')}</div>
-          <div className="text-xs text-slate-400">{t('addSupplierHint')}</div>
+          <div className="font-black text-slate-950">{t('addSupplier')}</div>
+          <div className="text-xs text-slate-500 font-semibold mt-1">{t('addSupplierHint')}</div>
         </div>
 
-        <div className="rounded-2xl bg-slate-50 p-3 space-y-2">
-          <div className="text-[10px] uppercase font-black text-slate-400">{t('supplierDetails')}</div>
-          <input className="w-full p-3 rounded-xl border text-sm" placeholder={t('supplierName')} value={supplierForm.name} onChange={e => setSupplierForm({ ...supplierForm, name: e.target.value })} />
-          <input className="w-full p-3 rounded-xl border text-sm" placeholder={t('phone')} value={supplierForm.phone} onChange={e => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
-          <input className="w-full p-3 rounded-xl border text-sm" placeholder={t('location')} value={supplierForm.location} onChange={e => setSupplierForm({ ...supplierForm, location: e.target.value })} />
+        <div className="rounded-[24px] bg-slate-50 border border-slate-100 p-3 space-y-2">
+          <div className="text-[10px] uppercase font-black text-blue-600">{t('supplierDetails')}</div>
+          <input className="w-full p-3 rounded-2xl border bg-white text-sm font-bold" placeholder={t('supplierName')} value={supplierForm.name} onChange={e => setSupplierForm({ ...supplierForm, name: e.target.value })} />
+          <input className="w-full p-3 rounded-2xl border bg-white text-sm font-bold" placeholder={t('phone')} value={supplierForm.phone} onChange={e => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
+          <input className="w-full p-3 rounded-2xl border bg-white text-sm font-bold" placeholder={t('location')} value={supplierForm.location} onChange={e => setSupplierForm({ ...supplierForm, location: e.target.value })} />
         </div>
 
-        <div className="rounded-2xl bg-slate-50 p-3 space-y-2">
+        <div className="rounded-[24px] bg-slate-50 border border-slate-100 p-3 space-y-3">
           <div className="flex items-center justify-between gap-2">
             <div>
-              <div className="text-[10px] uppercase font-black text-slate-400">{t('supportedMakes')}</div>
-              <div className="text-[10px] text-slate-400">{t('supportedMakesHint')}</div>
+              <div className="text-[10px] uppercase font-black text-blue-600">{t('supportedMakes')}</div>
+              <div className="text-[10px] text-slate-500 font-semibold mt-1">{t('supportedMakesHint')}</div>
             </div>
-            <div className="text-[10px] font-bold text-slate-500">
+            <div className="text-[10px] font-black text-slate-500">
               {supplierForm.supportedMakes.length} / {Object.keys(carData).length}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            {Object.keys(carData).map(origin => <label key={origin} className={`text-xs rounded-xl p-2 flex gap-2 items-center border ${supplierForm.supportedMakes.includes(origin) ? 'bg-purple-50 border-purple-200 text-purple-700 font-bold' : 'bg-white border-slate-200 text-slate-600'}`}>
-              <input type="checkbox" checked={supplierForm.supportedMakes.includes(origin)} onChange={e => setSupplierForm(current => ({
-                ...current,
-                supportedMakes: e.target.checked ? [...current.supportedMakes, origin] : current.supportedMakes.filter(item => item !== origin)
-              }))} />
-              <span>{origin}</span>
-            </label>)}
+            {Object.keys(carData).map(origin => {
+              const selected = supplierForm.supportedMakes.includes(origin);
+              return (
+                <label key={origin} className={`text-xs rounded-2xl p-3 flex gap-2 items-center border transition ${
+                  selected
+                    ? 'bg-blue-50 border-blue-200 text-blue-700 font-black'
+                    : 'bg-white border-slate-200 text-slate-600 font-bold'
+                }`}>
+                  <input type="checkbox" checked={selected} onChange={e => setSupplierForm(current => ({
+                    ...current,
+                    supportedMakes: e.target.checked ? [...current.supportedMakes, origin] : current.supportedMakes.filter(item => item !== origin)
+                  }))} />
+                  <span>{origin}</span>
+                </label>
+              );
+            })}
           </div>
         </div>
 
-        <button onClick={addSupplier} disabled={!supplierForm.name || !supplierForm.phone || !supplierForm.location} className="w-full py-3 rounded-2xl bg-purple-600 text-white font-black disabled:opacity-40">
+        <button onClick={addSupplier} disabled={!supplierForm.name || !supplierForm.phone || !supplierForm.location} className="w-full py-3.5 rounded-2xl bg-[#27439C] text-white font-black disabled:opacity-40 shadow-sm">
           {t('addSupplier')}
         </button>
       </div>
