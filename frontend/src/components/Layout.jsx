@@ -61,6 +61,41 @@ function notificationText(item, t) {
   return item.message;
 }
 
+function notificationVisual(item) {
+  const metadata = parseNotificationMetadata(item);
+  const type = metadata.type || '';
+
+  if (type === 'NEW_LEAD' || type === 'NEW_REQUEST') {
+    return { icon: '🏷', bg: 'bg-orange-50', text: 'text-orange-600', dot: 'bg-orange-500' };
+  }
+
+  if (type === 'NEW_OFFER') {
+    return { icon: '💬', bg: 'bg-blue-50', text: 'text-blue-600', dot: 'bg-blue-500' };
+  }
+
+  if (type === 'OFFER_ACCEPTED') {
+    return { icon: '✓', bg: 'bg-green-50', text: 'text-green-600', dot: 'bg-green-500' };
+  }
+
+  if (type === 'ORDER_PAYMENT_UPDATED' || type === 'PAYOUT_SENT' || type === 'PAYOUT_MARKED_PAID') {
+    return { icon: '💳', bg: 'bg-blue-50', text: 'text-blue-600', dot: 'bg-blue-500' };
+  }
+
+  if (type === 'ORDER_DELIVERY_UPDATED' || type === 'ORDER_STATUS_UPDATED' || type === 'PROOF_OF_DELIVERY_UPDATED') {
+    return { icon: '📦', bg: 'bg-green-50', text: 'text-green-600', dot: 'bg-green-500' };
+  }
+
+  if (type === 'OFFER_REJECTED' || type === 'ORDER_CANCELLED') {
+    return { icon: '×', bg: 'bg-red-50', text: 'text-red-600', dot: 'bg-red-500' };
+  }
+
+  if (type === 'REVIEW_RECEIVED') {
+    return { icon: '☆', bg: 'bg-amber-50', text: 'text-amber-600', dot: 'bg-amber-500' };
+  }
+
+  return { icon: '•', bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-blue-500' };
+}
+
 export default function Layout({ tab, setTab, children }) {
   const { user, token } = useAuth();
   const { t } = useLanguage();
@@ -181,25 +216,62 @@ export default function Layout({ tab, setTab, children }) {
       </header>
 
       {showNotifications && (
-        <div className="absolute top-17 right-4 left-4 z-20 bg-white rounded-3xl border shadow-2xl p-4 space-y-2">
-          <div className="flex items-center justify-between">
-            <h3 className="font-black text-slate-900">{t('notifications')}</h3>
-            <button onClick={() => setShowNotifications(false)} className="text-slate-400 text-sm">{t('close')}</button>
+        <div className="absolute top-[76px] right-4 left-4 z-20 bg-white rounded-[30px] border border-slate-200 shadow-2xl p-4 space-y-3 max-h-[68vh] overflow-y-auto">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h3 className="font-black text-slate-950 text-xl leading-tight">{t('notifications')}</h3>
+              <div className="text-xs text-slate-500 font-semibold mt-1">{unreadCount} {t('unread') || 'unread'}</div>
+            </div>
+            <button onClick={() => setShowNotifications(false)} className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 text-slate-500 text-sm font-black">
+              ×
+            </button>
           </div>
 
-          {notifications.length === 0 && <div className="text-sm text-slate-400 py-4 text-center">{t('noNotifications')}</div>}
+          {notifications.length === 0 && (
+            <div className="bg-slate-50 border border-dashed border-slate-200 rounded-[24px] p-6 text-center text-sm font-bold text-slate-400">
+              {t('noNotifications')}
+            </div>
+          )}
 
-          {notifications.map(item => {
-            const metadata = parseNotificationMetadata(item);
-            const clickable = metadata.requestId || metadata.offerId || metadata.orderId;
+          <div className="space-y-2">
+            {notifications.map(item => {
+              const metadata = parseNotificationMetadata(item);
+              const clickable = metadata.requestId || metadata.offerId || metadata.orderId;
+              const visual = notificationVisual(item);
 
-            return (
-              <button key={item.id} onClick={() => openNotification(item)} className="w-full text-left text-sm bg-slate-50 rounded-2xl p-3 text-slate-700 hover:bg-blue-50 border border-transparent hover:border-blue-100 transition">
-                <div className="font-bold">{notificationText(item, t)}</div>
-                {clickable && <div className="text-[10px] text-blue-600 font-black mt-1">{t('tapToOpen')}</div>}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => openNotification(item)}
+                  className="w-full text-left bg-white rounded-[24px] p-3 text-slate-700 border border-slate-100 hover:bg-blue-50 hover:border-blue-100 transition shadow-sm"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`w-10 h-10 rounded-2xl ${visual.bg} ${visual.text} flex items-center justify-center font-black shrink-0`}>
+                      {visual.icon}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="font-black text-slate-950 leading-tight">{notificationText(item, t)}</div>
+                        <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${visual.dot}`} />
+                      </div>
+
+                      <div className="text-[10px] text-slate-400 font-semibold mt-1">
+                        {item.createdAt ? new Date(item.createdAt).toLocaleString() : ''}
+                      </div>
+
+                      {clickable && (
+                        <div className="text-[10px] text-blue-600 font-black mt-1">
+                          {t('tapToOpen')}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
