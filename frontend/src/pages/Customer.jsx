@@ -297,72 +297,112 @@ function RequestCard({ req, token, reload, onToast, focus, onFocusHandled }) {
     }
   }
 
-  return <div ref={cardRef} className={`bg-white rounded-[28px] border border-slate-200 p-4 space-y-3 shadow-sm ${focus ? 'ring-2 ring-blue-500' : ''}`}>
-    <button onClick={() => setOpen(value => !value)} className="w-full text-left flex justify-between gap-3">
-      <div className="min-w-0">
-        <div className="inline-flex px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-[10px] font-black mb-2">
-          {requestStatusLabel(req.status, t)}
-        </div>
-        <div className="font-black text-slate-950 text-lg leading-tight">{req.partName}</div>
-        <div className="text-xs text-slate-500 font-bold mt-1">{req.make} {req.model} ({req.year})</div>
-        <div className="text-[11px] text-blue-600 font-black mt-2">{t('offers')}: {activeOffers.length} / {totalOffers}</div>
-        {(req.partNumber || req.vin) && (
-          <div className="text-[11px] text-slate-400 mt-1">
-            {req.partNumber && `${t('partNumber')}: ${req.partNumber}`} {req.vin && `${t('vinChassis')}: ${req.vin}`}
+  const statusTone = req.status === 'CANCELLED'
+    ? 'bg-red-50 text-red-700 border-red-100'
+    : req.status === 'COMPLETED'
+      ? 'bg-green-50 text-green-700 border-green-100'
+      : 'bg-blue-50 text-blue-700 border-blue-100';
+
+  return (
+    <div ref={cardRef} className={`bg-white rounded-[28px] border border-slate-200 p-4 space-y-3 shadow-sm ${focus ? 'ring-2 ring-blue-500' : ''}`}>
+      <button
+        type="button"
+        onClick={() => setOpen(value => !value)}
+        className="w-full text-left flex justify-between gap-3"
+      >
+        <div className="min-w-0">
+          <div className={`inline-flex px-2.5 py-1 rounded-full border text-[10px] font-black mb-2 ${statusTone}`}>
+            {requestStatusLabel(req.status, t)}
           </div>
-        )}
-      </div>
-      <div className="text-right shrink-0">
-        <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 font-black">
-          {open ? '−' : '+'}
+
+          <div className="font-black text-slate-950 text-lg leading-tight">{req.partName}</div>
+          <div className="text-xs text-slate-500 font-bold mt-1">{req.make} {req.model} ({req.year})</div>
+          <div className="text-[11px] text-blue-600 font-black mt-2">{t('offers')}: {activeOffers.length} / {totalOffers}</div>
+
+          {(req.partNumber || req.vin) && (
+            <div className="text-[11px] text-slate-400 mt-1">
+              {req.partNumber && `${t('partNumber')}: ${req.partNumber}`} {req.vin && `${t('vinChassis')}: ${req.vin}`}
+            </div>
+          )}
         </div>
-        <div className="text-[10px] text-slate-400 font-black mt-2">{open ? t('hide') : t('details')}</div>
-      </div>
-    </button>
 
-    {open && <>
-      <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1 text-xs">
-        <div className="text-[10px] uppercase font-black text-blue-600">{t('requestDetails')}</div>
-        <SummaryRow label={t('part')} value={req.partName} />
-        <SummaryRow label={t('make')} value={`${req.make} ${req.model}`.trim()} />
-        <SummaryRow label={t('year')} value={req.year} />
-        {req.partNumber && <SummaryRow label={t('partNumber')} value={req.partNumber} />}
-        {req.vin && <SummaryRow label={t('vinChassis')} value={req.vin} />}
-        <SummaryRow label={t('offers')} value={`${activeOffers.length} / ${totalOffers}`} />
-      </div>
+        <div className="text-right shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 font-black">
+            {open ? '−' : '+'}
+          </div>
+          <div className="text-[10px] text-slate-400 font-black mt-2">{open ? t('hide') : t('details')}</div>
+        </div>
+      </button>
 
-      {req.description && <div className="text-xs bg-slate-50 border border-slate-100 text-slate-600 rounded-[18px] p-3 font-semibold leading-relaxed">{req.description}</div>}
-      {req.cancellationReason && <div className="text-xs bg-red-50 border border-red-100 text-red-700 rounded-[18px] p-3 font-bold">{t('reasonForCancellation')}: {req.cancellationReason}</div>}
+      {open && (
+        <div className="space-y-3">
+          <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1 text-xs">
+            <div className="text-[10px] uppercase font-black text-blue-600">{t('requestDetails')}</div>
+            <SummaryRow label={t('part')} value={req.partName} />
+            <SummaryRow label={t('make')} value={`${req.make} ${req.model}`.trim()} />
+            <SummaryRow label={t('year')} value={req.year} />
+            {req.partNumber && <SummaryRow label={t('partNumber')} value={req.partNumber} />}
+            {req.vin && <SummaryRow label={t('vinChassis')} value={req.vin} />}
+            <SummaryRow label={t('offers')} value={`${activeOffers.length} / ${totalOffers}`} />
+          </div>
 
-      {requestPhotos.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto">
-          {requestPhotos.map(url => <ImagePreview key={url} src={url} alt="Request" className="w-20 h-20 rounded-2xl object-cover border border-slate-200" />)}
+          {req.description && (
+            <div className="text-xs bg-slate-50 border border-slate-100 text-slate-600 rounded-[18px] p-3 font-semibold leading-relaxed">
+              {req.description}
+            </div>
+          )}
+
+          {req.cancellationReason && (
+            <div className="text-xs bg-red-50 border border-red-100 text-red-700 rounded-[18px] p-3 font-bold">
+              {t('reasonForCancellation')}: {req.cancellationReason}
+            </div>
+          )}
+
+          {requestPhotos.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto">
+              {requestPhotos.map(url => (
+                <ImagePreview key={url} src={url} alt="Request" className="w-20 h-20 rounded-2xl object-cover border border-slate-200" />
+              ))}
+            </div>
+          )}
+
+          {activeOffers.length > 0 && (
+            <div className="space-y-2">
+              {activeOffers.map(o => <OfferCard key={o.id} offer={o} token={token} reload={reload} />)}
+            </div>
+          )}
+
+          {canCancel && (
+            <div className="border-t border-slate-100 pt-3 space-y-2">
+              {!showCancel ? (
+                <button type="button" onClick={() => setShowCancel(true)} className="text-xs font-black text-red-600">
+                  {t('cancelRequest')}
+                </button>
+              ) : (
+                <>
+                  <textarea
+                    className="w-full p-3 rounded-2xl border text-sm"
+                    placeholder={t('reasonForCancellation')}
+                    value={reason}
+                    onChange={e => setReason(e.target.value)}
+                  />
+                  {error && <div className="text-xs text-red-600">{error}</div>}
+                  <div className="flex gap-2">
+                    <button type="button" onClick={cancel} disabled={!reason.trim()} className="flex-1 py-3 rounded-2xl bg-red-600 text-white text-sm font-black disabled:opacity-40">
+                      {t('confirmCancel')}
+                    </button>
+                    <button type="button" onClick={() => setShowCancel(false)} className="flex-1 py-3 rounded-2xl bg-slate-100 text-slate-600 text-sm font-black">
+                      {t('keepRequest')}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       )}
-
-      <div className="space-y-2">
-        {activeOffers.map(o => <OfferCard key={o.id} offer={o} token={token} reload={reload} />)}
-      </div>
-
-      {canCancel && <div className="border-t pt-3 space-y-2">
-        {!showCancel ? (
-          <button onClick={() => setShowCancel(true)} className="text-xs font-bold text-red-600">{t('cancelRequest')}</button>
-        ) : <>
-          <textarea
-            className="w-full p-3 rounded-xl border text-sm"
-            placeholder={t('reasonForCancellation')}
-            value={reason}
-            onChange={e => setReason(e.target.value)}
-          />
-          {error && <div className="text-xs text-red-600">{error}</div>}
-          <div className="flex gap-2">
-            <button onClick={cancel} disabled={!reason.trim()} className="flex-1 py-3 rounded-2xl bg-red-600 text-white text-sm font-black disabled:opacity-40">{t('confirmCancel')}</button>
-            <button onClick={() => setShowCancel(false)} className="flex-1 py-3 rounded-2xl bg-slate-100 text-slate-600 text-sm font-black">{t('keepRequest')}</button>
-          </div>
-        </>}
-      </div>}
-    </>}
-  </div>;
+    </div>
+  );
 }
 
 function RequestForm({ token, onDone }) {
