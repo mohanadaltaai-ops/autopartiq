@@ -2,13 +2,31 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../../lib/api';
 import { useLanguage } from '../../contexts/LanguageContext';
 
-function auditActionLabel(action, t) {
+function auditActionLabel(action, t, language) {
   const normalizedAction = String(action || '')
     .trim()
     .replace(/\s+/g, '_')
     .toUpperCase();
 
-  const labels = {
+  const arLabels = {
+    ADMIN_USER_CREATED: 'تم إنشاء مستخدم إداري',
+    ORDER_STATUS_UPDATED: 'تم تحديث حالة الطلب',
+    ORDER_PAYMENT_UPDATED: 'تم تحديث الدفع',
+    PAYMENT_UPDATED: 'تم تحديث الدفع',
+    ORDER_DELIVERY_UPDATED: 'تم تحديث التوصيل',
+    DELIVERY_UPDATED: 'تم تحديث التوصيل',
+    SUPPLIER_CREATED: 'تم إنشاء مورد',
+    SUPPLIER_UPDATED: 'تم تحديث المورد',
+    SUPPLIER_DISABLED: 'تم تعطيل المورد',
+    SUPPLIER_PAYOUT_MARKED_PAID: 'تم تعليم دفعة المورد كمدفوعة',
+    PAYOUT_MARKED_PAID: 'تم تعليم الدفعة كمدفوعة',
+    SUPPLIER_PAYOUT_CANCELLED: 'تم إلغاء دفعة المورد',
+    PAYOUT_CANCELLED: 'تم إلغاء الدفعة',
+    PAYOUT_CREATED: 'تم إنشاء دفعة',
+    SUPPLIER_PAYOUT_CREATED: 'تم إنشاء دفعة مورد'
+  };
+
+  const enLabels = {
     ADMIN_USER_CREATED: t('auditAdminUserCreated'),
     ORDER_STATUS_UPDATED: t('auditOrderStatusUpdated'),
     ORDER_PAYMENT_UPDATED: t('auditPaymentUpdated'),
@@ -17,22 +35,44 @@ function auditActionLabel(action, t) {
     DELIVERY_UPDATED: t('auditDeliveryUpdated'),
     SUPPLIER_CREATED: t('auditSupplierCreated'),
     SUPPLIER_UPDATED: t('auditSupplierUpdated'),
-    SUPPLIER_DISABLED: t('auditSupplierDisabled')
+    SUPPLIER_DISABLED: t('auditSupplierDisabled'),
+    SUPPLIER_PAYOUT_MARKED_PAID: 'Supplier payout marked paid',
+    PAYOUT_MARKED_PAID: 'Payout marked paid',
+    SUPPLIER_PAYOUT_CANCELLED: 'Supplier payout cancelled',
+    PAYOUT_CANCELLED: 'Payout cancelled',
+    PAYOUT_CREATED: 'Payout created',
+    SUPPLIER_PAYOUT_CREATED: 'Supplier payout created'
   };
 
+  const labels = language === 'ar' ? arLabels : enLabels;
   return labels[normalizedAction] || String(action || '').replaceAll('_', ' ');
 }
 
-function auditEntityLabel(entityType, t) {
-  const labels = {
+function auditEntityLabel(entityType, t, language) {
+  const normalizedEntity = String(entityType || '');
+
+  const arLabels = {
+    User: 'مستخدم',
+    Order: 'طلب',
+    Supplier: 'مورد',
+    Payment: 'دفع',
+    Delivery: 'توصيل',
+    SupplierPayout: 'دفعة مورد',
+    Payout: 'دفعة'
+  };
+
+  const enLabels = {
     User: t('user'),
     Order: t('order'),
     Supplier: t('supplier'),
     Payment: t('payment'),
-    Delivery: t('delivery')
+    Delivery: t('delivery'),
+    SupplierPayout: 'Supplier payout',
+    Payout: 'Payout'
   };
 
-  return labels[entityType] || entityType;
+  const labels = language === 'ar' ? arLabels : enLabels;
+  return labels[normalizedEntity] || normalizedEntity;
 }
 
 function parseAuditMetadata(log) {
@@ -97,9 +137,9 @@ export default function AuditLogViewer({ token }) {
             <div className="flex justify-between gap-3">
               <div className="min-w-0">
                 <div className="inline-flex px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-[10px] font-black mb-2">
-                  {auditEntityLabel(log.entityType, t)}
+                  {auditEntityLabel(log.entityType, t, language)}
                 </div>
-                <div className="font-black text-slate-950 leading-tight">{auditActionLabel(log.action, t)}</div>
+                <div className="font-black text-slate-950 leading-tight">{auditActionLabel(log.action, t, language)}</div>
                 <div className="text-xs text-slate-500 font-semibold mt-1">
                   {log.entityId ? <span>{log.entityId}</span> : null}
                 </div>
