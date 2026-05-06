@@ -23,17 +23,17 @@ export default function SupplierEditForm({ supplier, onSave, onCancel }) {
   }
 
   return (
-    <div className="bg-white rounded-2xl border p-4 shadow-sm space-y-4">
+    <div className="space-y-4 rounded-[1.5rem] border border-blue-100/80 bg-white/95 p-4 shadow-sm shadow-blue-950/5 dark:border-slate-700 dark:bg-slate-900/95 dark:shadow-black/20">
       <div>
-        <div className="font-black text-slate-900">{t('editSupplier')}</div>
-        <div className="text-xs text-slate-400">{t('editSupplierHint')}</div>
+        <div className="font-black text-slate-950 dark:text-white">{t('editSupplier')}</div>
+        <div className="text-xs text-slate-400 dark:text-slate-500">{t('editSupplierHint')}</div>
       </div>
 
       <div className="rounded-2xl bg-slate-50 p-3 space-y-2">
         <div className="text-[10px] uppercase font-black text-slate-400">{t('supplierDetails')}</div>
-        <input className="w-full p-3 rounded-xl border text-sm" placeholder={t('supplierName')} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-        <input className="w-full p-3 rounded-xl border text-sm" placeholder={t('phone')} value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
-        <input className="w-full p-3 rounded-xl border text-sm" placeholder={t('location')} value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} />
+        <input className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20" placeholder={t('supplierName')} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+        <input className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20" placeholder={t('phone')} value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+        <input className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20" placeholder={t('location')} value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} />
       </div>
 
       <div className="rounded-2xl bg-slate-50 p-3 space-y-2">
@@ -49,7 +49,7 @@ export default function SupplierEditForm({ supplier, onSave, onCancel }) {
 
         <div className="grid grid-cols-2 gap-2">
           {Object.keys(carData).map(origin => (
-            <label key={origin} className={`text-xs rounded-xl p-2 flex gap-2 items-center border ${form.supportedMakes.includes(origin) ? 'bg-purple-50 border-purple-200 text-purple-700 font-bold' : 'bg-white border-slate-200 text-slate-600'}`}>
+            <label key={origin} className={`flex items-center gap-2 rounded-2xl border p-2 text-xs ${form.supportedMakes.includes(origin) ? 'border-blue-200 bg-blue-50 font-black text-blue-700 dark:border-blue-400/30 dark:bg-blue-500/10 dark:text-blue-300' : 'border-slate-200 bg-white text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300'}`}>
               <input type="checkbox" checked={form.supportedMakes.includes(origin)} onChange={e => setForm(current => ({
                 ...current,
                 supportedMakes: e.target.checked ? [...current.supportedMakes, origin] : current.supportedMakes.filter(item => item !== origin)
@@ -69,10 +69,10 @@ export default function SupplierEditForm({ supplier, onSave, onCancel }) {
       </label>
 
       <div className="flex gap-2">
-        <button onClick={submit} disabled={saving || !form.name || !form.phone || !form.location} className="flex-1 py-3 rounded-xl bg-purple-600 text-white font-bold disabled:opacity-40">
+        <button onClick={submit} disabled={saving || !form.name || !form.phone || !form.location} className="flex-1 rounded-xl bg-blue-600 py-3 font-black text-white shadow-lg shadow-blue-600/20 disabled:opacity-40">
           {saving ? t('saving') : t('save')}
         </button>
-        <button onClick={onCancel} className="flex-1 py-3 rounded-xl bg-slate-100 text-slate-600 font-bold">
+        <button onClick={onCancel} className="flex-1 rounded-xl bg-slate-100 py-3 font-black text-slate-600 dark:bg-slate-800 dark:text-slate-300">
           {t('cancel')}
         </button>
       </div>
