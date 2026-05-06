@@ -50,11 +50,11 @@ export default function SuperAdminEnroll({ token }) {
   }
 
   return (
-    <div className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm space-y-3">
-      <h2 className="font-black text-slate-950">{t('createAdminUser')}</h2>
+    <div className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
+      <h2 className="font-black text-slate-900">{t('createAdminUser')}</h2>
 
       <select
-        className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+        className="w-full p-3 rounded-xl border"
         value={form.role}
         onChange={e =>
           setForm({
@@ -70,7 +70,7 @@ export default function SuperAdminEnroll({ token }) {
 
       {form.role === 'ADMIN' && (
         <select
-          className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+          className="w-full p-3 rounded-xl border"
           value={form.adminPermission}
           onChange={e => setForm({ ...form, adminPermission: e.target.value })}
         >
@@ -80,27 +80,27 @@ export default function SuperAdminEnroll({ token }) {
       )}
 
       <input
-        className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+        className="w-full p-3 rounded-xl border"
         placeholder={t('fullName')}
         value={form.name}
         onChange={e => setForm({ ...form, name: e.target.value })}
       />
 
       <input
-        className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+        className="w-full p-3 rounded-xl border"
         placeholder={t('phoneNumberForLogin')}
         value={form.phone}
         onChange={e => setForm({ ...form, phone: e.target.value })}
       />
 
       <input
-        className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+        className="w-full p-3 rounded-xl border"
         placeholder={t('email')}
         value={form.email}
         onChange={e => setForm({ ...form, email: e.target.value })}
       />
 
-      <div className="rounded-2xl bg-slate-50 p-3 text-xs font-semibold text-slate-500">
+      <div className="text-xs text-slate-500 bg-slate-50 rounded-xl p-3">
         {t('adminPhoneLoginNote')}
       </div>
 
@@ -110,7 +110,7 @@ export default function SuperAdminEnroll({ token }) {
       <button
         onClick={submit}
         disabled={saving || !form.name.trim() || !form.phone.trim()}
-        className="w-full py-3 rounded-2xl bg-[#27439C] text-white font-black disabled:opacity-40"
+        className="w-full py-3 rounded-2xl bg-purple-700 text-white font-black disabled:opacity-40"
       >
         {saving ? t('saving') : t('createUser')}
       </button>

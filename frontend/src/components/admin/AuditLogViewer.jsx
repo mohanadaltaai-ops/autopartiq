@@ -75,9 +75,9 @@ export default function AuditLogViewer({ token }) {
       .finally(() => setLoading(false));
   }, [token]);
 
-  if (loading) return <div className="bg-white rounded-[24px] border border-slate-200 p-3 shadow-sm text-sm font-bold text-slate-500">{t('loadingAuditLogs')}</div>;
-  if (error) return <div className="rounded-[1.5rem] border border-red-100 bg-red-50 p-4 text-sm font-bold text-red-600 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-300">{error}</div>;
-  if (!logs.length) return <div className="bg-white rounded-[28px] border border-dashed border-slate-200 p-6 text-center shadow-sm text-sm font-bold text-slate-500">{t('noAuditLogsYet')}</div>;
+  if (loading) return <div className="text-sm text-slate-500">{t('loadingAuditLogs')}</div>;
+  if (error) return <div className="text-sm text-red-600">{error}</div>;
+  if (!logs.length) return <div className="bg-white rounded-2xl border border-dashed p-6 text-center text-sm text-slate-400">{t('noAuditLogsYet')}</div>;
 
   return (
     <div className="space-y-3">
@@ -86,26 +86,26 @@ export default function AuditLogViewer({ token }) {
         const rows = metadataRows(metadata, t);
 
         return (
-          <div key={log.id} className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm space-y-3">
+          <div key={log.id} className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
             <div className="flex justify-between gap-3">
               <div className="min-w-0">
-                <div className="font-black text-slate-950">{auditActionLabel(log.action, t)}</div>
-                <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                <div className="font-black text-slate-900">{auditActionLabel(log.action, t)}</div>
+                <div className="text-xs text-slate-500 mt-1">
                   {auditEntityLabel(log.entityType, t)}
                   {log.entityId ? <span className="text-slate-400"> • {log.entityId}</span> : null}
                 </div>
               </div>
-              <div className="shrink-0 text-right text-[10px] font-bold text-slate-400">
+              <div className="text-[10px] text-slate-400 text-right shrink-0">
                 {new Date(log.createdAt).toLocaleString(language === 'ar' ? 'ar-IQ' : undefined)}
               </div>
             </div>
 
             {rows.length > 0 && (
-              <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 text-xs space-y-1">
+              <div className="rounded-xl bg-slate-50 p-3 text-xs space-y-1">
                 {rows.map(([label, value]) => (
                   <div key={`${label}-${value}`} className="flex justify-between gap-3">
                     <span className="text-slate-400">{label}</span>
-                    <strong className="text-slate-800 text-right">{String(value).replaceAll('_', ' ')}</strong>
+                    <strong className="text-slate-700 text-right">{String(value).replaceAll('_', ' ')}</strong>
                   </div>
                 ))}
               </div>

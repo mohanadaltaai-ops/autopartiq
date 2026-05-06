@@ -58,41 +58,41 @@ export default function OrderDeliveryControls({ order, token, reload }) {
   }
 
   return (
-    <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-3">
+    <div className="rounded-xl bg-slate-50 p-3 space-y-3">
       <div>
-        <div className="text-xs font-black text-slate-700">{t('deliveryAssignment')}</div>
+        <div className="text-xs font-black text-slate-600">{t('deliveryAssignment')}</div>
         <div className="text-[10px] text-slate-400">{t('deliveryAssignmentHint')}</div>
       </div>
 
-      <div className="rounded-[20px] bg-white border border-slate-200 p-3 space-y-2">
-        <div className="text-[10px] uppercase font-black text-blue-600">{t('driverDetails')}</div>
-        <input className="w-full p-2 rounded-xl border bg-white text-xs font-bold" placeholder={t('driverName')} value={form.driverName} onChange={e => setForm({ ...form, driverName: e.target.value })} />
-        <input className="w-full p-2 rounded-xl border bg-white text-xs font-bold" placeholder={t('driverPhone')} value={form.driverPhone} onChange={e => setForm({ ...form, driverPhone: e.target.value })} />
+      <div className="rounded-xl bg-white border p-3 space-y-2">
+        <div className="text-[10px] uppercase font-black text-slate-400">{t('driverDetails')}</div>
+        <input className="w-full p-2 rounded-xl border text-xs" placeholder={t('driverName')} value={form.driverName} onChange={e => setForm({ ...form, driverName: e.target.value })} />
+        <input className="w-full p-2 rounded-xl border text-xs" placeholder={t('driverPhone')} value={form.driverPhone} onChange={e => setForm({ ...form, driverPhone: e.target.value })} />
       </div>
 
-      <div className="rounded-[20px] bg-white border border-slate-200 p-3 space-y-2">
-        <div className="text-[10px] uppercase font-black text-blue-600">{t('pickupAndDelivery')}</div>
+      <div className="rounded-xl bg-white border p-3 space-y-2">
+        <div className="text-[10px] uppercase font-black text-slate-400">{t('pickupAndDelivery')}</div>
 
         <label className="text-[10px] font-bold text-slate-500 space-y-1 block">
           {t('pickupEta')}
-          <input type="date" className="w-full p-2 rounded-xl border bg-white text-xs font-bold" value={form.pickupEta} onChange={e => setForm({ ...form, pickupEta: e.target.value })} />
+          <input type="date" className="w-full p-2 rounded-xl border text-xs font-normal" value={form.pickupEta} onChange={e => setForm({ ...form, pickupEta: e.target.value })} />
         </label>
 
         <label className="text-[10px] font-bold text-slate-500 space-y-1 block">
           {t('deliveryEta')}
-          <input type="date" className="w-full p-2 rounded-xl border bg-white text-xs font-bold" value={form.deliveryEta} onChange={e => setForm({ ...form, deliveryEta: e.target.value })} />
+          <input type="date" className="w-full p-2 rounded-xl border text-xs font-normal" value={form.deliveryEta} onChange={e => setForm({ ...form, deliveryEta: e.target.value })} />
         </label>
       </div>
 
-      <div className="rounded-[20px] bg-white border border-slate-200 p-3 space-y-2">
-        <div className="text-[10px] uppercase font-black text-blue-600">{t('deliveryNotesTitle')}</div>
+      <div className="rounded-xl bg-white border p-3 space-y-2">
+        <div className="text-[10px] uppercase font-black text-slate-400">{t('deliveryNotesTitle')}</div>
         <label className="block">
           <div className="text-[10px] font-bold text-slate-500 mb-1">{t('proofOfDeliveryImage')}</div>
           <input
             type="file"
             accept="image/*"
             disabled={uploadingProof}
-            className="w-full p-2 rounded-xl border bg-white text-xs font-bold disabled:opacity-50"
+            className="w-full p-2 rounded-xl border text-xs bg-white disabled:opacity-50"
             onChange={e => uploadProofImage(e.target.files?.[0])}
           />
         </label>
@@ -102,18 +102,18 @@ export default function OrderDeliveryControls({ order, token, reload }) {
         )}
 
         {form.proofOfDeliveryUrl && (
-          <a href={form.proofOfDeliveryUrl} target="_blank" rel="noreferrer" className="block rounded-xl border bg-white p-2 text-xs text-blue-700 font-black break-all">
+          <a href={form.proofOfDeliveryUrl} target="_blank" rel="noreferrer" className="block rounded-xl border bg-white p-2 text-xs text-blue-700 font-bold break-all">
             {t('viewProofOfDelivery')}
           </a>
         )}
 
-        <input className="w-full p-2 rounded-xl border bg-white text-xs font-bold" placeholder={t('proofOfDeliveryUrl')} value={form.proofOfDeliveryUrl} onChange={e => setForm({ ...form, proofOfDeliveryUrl: e.target.value })} />
-        <textarea className="w-full p-2 rounded-xl border bg-white text-xs font-bold min-h-[80px]" placeholder={t('deliveryNotes')} value={form.deliveryNotes} onChange={e => setForm({ ...form, deliveryNotes: e.target.value })} />
+        <input className="w-full p-2 rounded-xl border text-xs" placeholder={t('proofOfDeliveryUrl')} value={form.proofOfDeliveryUrl} onChange={e => setForm({ ...form, proofOfDeliveryUrl: e.target.value })} />
+        <textarea className="w-full p-2 rounded-xl border text-xs min-h-[80px]" placeholder={t('deliveryNotes')} value={form.deliveryNotes} onChange={e => setForm({ ...form, deliveryNotes: e.target.value })} />
       </div>
 
       {error && <div className="text-xs text-red-600">{error}</div>}
 
-      <button onClick={save} disabled={saving} className="w-full py-3 rounded-xl bg-[#27439C] text-white text-xs font-black disabled:opacity-40">
+      <button onClick={save} disabled={saving} className="w-full py-3 rounded-xl bg-blue-600 text-white text-xs font-black disabled:opacity-40">
         {saving ? t('saving') : t('updateDelivery')}
       </button>
     </div>

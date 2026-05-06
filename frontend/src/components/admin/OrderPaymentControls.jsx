@@ -23,18 +23,18 @@ export default function OrderPaymentControls({ order, token, reload }) {
   }
 
   return (
-    <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-2">
-      <div className="text-xs font-black text-slate-700">{t('paymentControls')}</div>
+    <div className="rounded-xl bg-slate-50 p-3 space-y-2">
+      <div className="text-xs font-bold text-slate-500">{t('paymentControls')}</div>
 
       <div className="grid grid-cols-2 gap-2">
-        <select className="p-2 rounded-xl border bg-white text-xs font-bold" value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
+        <select className="p-2 rounded-xl border text-xs" value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
           <option value="CASH_ON_DELIVERY">{t('cashOnDelivery')}</option>
           <option value="CARD">{t('card')}</option>
           <option value="WALLET">{t('wallet')}</option>
           <option value="BANK_TRANSFER">{t('bankTransfer')}</option>
         </select>
 
-        <select className="p-2 rounded-xl border bg-white text-xs font-bold" value={paymentStatus} onChange={e => setPaymentStatus(e.target.value)}>
+        <select className="p-2 rounded-xl border text-xs" value={paymentStatus} onChange={e => setPaymentStatus(e.target.value)}>
           <option value="PENDING">{t('pending')}</option>
           <option value="PAID">{t('paid')}</option>
           <option value="FAILED">{t('failed')}</option>
@@ -44,7 +44,7 @@ export default function OrderPaymentControls({ order, token, reload }) {
 
       {error && <div className="text-xs text-red-600">{error}</div>}
 
-      <button onClick={save} disabled={saving} className="w-full py-2 rounded-xl bg-[#27439C] text-white text-xs font-black disabled:opacity-40">
+      <button onClick={save} disabled={saving} className="w-full py-2 rounded-xl bg-purple-600 text-white text-xs font-bold disabled:opacity-40">
         {saving ? t('saving') : t('updatePayment')}
       </button>
     </div>
