@@ -92,34 +92,29 @@ export default function Layout({ tab, setTab, children }) {
         ['home', BarChart3, t('dashboard')],
         ['orders', Package, t('orders')],
         ['suppliers', Users, t('suppliers')],
-        ['settlements', Wallet, 'Settlements'],
-        ['profile', User, t('profile')]
+        ['settlements', Wallet, 'Settlements']
       ]
     : user?.adminPermission === 'ORDERS_ONLY'
       ? [
-          ['orders', Package, t('orders')],
-          ['profile', User, t('profile')]
+          ['orders', Package, t('orders')]
         ]
       : [
           ['home', BarChart3, t('dashboard')],
           ['orders', Package, t('orders')],
           ['suppliers', Users, t('suppliers')],
-          ['settlements', Wallet, 'Settlements'],
-          ['profile', User, t('profile')]
+          ['settlements', Wallet, 'Settlements']
         ];
 
   const tabs = user?.role === 'CUSTOMER'
     ? [
         ['home', Home, t('home')],
-        ['orders', Package, t('orders')],
-        ['profile', User, t('profile')]
+        ['orders', Package, t('orders')]
       ]
     : user?.role === 'SUPPLIER'
       ? [
           ['home', Home, t('leads')],
           ['orders', Package, t('orders')],
-          ['earnings', BarChart3, t('earnings')],
-          ['profile', User, t('profile')]
+          ['earnings', BarChart3, t('earnings')]
         ]
       : adminTabs;
 
@@ -174,6 +169,11 @@ export default function Layout({ tab, setTab, children }) {
               {t('home')}
             </button>
           )}
+
+          <button onClick={() => setTab('profile')} className={`w-9 h-9 rounded-full border flex items-center justify-center shadow-sm ${tab === 'profile' ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-600 border-slate-200'}`} title={t('profile')}>
+            <User size={18}/>
+            <span className="sr-only">{t('profile')}</span>
+          </button>
 
           <button onClick={toggleLanguage} className="w-9 h-9 rounded-xl bg-slate-50 border flex items-center justify-center text-xs font-black" title={t('language')}>
             <Languages size={16}/>
