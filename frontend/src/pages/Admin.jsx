@@ -64,15 +64,17 @@ function paymentStatusLabel(status, t) {
 function StatusBadge({ status }) {
   const { t } = useLanguage();
   const colors = {
-    WAITING_PICKUP: 'bg-amber-100 text-amber-700',
-    DELIVERING: 'bg-blue-100 text-blue-700',
-    COMPLETED: 'bg-green-100 text-green-700',
-    CANCELLED: 'bg-red-100 text-red-700'
+    WAITING_PICKUP: 'bg-amber-50 text-amber-700 border-amber-100',
+    DELIVERING: 'bg-blue-50 text-blue-700 border-blue-100',
+    COMPLETED: 'bg-green-50 text-green-700 border-green-100',
+    CANCELLED: 'bg-red-50 text-red-700 border-red-100'
   };
 
-  return <span className={`text-[10px] mt-2 inline-block px-2 py-1 rounded-full font-bold ${colors[status] || 'bg-slate-100 text-slate-600'}`}>
-    {statusLabel(status, t)}
-  </span>;
+  return (
+    <span className={`inline-flex px-2.5 py-1 rounded-full border text-[10px] font-black ${colors[status] || 'bg-slate-50 text-slate-600 border-slate-100'}`}>
+      {statusLabel(status, t)}
+    </span>
+  );
 }
 
 function toDateInputValue(value) {
@@ -102,73 +104,89 @@ function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
 
-  return <div className="bg-white rounded-2xl border p-4 shadow-sm space-y-3">
-    <button onClick={() => setOpen(value => !value)} className="w-full text-left flex items-start justify-between gap-3">
-      <div>
-        <div className="font-black text-orange-600">{order.orderNumber}</div>
-        <div className="font-bold text-slate-900">{order.offer.request.partName}</div>
-        <div className="text-xs text-slate-400">{t('created')}: {toDateInputValue(order.createdAt) || t('notAvailable')}</div>
-        <div className="text-xs text-slate-500">{t('supplier')}: {order.offer.supplier.name}</div>
-        <div className="text-xs text-slate-500">{t('customerPhone')}: {order.offer.request.customerPhone || t('notAvailable')}</div>
-      </div>
+  return (
+    <div className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm space-y-3">
+      <button
+        type="button"
+        onClick={() => setOpen(value => !value)}
+        className="w-full text-left flex items-start justify-between gap-3"
+      >
+        <div className="min-w-0">
+          <div className="flex flex-wrap gap-2 mb-3">
+            <StatusBadge status={order.status} />
+            <span className="inline-flex px-2.5 py-1 rounded-full border bg-blue-50 text-blue-700 border-blue-100 text-[10px] font-black">
+              {paymentStatusLabel(order.paymentStatus, t)}
+            </span>
+          </div>
 
-      <div className="text-right">
-        <StatusBadge status={order.status} />
-        <div className="text-[10px] text-slate-400 mt-2">{open ? t('hide') : t('details')}</div>
-      </div>
-    </button>
-
-    {open && <>
-      <div className="space-y-2 text-xs">
-        <div className="rounded-xl bg-slate-50 p-3 space-y-1">
-          <div className="text-[10px] uppercase font-black text-slate-400">{t('partDetails')}</div>
-          <div className="text-slate-700 font-bold">{order.offer.request.partName}</div>
-          <div className="text-slate-500">{order.offer.request.origin} / {order.offer.request.make} / {order.offer.request.model} / {order.offer.request.year}</div>
-          <div className="text-slate-500">{t('condition')}: {order.offer.condition === 'NEW' ? t('new') : t('used')}</div>
+          <div className="text-[11px] font-black text-blue-600">{order.orderNumber}</div>
+          <div className="font-black text-slate-950 text-lg leading-tight mt-1">{order.offer.request.partName}</div>
+          <div className="text-xs text-slate-500 font-bold mt-1">
+            {order.offer.request.make} {order.offer.request.model} • {toDateInputValue(order.createdAt) || t('notAvailable')}
+          </div>
+          <div className="text-xs text-slate-500 font-bold mt-1">{t('supplier')}: {order.offer.supplier.name}</div>
         </div>
 
-        <div className="rounded-xl bg-slate-50 p-3 space-y-1">
-          <div className="text-[10px] uppercase font-black text-slate-400">{t('customer')}</div>
-          <div className="text-slate-500">{t('customerPhone')}: {order.offer.request.customerPhone || t('notAvailable')}</div>
-          <div className="text-slate-500">{t('location')}: {order.offer.request.location || t('notAvailable')}</div>
+        <div className="text-right shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 font-black">
+            {open ? '−' : '+'}
+          </div>
+          <div className="text-[10px] text-slate-400 font-black mt-2">{open ? t('hide') : t('details')}</div>
         </div>
+      </button>
 
-        <div className="rounded-xl bg-slate-50 p-3 space-y-1">
-          <div className="text-[10px] uppercase font-black text-slate-400">{t('supplier')}</div>
-          <div className="text-slate-700 font-bold">{order.offer.supplier.name}</div>
-          {user?.role === 'SUPER_ADMIN' && (
-            <div className="grid grid-cols-1 gap-1 pt-1">
-              <div className="text-slate-500">{t('supplier')}: {formatIQD(order.supplierPrice)}</div>
-              <div className="text-slate-500">{t('customer')}: {formatIQD(order.customerPrice)}</div>
-              <div className="text-slate-500">{t('revenue')}: {formatIQD(order.platformRevenue)}</div>
-            </div>
-          )}
+      {open && (
+        <div className="space-y-3">
+          <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1 text-xs">
+            <div className="text-[10px] uppercase font-black text-blue-600">{t('partDetails')}</div>
+            <div className="text-slate-900 font-black">{order.offer.request.partName}</div>
+            <div className="text-slate-500 font-semibold">{order.offer.request.origin} / {order.offer.request.make} / {order.offer.request.model} / {order.offer.request.year}</div>
+            <div className="text-slate-500 font-semibold">{t('condition')}: {order.offer.condition === 'NEW' ? t('new') : t('used')}</div>
+          </div>
+
+          <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1 text-xs">
+            <div className="text-[10px] uppercase font-black text-blue-600">{t('customer')}</div>
+            <div className="text-slate-500 font-semibold">{t('customerPhone')}: {order.offer.request.customerPhone || t('notAvailable')}</div>
+            <div className="text-slate-500 font-semibold">{t('location')}: {order.offer.request.location || t('notAvailable')}</div>
+          </div>
+
+          <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1 text-xs">
+            <div className="text-[10px] uppercase font-black text-blue-600">{t('supplier')}</div>
+            <div className="text-slate-900 font-black">{order.offer.supplier.name}</div>
+            {user?.role === 'SUPER_ADMIN' && (
+              <div className="grid grid-cols-1 gap-1 pt-1">
+                <div className="text-slate-500 font-semibold">{t('supplier')}: {formatIQD(order.supplierPrice)}</div>
+                <div className="text-slate-500 font-semibold">{t('customer')}: {formatIQD(order.customerPrice)}</div>
+                <div className="text-slate-500 font-semibold">{t('revenue')}: {formatIQD(order.platformRevenue)}</div>
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1 text-xs">
+            <div className="text-[10px] uppercase font-black text-blue-600">{t('payment')}</div>
+            <div className="text-slate-500 font-semibold">{t('payment')}: {paymentMethodLabel(order.paymentMethod, t)}</div>
+            <div className="text-slate-500 font-semibold">{t('status')}: {paymentStatusLabel(order.paymentStatus, t)}</div>
+          </div>
+
+          <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1 text-xs">
+            <div className="text-[10px] uppercase font-black text-blue-600">{t('delivery')}</div>
+            <div className="text-slate-500 font-semibold">{t('delivery')}: {formatIQD(order.deliveryFee)}</div>
+            <div className="text-slate-500 font-semibold">{t('driver')}: {order.driverName || t('notAssigned')}</div>
+            <div className="text-slate-500 font-semibold">{t('deliveryEta')}: {order.deliveryEta || t('pending')}</div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'DELIVERING')} className="text-[11px] py-2.5 rounded-2xl bg-blue-50 text-blue-700 border border-blue-100 font-black disabled:opacity-40">{t('delivering')}</button>
+            <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'COMPLETED')} className="text-[11px] py-2.5 rounded-2xl bg-green-50 text-green-700 border border-green-100 font-black disabled:opacity-40">{t('completed')}</button>
+            <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'CANCELLED')} className="text-[11px] py-2.5 rounded-2xl bg-red-50 text-red-700 border border-red-100 font-black disabled:opacity-40">{t('cancel')}</button>
+          </div>
+
+          <OrderPaymentControls order={order} token={token} reload={reload} />
+          <OrderDeliveryControls order={order} token={token} reload={reload} />
         </div>
-
-        <div className="rounded-xl bg-slate-50 p-3 space-y-1">
-          <div className="text-[10px] uppercase font-black text-slate-400">{t('payment')}</div>
-          <div className="text-slate-500">{t('payment')}: {paymentMethodLabel(order.paymentMethod, t)}</div>
-          <div className="text-slate-500">{t('status')}: {paymentStatusLabel(order.paymentStatus, t)}</div>
-        </div>
-
-        <div className="rounded-xl bg-slate-50 p-3 space-y-1">
-          <div className="text-[10px] uppercase font-black text-slate-400">{t('delivery')}</div>
-          <div className="text-slate-500">{t('delivery')}: {formatIQD(order.deliveryFee)}</div>
-          <div className="text-slate-500">{t('driver')}: {order.driverName || t('notAssigned')}</div>
-          <div className="text-slate-500">{t('deliveryEta')}: {order.deliveryEta || t('pending')}</div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-2">
-        <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'DELIVERING')} className="text-[11px] py-2 rounded-xl bg-blue-50 text-blue-700 font-bold disabled:opacity-40">{t('delivering')}</button>
-        <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'COMPLETED')} className="text-[11px] py-2 rounded-xl bg-green-50 text-green-700 font-bold disabled:opacity-40">{t('completed')}</button>
-        <button disabled={updatingOrderId === order.id} onClick={() => changeOrderStatus(order.id, 'CANCELLED')} className="text-[11px] py-2 rounded-xl bg-red-50 text-red-700 font-bold disabled:opacity-40">{t('cancel')}</button>
-      </div>
-
-      <OrderPaymentControls order={order} token={token} reload={reload} />
-      <OrderDeliveryControls order={order} token={token} reload={reload} />
-    </>}
-  </div>;
+      )}
+    </div>
+  );
 }
 
 export default function Admin({ tab, setTab }) {
@@ -369,28 +387,43 @@ export default function Admin({ tab, setTab }) {
         return matchesSearch && matchesStatus && matchesPayment && matchesDate;
       });
 
-    return <div className="p-4 space-y-3">
-      <h1 className="font-black text-xl text-slate-900">{t('allOrders')}</h1>
+    const statusFilters = [
+      ['ALL', t('all')],
+      ['OPEN', t('activeOrders')],
+      ['COMPLETED', t('completed')],
+      ['CANCELLED', t('cancelled')]
+    ];
 
-      <div className="grid grid-cols-4 gap-2">
-        <button onClick={() => setStatusFilter('ALL')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'ALL' ? 'bg-slate-900 text-white' : 'bg-white border text-slate-600'}`}>
-          {t('all')}
-        </button>
-        <button onClick={() => setStatusFilter('OPEN')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'OPEN' ? 'bg-blue-600 text-white' : 'bg-white border text-slate-600'}`}>
-          {t('activeOrders')}
-        </button>
-        <button onClick={() => setStatusFilter('COMPLETED')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'COMPLETED' ? 'bg-green-600 text-white' : 'bg-white border text-slate-600'}`}>
-          {t('completed')}
-        </button>
-        <button onClick={() => setStatusFilter('CANCELLED')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'CANCELLED' ? 'bg-red-600 text-white' : 'bg-white border text-slate-600'}`}>
-          {t('cancelled')}
-        </button>
+    return <div className="p-4 space-y-4 pb-6">
+      <div className="rounded-[30px] bg-white border border-slate-200 p-5 shadow-sm">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black border border-blue-100">
+          {t('orders')}
+        </div>
+        <h1 className="font-black text-2xl text-slate-950 mt-3">{t('allOrders')}</h1>
+        <div className="text-xs font-semibold text-slate-500 mt-1">
+          {t('showing')} {filteredOrders.length} {t('of')} {data.orders.length} {t('orders').toLowerCase()}
+        </div>
       </div>
 
-      <div className="bg-white rounded-2xl border p-3 space-y-2">
-        <input className="w-full p-3 rounded-xl border text-sm" placeholder={t('searchOrderPartSupplier')} value={orderSearch} onChange={e => setOrderSearch(e.target.value)} />
+      <div className="grid grid-cols-2 gap-2 bg-white rounded-[24px] border border-slate-200 p-2 shadow-sm">
+        {statusFilters.map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setStatusFilter(id)}
+            className={`min-h-[44px] px-3 py-2.5 rounded-[16px] text-[11px] leading-tight font-black text-center transition ${
+              statusFilter === id ? 'bg-[#27439C] text-white shadow-sm' : 'bg-slate-50 text-slate-500 border border-slate-100'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
-        <select className="w-full p-3 rounded-xl border text-sm" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+      <div className="bg-white rounded-[24px] border border-slate-200 p-3 space-y-2 shadow-sm">
+        <input className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" placeholder={t('searchOrderPartSupplier')} value={orderSearch} onChange={e => setOrderSearch(e.target.value)} />
+
+        <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
           <option value="ALL">{t('allStatuses')}</option>
           <option value="OPEN">{t('activeOrders')}</option>
           <option value="WAITING_PICKUP">{t('waitingPickup')}</option>
@@ -399,7 +432,7 @@ export default function Admin({ tab, setTab }) {
           <option value="CANCELLED">{t('cancelled')}</option>
         </select>
 
-        <select className="w-full p-3 rounded-xl border text-sm" value={paymentStatusFilter} onChange={e => setPaymentStatusFilter(e.target.value)}>
+        <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={paymentStatusFilter} onChange={e => setPaymentStatusFilter(e.target.value)}>
           <option value="ALL">{t('allPayments')}</option>
           <option value="PENDING">{t('pending')}</option>
           <option value="PAID">{t('paid')}</option>
@@ -408,24 +441,28 @@ export default function Admin({ tab, setTab }) {
         </select>
 
         <div className="grid grid-cols-1 gap-2">
-          <label className="text-[10px] font-bold text-slate-500 space-y-1">
+          <label className="text-[10px] font-black text-slate-500 space-y-1">
             {t('from')}
-            <input type="date" className="w-full min-w-0 p-3 rounded-xl border text-sm font-normal" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
+            <input type="date" className="w-full min-w-0 p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
           </label>
-          <label className="text-[10px] font-bold text-slate-500 space-y-1">
+          <label className="text-[10px] font-black text-slate-500 space-y-1">
             {t('to')}
-            <input type="date" className="w-full min-w-0 p-3 rounded-xl border text-sm font-normal" value={dateTo} onChange={e => setDateTo(e.target.value)} />
+            <input type="date" className="w-full min-w-0 p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={dateTo} onChange={e => setDateTo(e.target.value)} />
           </label>
         </div>
 
-        {(orderSearch || statusFilter !== 'ALL' || paymentStatusFilter !== 'ALL' || dateFrom || dateTo) && <button onClick={() => { setOrderSearch(''); setStatusFilter('ALL'); setPaymentStatusFilter('ALL'); setDateFrom(''); setDateTo(''); }} className="w-full py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold">
-          {t('clearFilters')}
-        </button>}
-
-        <div className="text-[10px] text-slate-400 font-bold">{t('showing')} {filteredOrders.length} {t('of')} {data.orders.length} {t('orders').toLowerCase()}</div>
+        {(orderSearch || statusFilter !== 'ALL' || paymentStatusFilter !== 'ALL' || dateFrom || dateTo) && (
+          <button onClick={() => { setOrderSearch(''); setStatusFilter('ALL'); setPaymentStatusFilter('ALL'); setDateFrom(''); setDateTo(''); }} className="w-full py-3 rounded-2xl bg-slate-100 text-slate-600 text-xs font-black">
+            {t('clearFilters')}
+          </button>
+        )}
       </div>
 
-      {filteredOrders.length === 0 && <div className="bg-white border border-dashed rounded-2xl p-6 text-center text-sm text-slate-400">{t('noMatchingOrders')}</div>}
+      {filteredOrders.length === 0 && (
+        <div className="bg-white border border-dashed border-slate-200 rounded-[28px] p-6 text-center text-sm font-bold text-slate-400">
+          {t('noMatchingOrders')}
+        </div>
+      )}
 
       {filteredOrders.map(order => <AdminOrderCard key={order.id} order={order} user={user} updatingOrderId={updatingOrderId} changeOrderStatus={changeOrderStatus} token={token} reload={load} />)}
     </div>;
