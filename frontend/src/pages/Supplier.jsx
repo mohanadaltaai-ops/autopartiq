@@ -152,14 +152,14 @@ export default function Supplier({ tab }) {
         </div>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto bg-white rounded-[24px] border border-slate-200 p-2 shadow-sm">
+      <div className="grid grid-cols-2 gap-2 bg-white rounded-[24px] border border-slate-200 p-2 shadow-sm">
         {orderFilters.map(([id, label]) => (
           <button
             key={id}
             type="button"
             onClick={() => setOrderFilter(id)}
-            className={`shrink-0 px-3 py-2.5 rounded-[16px] text-[11px] font-black transition ${
-              orderFilter === id ? 'bg-[#27439C] text-white shadow-sm' : 'text-slate-500'
+            className={`min-h-[44px] px-3 py-2.5 rounded-[16px] text-[11px] leading-tight font-black text-center transition ${
+              orderFilter === id ? 'bg-[#27439C] text-white shadow-sm' : 'bg-slate-50 text-slate-500 border border-slate-100'
             }`}
           >
             {label}
@@ -319,11 +319,13 @@ function Earnings({ orders, payouts = [], payoutSummary }) {
           : 'text-blue-700 bg-blue-50 border-blue-100';
 
     return (
-      <div className="bg-white rounded-[24px] border border-slate-200 p-4 shadow-sm">
-        <div className={`inline-flex px-2.5 py-1 rounded-full border text-[10px] font-black uppercase ${toneClass}`}>
+      <div className="bg-white rounded-[22px] border border-slate-200 p-3 shadow-sm min-h-[112px] flex flex-col justify-between overflow-hidden">
+        <div className={`self-start max-w-full px-2 py-1 rounded-full border text-[9px] leading-tight font-black uppercase break-words ${toneClass}`}>
           {label}
         </div>
-        <div className="mt-2 text-[17px] leading-tight font-black tabular-nums text-slate-950 break-words">{value}</div>
+        <div className="mt-2 text-[16px] leading-[1.05] font-black tabular-nums text-slate-950 break-words">
+          {value}
+        </div>
       </div>
     );
   };
@@ -355,7 +357,7 @@ function Earnings({ orders, payouts = [], payoutSummary }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2">
         <Stat label={t('completedOrders')} value={completedOrders.length} tone="green" />
         <Stat label={t('openOrders')} value={openOrders.length} tone="blue" />
         <Stat label={t('cancelled')} value={cancelledOrders.length} tone="red" />
@@ -365,8 +367,8 @@ function Earnings({ orders, payouts = [], payoutSummary }) {
         <div className="inline-flex px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-[10px] font-black uppercase">
           {t('pendingValue')}
         </div>
-        <div className="text-2xl font-black text-slate-950 mt-3">{formatIQD(pendingValue)}</div>
-        <div className="text-xs text-slate-500 font-semibold mt-1">{t('pendingValueNote')}</div>
+        <div className="text-[24px] leading-tight font-black text-slate-950 mt-3">{formatIQD(pendingValue)}</div>
+        <div className="text-xs text-slate-500 font-semibold mt-2 leading-relaxed">{t('pendingValueNote')}</div>
       </div>
 
       <div>
@@ -392,7 +394,7 @@ function Earnings({ orders, payouts = [], payoutSummary }) {
                   <div className="text-[11px] text-slate-400 font-semibold mt-1">{new Date(payout.createdAt).toLocaleString()}</div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="font-black text-slate-950">{formatIQD(payout.amount)}</div>
+                  <div className="font-black text-slate-950 text-sm leading-tight">{formatIQD(payout.amount)}</div>
                   <div className={`inline-flex mt-1 px-2.5 py-1 rounded-full border text-[10px] font-black ${payoutStatusClass(payout.status)}`}>
                     {payout.status}
                   </div>
