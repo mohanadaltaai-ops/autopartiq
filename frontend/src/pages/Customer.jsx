@@ -19,7 +19,14 @@ function parseJsonArray(value) {
 }
 
 function Empty({ text }) {
-  return <div className="bg-white rounded-3xl border border-dashed p-6 text-center text-sm text-slate-400">{text}</div>;
+  return (
+    <div className="bg-white rounded-[28px] border border-dashed border-slate-200 p-6 text-center shadow-sm">
+      <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black mb-3">
+        —
+      </div>
+      <div className="text-sm font-bold text-slate-500">{text}</div>
+    </div>
+  );
 }
 
 function CustomerStatCard({ label, value, tone = 'blue' }) {
@@ -194,11 +201,28 @@ export default function Customer({ tab }) {
     });
   }, [requests, requestFilter]);
 
-  if (loading) return <div className="p-4 text-slate-500">{t('loadingCustomer')}</div>;
-  if (error) return <div className="p-4 text-red-600 text-sm">{error}</div>;
+  if (loading) {
+    return (
+      <div className="p-4">
+        <div className="bg-white rounded-[28px] border border-slate-200 p-5 shadow-sm text-sm font-bold text-slate-500">
+          {t('loadingCustomer')}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4">
+        <div className="bg-red-50 rounded-[28px] border border-red-100 p-5 shadow-sm text-sm font-bold text-red-700">
+          {error}
+        </div>
+      </div>
+    );
+  }
   if (tab === 'orders') return <OrderList orders={orders} />;
 
-  return <div className="p-4 space-y-4">
+  return <div className="p-4 space-y-4 pb-6">
     <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
 
     <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
@@ -246,7 +270,10 @@ export default function Customer({ tab }) {
         }} />
       : <div className="space-y-3">
           <div className="flex items-center justify-between gap-3 bg-white rounded-[24px] border border-slate-200 p-3 shadow-sm">
-            <h2 className="font-black text-slate-950">{t('myRequests')}</h2>
+            <div>
+              <div className="text-[10px] uppercase font-black text-blue-600">{t('myRequests')}</div>
+              <h2 className="font-black text-slate-950 leading-tight">{t('myRequests')}</h2>
+            </div>
             <select
               className="p-2 rounded-2xl border bg-slate-50 text-xs font-black"
               value={requestFilter}
@@ -685,13 +712,15 @@ function OrderList({ orders }) {
   const { t } = useLanguage();
   const sortedOrders = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-  return <div className="p-4 space-y-4">
+  return <div className="p-4 space-y-4 pb-6">
     <div className="rounded-[30px] bg-white border border-slate-200 p-5 shadow-sm">
       <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black border border-blue-100">
         {t('orders')}
       </div>
       <h1 className="font-black text-2xl text-slate-950 mt-3">{t('orders')}</h1>
-      <div className="text-xs font-semibold text-slate-500 mt-1">{sortedOrders.length} {t('orders')}</div>
+      <div className="text-xs font-semibold text-slate-500 mt-1">
+        {sortedOrders.length === 0 ? t('noOrders') : `${sortedOrders.length} ${t('orders')}`}
+      </div>
     </div>
 
     {sortedOrders.length === 0 && <Empty text={t('noOrders')} />}
