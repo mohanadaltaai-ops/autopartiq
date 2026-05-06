@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Bell, Home, Package, User, BarChart3, Users, Languages, ShieldCheck, UserPlus, Wallet, MoreHorizontal } from 'lucide-react';
+import { Bell, Home, Package, User, BarChart3, Users, ShieldCheck, UserPlus, Wallet, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../lib/api';
@@ -63,7 +63,7 @@ function notificationText(item, t) {
 
 export default function Layout({ tab, setTab, children }) {
   const { user, token } = useAuth();
-  const { language, t, toggleLanguage } = useLanguage();
+  const { t } = useLanguage();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -175,11 +175,6 @@ export default function Layout({ tab, setTab, children }) {
           <button onClick={() => setTab('profile')} className={`w-9 h-9 rounded-full border flex items-center justify-center shadow-sm ${tab === 'profile' ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-600 border-slate-200'}`} title={t('profile')}>
             <User size={18}/>
             <span className="sr-only">{t('profile')}</span>
-          </button>
-
-          <button onClick={toggleLanguage} className="w-9 h-9 rounded-xl bg-slate-50 border flex items-center justify-center text-xs font-black" title={t('language')}>
-            <Languages size={16}/>
-            <span className="sr-only">{language}</span>
           </button>
 
           {['CUSTOMER', 'SUPPLIER'].includes(user?.role) && (
