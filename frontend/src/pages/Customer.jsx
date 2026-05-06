@@ -42,15 +42,21 @@ function OriginButton({ origin, data, selected, onClick }) {
   const brandCount = Object.keys(data.makes).length;
   const originCode = origin.slice(0, 2).toUpperCase();
 
+  const cardStyle = {
+    backgroundColor: selected ? '#EEF4FF' : '#FFFFFF',
+    borderColor: selected ? '#4F7DFF' : '#E4E8F1',
+    color: '#081B4B',
+    boxShadow: selected
+      ? '0 12px 30px rgba(47, 107, 255, 0.14)'
+      : '0 10px 24px rgba(15, 23, 42, 0.05)'
+  };
+
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`relative text-left rounded-[24px] border p-4 min-h-[150px] transition-all shadow-sm ${
-        selected
-          ? '!bg-[#EEF4FF] !border-[#4F7DFF] ring-2 ring-[#B9D4FF] shadow-md dark:!bg-[#14213D] dark:!border-[#5B8CFF] dark:ring-[#3559B7]'
-          : '!bg-white !border-slate-200 hover:!bg-[#F8FBFF] hover:!border-[#B9D4FF] dark:!bg-[#0F172A] dark:!border-slate-700 dark:hover:!bg-[#111C34] dark:hover:!border-[#3559B7]'
-      }`}
+      style={cardStyle}
+      className="relative text-left rounded-[24px] border p-4 min-h-[150px] transition-all"
     >
       {selected && (
         <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-[#2F6BFF] text-white text-xs font-black flex items-center justify-center shadow-sm">
@@ -58,28 +64,16 @@ function OriginButton({ origin, data, selected, onClick }) {
         </div>
       )}
 
-      <div className={`text-xs font-black mb-3 ${
-        selected
-          ? '!text-[#4169C7] dark:!text-[#9DB8FF]'
-          : '!text-slate-500 dark:!text-slate-400'
-      }`}>
+      <div className="text-xs font-black mb-3" style={{ color: selected ? '#4169C7' : '#8A93A8' }}>
         {originCode} {origin}
       </div>
 
-      <div className={`flex items-end gap-2 ${
-        selected
-          ? '!text-[#081B4B] dark:!text-white'
-          : '!text-[#081B4B] dark:!text-white'
-      }`}>
+      <div className="flex items-end gap-2" style={{ color: '#081B4B' }}>
         <span className="text-[34px] leading-none font-black">{brandCount}</span>
         <span className="text-lg leading-none font-black mb-1">{brandCount === 1 ? 'brand' : 'brands'}</span>
       </div>
 
-      <div className={`mt-4 text-sm leading-relaxed font-semibold ${
-        selected
-          ? '!text-[#5B6B85] dark:!text-slate-300'
-          : '!text-slate-500 dark:!text-slate-400'
-      }`}>
+      <div className="mt-4 text-sm leading-relaxed font-semibold" style={{ color: '#5B6B85' }}>
         {previewMakes}
       </div>
     </button>
