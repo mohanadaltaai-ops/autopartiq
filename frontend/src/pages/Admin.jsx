@@ -11,8 +11,8 @@ import SuperAdminEnroll from '../components/admin/SuperAdminEnroll';
 import AdminPayoutManager from '../components/admin/AdminPayoutManager';
 
 function StatCard({ label, value }) {
-  return <div className="rounded-[1.35rem] border border-blue-100/80 bg-white/95 p-4 shadow-sm shadow-blue-950/5 dark:border-slate-700 dark:bg-slate-900/95 dark:shadow-black/20">
-    <div className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500">{label}</div>
+  return <div className="bg-white rounded-[24px] border border-slate-200 p-4 shadow-sm">
+    <div className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{label}</div>
     <div className="mt-2 text-xl font-black tracking-tight text-slate-950 dark:text-white">{value}</div>
   </div>;
 }
@@ -88,60 +88,60 @@ function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
 
-  return <div className="space-y-3 rounded-[1.5rem] border border-blue-100/80 bg-white/95 p-4 shadow-sm shadow-blue-950/5 dark:border-slate-700 dark:bg-slate-900/95 dark:shadow-black/20">
+  return <div className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm space-y-3">
     <button onClick={() => setOpen(value => !value)} className="w-full text-left flex items-start justify-between gap-3">
       <div>
         <div className="font-black text-orange-600">{order.orderNumber}</div>
-        <div className="font-black text-slate-950 dark:text-white">{order.offer.request.partName}</div>
-        <div className="text-xs text-slate-400 dark:text-slate-500">{t('created')}: {toDateInputValue(order.createdAt) || t('notAvailable')}</div>
-        <div className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('supplier')}: {order.offer.supplier.name}</div>
-        <div className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('customerPhone')}: {order.offer.request.customerPhone || t('notAvailable')}</div>
+        <div className="font-black text-slate-950">{order.offer.request.partName}</div>
+        <div className="text-xs text-slate-400">{t('created')}: {toDateInputValue(order.createdAt) || t('notAvailable')}</div>
+        <div className="text-xs text-slate-500">{t('supplier')}: {order.offer.supplier.name}</div>
+        <div className="text-xs text-slate-500">{t('customerPhone')}: {order.offer.request.customerPhone || t('notAvailable')}</div>
       </div>
 
       <div className="text-right">
         <StatusBadge status={order.status} />
-        <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-2">{open ? t('hide') : t('details')}</div>
+        <div className="text-[10px] text-slate-400 mt-2">{open ? t('hide') : t('details')}</div>
       </div>
     </button>
 
     {open && <>
       <div className="space-y-2 text-xs">
-        <div className="space-y-1 rounded-2xl bg-blue-50/70 p-3 dark:bg-slate-800/80">
-          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('partDetails')}</div>
-          <div className="font-bold text-slate-800 dark:text-slate-100">{order.offer.request.partName}</div>
-          <div className="text-slate-500 dark:text-slate-400 dark:text-slate-500">{order.offer.request.origin} / {order.offer.request.make} / {order.offer.request.model} / {order.offer.request.year}</div>
-          <div className="text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('condition')}: {order.offer.condition === 'NEW' ? t('new') : t('used')}</div>
+        <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{t('partDetails')}</div>
+          <div className="font-bold text-slate-700">{order.offer.request.partName}</div>
+          <div className="text-slate-500">{order.offer.request.origin} / {order.offer.request.make} / {order.offer.request.model} / {order.offer.request.year}</div>
+          <div className="text-slate-500">{t('condition')}: {order.offer.condition === 'NEW' ? t('new') : t('used')}</div>
         </div>
 
-        <div className="space-y-1 rounded-2xl bg-blue-50/70 p-3 dark:bg-slate-800/80">
-          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('customer')}</div>
-          <div className="text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('customerPhone')}: {order.offer.request.customerPhone || t('notAvailable')}</div>
-          <div className="text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('location')}: {order.offer.request.location || t('notAvailable')}</div>
+        <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{t('customer')}</div>
+          <div className="text-slate-500">{t('customerPhone')}: {order.offer.request.customerPhone || t('notAvailable')}</div>
+          <div className="text-slate-500">{t('location')}: {order.offer.request.location || t('notAvailable')}</div>
         </div>
 
-        <div className="space-y-1 rounded-2xl bg-blue-50/70 p-3 dark:bg-slate-800/80">
-          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('supplier')}</div>
-          <div className="font-bold text-slate-800 dark:text-slate-100">{order.offer.supplier.name}</div>
+        <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{t('supplier')}</div>
+          <div className="font-bold text-slate-700">{order.offer.supplier.name}</div>
           {user?.role === 'SUPER_ADMIN' && (
             <div className="grid grid-cols-1 gap-1 pt-1">
-              <div className="text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('supplier')}: {formatIQD(order.supplierPrice)}</div>
-              <div className="text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('customer')}: {formatIQD(order.customerPrice)}</div>
-              <div className="text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('revenue')}: {formatIQD(order.platformRevenue)}</div>
+              <div className="text-slate-500">{t('supplier')}: {formatIQD(order.supplierPrice)}</div>
+              <div className="text-slate-500">{t('customer')}: {formatIQD(order.customerPrice)}</div>
+              <div className="text-slate-500">{t('revenue')}: {formatIQD(order.platformRevenue)}</div>
             </div>
           )}
         </div>
 
-        <div className="space-y-1 rounded-2xl bg-blue-50/70 p-3 dark:bg-slate-800/80">
-          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('payment')}</div>
-          <div className="text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('payment')}: {paymentMethodLabel(order.paymentMethod, t)}</div>
-          <div className="text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('status')}: {paymentStatusLabel(order.paymentStatus, t)}</div>
+        <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{t('payment')}</div>
+          <div className="text-slate-500">{t('payment')}: {paymentMethodLabel(order.paymentMethod, t)}</div>
+          <div className="text-slate-500">{t('status')}: {paymentStatusLabel(order.paymentStatus, t)}</div>
         </div>
 
-        <div className="space-y-1 rounded-2xl bg-blue-50/70 p-3 dark:bg-slate-800/80">
-          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('delivery')}</div>
-          <div className="text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('delivery')}: {formatIQD(order.deliveryFee)}</div>
-          <div className="text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('driver')}: {order.driverName || t('notAssigned')}</div>
-          <div className="text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('deliveryEta')}: {order.deliveryEta || t('pending')}</div>
+        <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{t('delivery')}</div>
+          <div className="text-slate-500">{t('delivery')}: {formatIQD(order.deliveryFee)}</div>
+          <div className="text-slate-500">{t('driver')}: {order.driverName || t('notAssigned')}</div>
+          <div className="text-slate-500">{t('deliveryEta')}: {order.deliveryEta || t('pending')}</div>
         </div>
       </div>
 
@@ -198,19 +198,23 @@ export default function Admin({ tab, setTab }) {
   useEffect(() => { load(); }, []);
 
   if (error) return <div className="p-4 text-red-600 text-sm">{error}</div>;
-  if (!data) return <div className="p-4 text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('loadingDashboard')}</div>;
+  if (!data) return <div className="p-4 text-slate-500">{t('loadingDashboard')}</div>;
 
   if (user?.role === 'ADMIN' && user?.adminPermission === 'ORDERS_ONLY' && tab !== 'orders') {
-    return <div className="p-4 text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('ordersOnlyAdminAccess')}</div>;
+    return <div className="p-4 text-slate-500">{t('ordersOnlyAdminAccess')}</div>;
   }
 
   if (tab === 'manage') {
     if (user?.role !== 'SUPER_ADMIN') return <div className="p-4 text-red-600 text-sm">{t('superAdminOnlyUsers')}</div>;
 
     return <div className="p-4 space-y-4">
-      <div className="rounded-[1.6rem] bg-gradient-to-br from-blue-700 via-blue-600 to-slate-900 p-5 text-white shadow-lg shadow-blue-950/20">
-      <div className="text-xs font-bold uppercase tracking-[0.2em] text-blue-100/80">{t('users')}</div>
+      <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
+      <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
+      <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/10 pointer-events-none" />
+      <div className="relative">
+      <div className="text-xs font-bold text-white/70">{t('users')}</div>
       <h1 className="mt-1 text-2xl font-black tracking-tight">{t('adminUsers')}</h1>
+      </div>
     </div>
       <SuperAdminEnroll token={token} />
     </div>;
@@ -218,9 +222,13 @@ export default function Admin({ tab, setTab }) {
 
   if (tab === 'audit') {
     return <div className="p-4 space-y-4">
-      <div className="rounded-[1.6rem] bg-gradient-to-br from-blue-700 via-blue-600 to-slate-900 p-5 text-white shadow-lg shadow-blue-950/20">
-      <div className="text-xs font-bold uppercase tracking-[0.2em] text-blue-100/80">{t('audit')}</div>
+      <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
+      <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
+      <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/10 pointer-events-none" />
+      <div className="relative">
+      <div className="text-xs font-bold text-white/70">{t('audit')}</div>
       <h1 className="mt-1 text-2xl font-black tracking-tight">{t('auditLogs')}</h1>
+      </div>
     </div>
       <AuditLogViewer token={token} />
     </div>;
@@ -228,9 +236,13 @@ export default function Admin({ tab, setTab }) {
 
   if (tab === 'more') {
     return <div className="p-4 space-y-4">
-      <div className="rounded-[1.6rem] bg-gradient-to-br from-blue-700 via-blue-600 to-slate-900 p-5 text-white shadow-lg shadow-blue-950/20">
-      <div className="text-xs font-bold uppercase tracking-[0.2em] text-blue-100/80">{t('adminDashboard')}</div>
+      <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
+      <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
+      <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/10 pointer-events-none" />
+      <div className="relative">
+      <div className="text-xs font-bold text-white/70">{t('adminDashboard')}</div>
       <h1 className="mt-1 text-2xl font-black tracking-tight">{t('more')}</h1>
+      </div>
     </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -238,10 +250,10 @@ export default function Admin({ tab, setTab }) {
           onClick={() => setTab('audit')}
           className="bg-white rounded-3xl border p-4 shadow-sm text-left min-h-32 flex flex-col justify-between"
         >
-          <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center text-xl">🛡️</div>
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center text-xl">🛡️</div>
           <div>
-            <div className="font-black text-slate-950 dark:text-white">{t('auditLogs')}</div>
-            <div className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t('audit')}</div>
+            <div className="font-black text-slate-950">{t('auditLogs')}</div>
+            <div className="text-xs text-slate-400 mt-1">{t('audit')}</div>
           </div>
         </button>
 
@@ -252,8 +264,8 @@ export default function Admin({ tab, setTab }) {
           >
             <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center text-xl">👥</div>
             <div>
-              <div className="font-black text-slate-950 dark:text-white">{t('adminUsers')}</div>
-              <div className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t('users')}</div>
+              <div className="font-black text-slate-950">{t('adminUsers')}</div>
+              <div className="text-xs text-slate-400 mt-1">{t('users')}</div>
             </div>
           </button>
         )}
@@ -263,31 +275,35 @@ export default function Admin({ tab, setTab }) {
 
   if (tab === 'suppliers') {
     return <div className="p-4 space-y-4">
-      <div className="rounded-[1.6rem] bg-gradient-to-br from-blue-700 via-blue-600 to-slate-900 p-5 text-white shadow-lg shadow-blue-950/20">
-      <div className="text-xs font-bold uppercase tracking-[0.2em] text-blue-100/80">{t('adminDashboard')}</div>
+      <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
+      <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
+      <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/10 pointer-events-none" />
+      <div className="relative">
+      <div className="text-xs font-bold text-white/70">{t('adminDashboard')}</div>
       <h1 className="mt-1 text-2xl font-black tracking-tight">{t('suppliers')}</h1>
+      </div>
     </div>
 
-      <div className="space-y-4 rounded-[1.5rem] border border-blue-100/80 bg-white/95 p-4 shadow-sm shadow-blue-950/5 dark:border-slate-700 dark:bg-slate-900/95 dark:shadow-black/20">
+      <div className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm space-y-4">
         <div>
-          <div className="font-black text-slate-950 dark:text-white">{t('addSupplier')}</div>
-          <div className="text-xs text-slate-400 dark:text-slate-500">{t('addSupplierHint')}</div>
+          <div className="font-black text-slate-950">{t('addSupplier')}</div>
+          <div className="text-xs text-slate-400">{t('addSupplierHint')}</div>
         </div>
 
-        <div className="space-y-2 rounded-2xl bg-blue-50/70 p-3 dark:bg-slate-800/80">
-          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('supplierDetails')}</div>
-          <input className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20" placeholder={t('supplierName')} value={supplierForm.name} onChange={e => setSupplierForm({ ...supplierForm, name: e.target.value })} />
-          <input className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20" placeholder={t('phone')} value={supplierForm.phone} onChange={e => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
-          <input className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20" placeholder={t('location')} value={supplierForm.location} onChange={e => setSupplierForm({ ...supplierForm, location: e.target.value })} />
+        <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-2">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{t('supplierDetails')}</div>
+          <input className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" placeholder={t('supplierName')} value={supplierForm.name} onChange={e => setSupplierForm({ ...supplierForm, name: e.target.value })} />
+          <input className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" placeholder={t('phone')} value={supplierForm.phone} onChange={e => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
+          <input className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" placeholder={t('location')} value={supplierForm.location} onChange={e => setSupplierForm({ ...supplierForm, location: e.target.value })} />
         </div>
 
-        <div className="space-y-2 rounded-2xl bg-blue-50/70 p-3 dark:bg-slate-800/80">
+        <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-2">
           <div className="flex items-center justify-between gap-2">
             <div>
-              <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500">{t('supportedMakes')}</div>
-              <div className="text-[10px] text-slate-400 dark:text-slate-500">{t('supportedMakesHint')}</div>
+              <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{t('supportedMakes')}</div>
+              <div className="text-[10px] text-slate-400">{t('supportedMakesHint')}</div>
             </div>
-            <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500">
+            <div className="text-[10px] font-bold text-slate-500">
               {supplierForm.supportedMakes.length} / {Object.keys(carData).length}
             </div>
           </div>
@@ -303,7 +319,7 @@ export default function Admin({ tab, setTab }) {
           </div>
         </div>
 
-        <button onClick={addSupplier} disabled={!supplierForm.name || !supplierForm.phone || !supplierForm.location} className="w-full py-3 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/20 font-black disabled:opacity-40">
+        <button onClick={addSupplier} disabled={!supplierForm.name || !supplierForm.phone || !supplierForm.location} className="w-full py-3 rounded-2xl bg-[#27439C] text-white shadow-sm font-black disabled:opacity-40">
           {t('addSupplier')}
         </button>
       </div>
@@ -315,9 +331,13 @@ export default function Admin({ tab, setTab }) {
 
   if (tab === 'settlements') {
     return <div className="p-4 space-y-4">
-      <div className="rounded-[1.6rem] bg-gradient-to-br from-blue-700 via-blue-600 to-slate-900 p-5 text-white shadow-lg shadow-blue-950/20">
-      <div className="text-xs font-bold uppercase tracking-[0.2em] text-blue-100/80">{t('suppliers')}</div>
+      <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
+      <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
+      <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/10 pointer-events-none" />
+      <div className="relative">
+      <div className="text-xs font-bold text-white/70">{t('suppliers')}</div>
       <h1 className="mt-1 text-2xl font-black tracking-tight">{t('supplierSettlements')}</h1>
+      </div>
     </div>
       <AdminPayoutManager token={token} />
     </div>;
@@ -338,30 +358,34 @@ export default function Admin({ tab, setTab }) {
       });
 
     return <div className="p-4 space-y-3">
-      <div className="rounded-[1.6rem] bg-gradient-to-br from-blue-700 via-blue-600 to-slate-900 p-5 text-white shadow-lg shadow-blue-950/20">
-      <div className="text-xs font-bold uppercase tracking-[0.2em] text-blue-100/80">{t('adminDashboard')}</div>
+      <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
+      <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
+      <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/10 pointer-events-none" />
+      <div className="relative">
+      <div className="text-xs font-bold text-white/70">{t('adminDashboard')}</div>
       <h1 className="mt-1 text-2xl font-black tracking-tight">{t('allOrders')}</h1>
+      </div>
     </div>
 
       <div className="grid grid-cols-4 gap-2">
-        <button onClick={() => setStatusFilter('ALL')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'ALL' ? 'bg-slate-900 text-white' : 'bg-white border text-slate-600'}`}>
+        <button onClick={() => setStatusFilter('ALL')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'ALL' ? 'bg-[#27439C] text-white shadow-sm' : 'bg-white border text-slate-600'}`}>
           {t('all')}
         </button>
-        <button onClick={() => setStatusFilter('OPEN')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'OPEN' ? 'bg-blue-600 text-white' : 'bg-white border text-slate-600'}`}>
+        <button onClick={() => setStatusFilter('OPEN')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'OPEN' ? 'bg-[#27439C] text-white shadow-sm' : 'bg-white border text-slate-600'}`}>
           {t('activeOrders')}
         </button>
-        <button onClick={() => setStatusFilter('COMPLETED')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'COMPLETED' ? 'bg-green-600 text-white' : 'bg-white border text-slate-600'}`}>
+        <button onClick={() => setStatusFilter('COMPLETED')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'COMPLETED' ? 'bg-[#27439C] text-white shadow-sm' : 'bg-white border text-slate-600'}`}>
           {t('completed')}
         </button>
-        <button onClick={() => setStatusFilter('CANCELLED')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'CANCELLED' ? 'bg-red-600 text-white' : 'bg-white border text-slate-600'}`}>
+        <button onClick={() => setStatusFilter('CANCELLED')} className={`py-2 rounded-xl text-[11px] font-bold ${statusFilter === 'CANCELLED' ? 'bg-[#27439C] text-white shadow-sm' : 'bg-white border text-slate-600'}`}>
           {t('cancelled')}
         </button>
       </div>
 
-      <div className="space-y-2 rounded-[1.5rem] border border-blue-100/80 bg-white/95 p-3 shadow-sm shadow-blue-950/5 dark:border-slate-700 dark:bg-slate-900/95">
-        <input className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20" placeholder={t('searchOrderPartSupplier')} value={orderSearch} onChange={e => setOrderSearch(e.target.value)} />
+      <div className="bg-white rounded-[24px] border border-slate-200 p-3 shadow-sm space-y-2">
+        <input className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" placeholder={t('searchOrderPartSupplier')} value={orderSearch} onChange={e => setOrderSearch(e.target.value)} />
 
-        <select className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+        <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
           <option value="ALL">{t('allStatuses')}</option>
           <option value="OPEN">{t('activeOrders')}</option>
           <option value="WAITING_PICKUP">{t('waitingPickup')}</option>
@@ -370,7 +394,7 @@ export default function Admin({ tab, setTab }) {
           <option value="CANCELLED">{t('cancelled')}</option>
         </select>
 
-        <select className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20" value={paymentStatusFilter} onChange={e => setPaymentStatusFilter(e.target.value)}>
+        <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" value={paymentStatusFilter} onChange={e => setPaymentStatusFilter(e.target.value)}>
           <option value="ALL">{t('allPayments')}</option>
           <option value="PENDING">{t('pending')}</option>
           <option value="PAID">{t('paid')}</option>
@@ -379,11 +403,11 @@ export default function Admin({ tab, setTab }) {
         </select>
 
         <div className="grid grid-cols-1 gap-2">
-          <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 space-y-1">
+          <label className="text-[10px] font-bold text-slate-500 space-y-1">
             {t('from')}
             <input type="date" className="w-full min-w-0 rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
           </label>
-          <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 space-y-1">
+          <label className="text-[10px] font-bold text-slate-500 space-y-1">
             {t('to')}
             <input type="date" className="w-full min-w-0 rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20" value={dateTo} onChange={e => setDateTo(e.target.value)} />
           </label>
@@ -393,19 +417,23 @@ export default function Admin({ tab, setTab }) {
           {t('clearFilters')}
         </button>}
 
-        <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold">{t('showing')} {filteredOrders.length} {t('of')} {data.orders.length} {t('orders').toLowerCase()}</div>
+        <div className="text-[10px] text-slate-400 font-bold">{t('showing')} {filteredOrders.length} {t('of')} {data.orders.length} {t('orders').toLowerCase()}</div>
       </div>
 
-      {filteredOrders.length === 0 && <div className="bg-white border border-dashed rounded-2xl p-6 text-center text-sm text-slate-400 dark:text-slate-500">{t('noMatchingOrders')}</div>}
+      {filteredOrders.length === 0 && <div className="bg-white border border-dashed rounded-2xl p-6 text-center text-sm text-slate-400">{t('noMatchingOrders')}</div>}
 
       {filteredOrders.map(order => <AdminOrderCard key={order.id} order={order} user={user} updatingOrderId={updatingOrderId} changeOrderStatus={changeOrderStatus} token={token} reload={load} />)}
     </div>;
   }
 
   return <div className="p-4 space-y-4">
-    <div className="rounded-[1.8rem] bg-gradient-to-br from-blue-700 via-blue-600 to-slate-900 p-5 text-white shadow-lg shadow-blue-950/20">
-      <div className="text-xs font-bold uppercase tracking-[0.22em] text-blue-100/80">{t('platformOverview')}</div>
+    <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
+      <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
+      <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/10 pointer-events-none" />
+      <div className="relative">
+      <div className="text-xs font-bold text-white/70">{t('platformOverview')}</div>
       <div className="mt-1 text-2xl font-black tracking-tight">{t('adminDashboard')}</div>
+      </div>
     </div>
 
     <div className="grid grid-cols-2 gap-3">
@@ -424,7 +452,7 @@ export default function Admin({ tab, setTab }) {
       )}
     </div>
 
-    <h2 className="font-black text-slate-950 dark:text-white">{t('suppliers')}</h2>
+    <h2 className="font-black text-slate-950">{t('suppliers')}</h2>
     <AdminSupplierList suppliers={data.suppliers.slice(0, 3)} token={token} reload={load} />
   </div>;
 }

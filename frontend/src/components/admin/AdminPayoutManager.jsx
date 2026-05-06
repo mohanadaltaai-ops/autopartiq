@@ -55,16 +55,16 @@ function PayoutCard({ payout, token, reload }) {
     }
   }
 
-  return <div className="space-y-3 rounded-[1.5rem] border border-blue-100/80 bg-white/95 p-4 shadow-sm shadow-blue-950/5 dark:border-slate-700 dark:bg-slate-900/95 dark:shadow-black/20">
+  return <div className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm space-y-3">
     <button onClick={() => setOpen(value => !value)} className="w-full text-left flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <div className="font-black text-slate-950 dark:text-white">{supplierName}</div>
-        <div className="text-xs text-slate-500 dark:text-slate-400">{orderNumber} • {partName}</div>
-        <div className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">{new Date(payout.createdAt).toLocaleString()}</div>
+        <div className="font-black text-slate-950">{supplierName}</div>
+        <div className="text-xs text-slate-500">{orderNumber} • {partName}</div>
+        <div className="mt-1 text-[11px] text-slate-400">{new Date(payout.createdAt).toLocaleString()}</div>
       </div>
 
       <div className="text-right shrink-0">
-        <div className="font-black text-slate-950 dark:text-white">{formatIQD(payout.amount)}</div>
+        <div className="font-black text-slate-950">{formatIQD(payout.amount)}</div>
         <div className={`inline-flex mt-1 px-2 py-1 rounded-full border text-[10px] font-black ${statusClass(payout.status)}`}>
           {t(`payoutStatus${payout.status}`)}
         </div>
@@ -73,36 +73,36 @@ function PayoutCard({ payout, token, reload }) {
 
     {open && <div className="border-t pt-3 space-y-3">
       <div className="grid grid-cols-2 gap-2 text-xs">
-        <div className="rounded-2xl bg-blue-50/70 p-3 dark:bg-slate-800/80">
-          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{t('payoutMethod')}</div>
-          <div className="font-bold text-slate-800 dark:text-slate-100">{payout.method || 'MANUAL'}</div>
+        <div className="bg-slate-50 border border-slate-100 rounded-[18px] p-3">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{t('payoutMethod')}</div>
+          <div className="font-bold text-slate-700">{payout.method || 'MANUAL'}</div>
         </div>
-        <div className="rounded-2xl bg-blue-50/70 p-3 dark:bg-slate-800/80">
-          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{t('payoutReference')}</div>
-          <div className="font-bold text-slate-800 dark:text-slate-100 break-all">{payout.reference || '-'}</div>
+        <div className="bg-slate-50 border border-slate-100 rounded-[18px] p-3">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{t('payoutReference')}</div>
+          <div className="font-bold text-slate-700 break-all">{payout.reference || '-'}</div>
         </div>
-        <div className="rounded-2xl bg-blue-50/70 p-3 dark:bg-slate-800/80">
-          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{t('paidAt')}</div>
-          <div className="font-bold text-slate-800 dark:text-slate-100">{payout.paidAt ? new Date(payout.paidAt).toLocaleString() : '-'}</div>
+        <div className="bg-slate-50 border border-slate-100 rounded-[18px] p-3">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{t('paidAt')}</div>
+          <div className="font-bold text-slate-700">{payout.paidAt ? new Date(payout.paidAt).toLocaleString() : '-'}</div>
         </div>
-        <div className="rounded-2xl bg-blue-50/70 p-3 dark:bg-slate-800/80">
-          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{t('orderStatus')}</div>
-          <div className="font-bold text-slate-800 dark:text-slate-100">{payout.order?.status || '-'}</div>
+        <div className="bg-slate-50 border border-slate-100 rounded-[18px] p-3">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{t('orderStatus')}</div>
+          <div className="font-bold text-slate-700">{payout.order?.status || '-'}</div>
         </div>
       </div>
 
       {payout.notes && <div className="rounded-2xl bg-blue-50/70 p-3 text-xs text-slate-600 dark:bg-slate-800/80 dark:text-slate-300">
-        <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500 mb-1">{t('notes')}</div>
+        <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 mb-1">{t('notes')}</div>
         {payout.notes}
       </div>}
 
       {payout.status === 'PENDING' && <div className="space-y-2">
-        <select className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20" value={form.method} onChange={e => setForm({ ...form, method: e.target.value })}>
+        <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" value={form.method} onChange={e => setForm({ ...form, method: e.target.value })}>
           {METHODS.map(method => <option key={method} value={method}>{method}</option>)}
         </select>
 
-        <input className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20" placeholder={t('payoutReferencePlaceholder')} value={form.reference} onChange={e => setForm({ ...form, reference: e.target.value })} />
-        <textarea className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20" placeholder={t('notes')} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
+        <input className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" placeholder={t('payoutReferencePlaceholder')} value={form.reference} onChange={e => setForm({ ...form, reference: e.target.value })} />
+        <textarea className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" placeholder={t('notes')} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
 
         <div className="grid grid-cols-2 gap-2">
           <button disabled={saving} onClick={markPaid} className="rounded-xl bg-emerald-600 py-2 text-xs font-black text-white disabled:opacity-40">
@@ -183,41 +183,41 @@ export default function AdminPayoutManager({ token }) {
 
   return <div className="space-y-4">
     <div className="grid grid-cols-2 gap-3">
-      <div className="rounded-[1.35rem] border border-blue-100/80 bg-white/95 p-4 shadow-sm shadow-blue-950/5 dark:border-slate-700 dark:bg-slate-900/95">
-        <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{t('pendingAmount')}</div>
-        <div className="font-black text-slate-950 dark:text-white mt-1">{formatIQD(summary?.pendingAmount || 0)}</div>
+      <div className="bg-white rounded-[24px] border border-slate-200 p-4 shadow-sm">
+        <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{t('pendingAmount')}</div>
+        <div className="font-black text-slate-950 mt-1">{formatIQD(summary?.pendingAmount || 0)}</div>
       </div>
-      <div className="rounded-[1.35rem] border border-blue-100/80 bg-white/95 p-4 shadow-sm shadow-blue-950/5 dark:border-slate-700 dark:bg-slate-900/95">
-        <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{t('paidAmount')}</div>
-        <div className="font-black text-slate-950 dark:text-white mt-1">{formatIQD(summary?.paidAmount || 0)}</div>
+      <div className="bg-white rounded-[24px] border border-slate-200 p-4 shadow-sm">
+        <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{t('paidAmount')}</div>
+        <div className="font-black text-slate-950 mt-1">{formatIQD(summary?.paidAmount || 0)}</div>
       </div>
-      <div className="rounded-[1.35rem] border border-blue-100/80 bg-white/95 p-4 shadow-sm shadow-blue-950/5 dark:border-slate-700 dark:bg-slate-900/95">
-        <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{t('pendingCount')}</div>
-        <div className="font-black text-slate-950 dark:text-white mt-1">{summary?.pendingCount || 0}</div>
+      <div className="bg-white rounded-[24px] border border-slate-200 p-4 shadow-sm">
+        <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{t('pendingCount')}</div>
+        <div className="font-black text-slate-950 mt-1">{summary?.pendingCount || 0}</div>
       </div>
-      <div className="rounded-[1.35rem] border border-blue-100/80 bg-white/95 p-4 shadow-sm shadow-blue-950/5 dark:border-slate-700 dark:bg-slate-900/95">
-        <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{t('paidCount')}</div>
-        <div className="font-black text-slate-950 dark:text-white mt-1">{summary?.paidCount || 0}</div>
+      <div className="bg-white rounded-[24px] border border-slate-200 p-4 shadow-sm">
+        <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{t('paidCount')}</div>
+        <div className="font-black text-slate-950 mt-1">{summary?.paidCount || 0}</div>
       </div>
     </div>
 
     <div className="grid grid-cols-4 gap-2">
       {['ALL', 'PENDING', 'PAID', 'CANCELLED'].map(status => (
-        <button key={t(`payoutFilter${status}`)} onClick={() => setStatusFilter(status)} className={`py-2 rounded-xl text-[10px] font-black ${statusFilter === status ? 'bg-slate-900 text-white' : 'bg-white border text-slate-600'}`}>
+        <button key={t(`payoutFilter${status}`)} onClick={() => setStatusFilter(status)} className={`py-2 rounded-xl text-[10px] font-black ${statusFilter === status ? 'bg-[#27439C] text-white shadow-sm' : 'bg-white border text-slate-600'}`}>
           {t(`payoutFilter${status}`)}
         </button>
       ))}
     </div>
 
-    <div className="space-y-2 rounded-[1.35rem] border border-blue-100/80 bg-white/95 p-3 shadow-sm shadow-blue-950/5 dark:border-slate-700 dark:bg-slate-900/95">
+    <div className="bg-white rounded-[24px] border border-slate-200 p-3 shadow-sm space-y-2">
       <input
-        className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20"
+        className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
         placeholder={t('searchSupplierOrderPart')}
         value={supplierSearch}
         onChange={e => setSupplierSearch(e.target.value)}
       />
 
-      <select className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20" value={supplierFilter} onChange={e => setSupplierFilter(e.target.value)}>
+      <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" value={supplierFilter} onChange={e => setSupplierFilter(e.target.value)}>
         <option value="ALL">{t('allSuppliers')}</option>
         {supplierOptions.map(([supplierId, supplierName]) => (
           <option key={supplierId} value={supplierId}>{supplierName}</option>

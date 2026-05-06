@@ -71,14 +71,14 @@ export default function Layout({ tab, setTab, children }) {
   const roleColor = {
     CUSTOMER: 'text-orange-600',
     SUPPLIER: 'text-blue-600',
-    ADMIN: 'text-purple-600',
-    SUPER_ADMIN: 'text-red-600'
+    ADMIN: 'text-blue-600',
+    SUPER_ADMIN: 'text-blue-600'
   }[user?.role] || 'text-slate-800';
 
   const activeColor = user?.role === 'SUPPLIER'
     ? 'text-blue-600'
     : ['ADMIN', 'SUPER_ADMIN'].includes(user?.role)
-      ? 'text-purple-600'
+      ? 'text-blue-600'
       : 'text-orange-600';
 
   const roleLabel =
@@ -172,7 +172,7 @@ export default function Layout({ tab, setTab, children }) {
             </button>
           )}
 
-          <button onClick={() => setTab('profile')} className={`w-10 h-10 rounded-2xl border flex items-center justify-center shadow-sm transition ${tab === 'profile' ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-600 border-slate-200'}`} title={t('profile')}>
+          <button onClick={() => setTab('profile')} className={`w-10 h-10 rounded-2xl border flex items-center justify-center shadow-sm transition ${tab === 'profile' ? 'bg-[#27439C] text-white border-[#27439C]' : 'bg-slate-50 text-slate-600 border-slate-200'}`} title={t('profile')}>
             <User size={18}/>
             <span className="sr-only">{t('profile')}</span>
           </button>
@@ -213,7 +213,7 @@ export default function Layout({ tab, setTab, children }) {
 
       <nav className="shrink-0 bg-white/95 backdrop-blur border-t border-slate-200 px-2 pt-2 pb-3 flex gap-1 overflow-x-auto">
         {tabs.map(([id, Icon, label]) => (
-          <button key={id} onClick={() => setTab(id)} className={`min-w-[64px] flex-1 py-2.5 px-2 rounded-2xl text-[10px] font-black flex flex-col items-center gap-1 transition ${tab === id ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-50'}`}>
+          <button key={id} onClick={() => setTab(id)} className={`min-w-[64px] flex-1 py-2.5 px-2 rounded-2xl text-[10px] font-black flex flex-col items-center gap-1 transition ${tab === id ? 'bg-blue-50 text-[#27439C] shadow-sm border border-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}>
             <Icon size={18}/>
             <span className="leading-tight">{label}</span>
           </button>

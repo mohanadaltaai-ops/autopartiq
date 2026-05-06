@@ -50,11 +50,11 @@ export default function SuperAdminEnroll({ token }) {
   }
 
   return (
-    <div className="space-y-3 rounded-[1.5rem] border border-blue-100/80 bg-white/95 p-4 shadow-sm shadow-blue-950/5 dark:border-slate-700 dark:bg-slate-900/95 dark:shadow-black/20">
-      <h2 className="font-black text-slate-950 dark:text-white">{t('createAdminUser')}</h2>
+    <div className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm space-y-3">
+      <h2 className="font-black text-slate-950">{t('createAdminUser')}</h2>
 
       <select
-        className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20"
+        className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
         value={form.role}
         onChange={e =>
           setForm({
@@ -70,7 +70,7 @@ export default function SuperAdminEnroll({ token }) {
 
       {form.role === 'ADMIN' && (
         <select
-          className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20"
+          className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
           value={form.adminPermission}
           onChange={e => setForm({ ...form, adminPermission: e.target.value })}
         >
@@ -80,27 +80,27 @@ export default function SuperAdminEnroll({ token }) {
       )}
 
       <input
-        className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20"
+        className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
         placeholder={t('fullName')}
         value={form.name}
         onChange={e => setForm({ ...form, name: e.target.value })}
       />
 
       <input
-        className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20"
+        className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
         placeholder={t('phoneNumberForLogin')}
         value={form.phone}
         onChange={e => setForm({ ...form, phone: e.target.value })}
       />
 
       <input
-        className="w-full rounded-2xl border border-blue-100 bg-white p-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-500/20"
+        className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
         placeholder={t('email')}
         value={form.email}
         onChange={e => setForm({ ...form, email: e.target.value })}
       />
 
-      <div className="rounded-2xl bg-blue-50/70 p-3 text-xs font-semibold text-slate-500 dark:bg-slate-800/80 dark:text-slate-400">
+      <div className="rounded-2xl bg-slate-50 p-3 text-xs font-semibold text-slate-500">
         {t('adminPhoneLoginNote')}
       </div>
 
@@ -110,7 +110,7 @@ export default function SuperAdminEnroll({ token }) {
       <button
         onClick={submit}
         disabled={saving || !form.name.trim() || !form.phone.trim()}
-        className="w-full rounded-2xl bg-blue-600 py-3 font-black text-white shadow-lg shadow-blue-600/20 disabled:opacity-40"
+        className="w-full py-3 rounded-2xl bg-[#27439C] text-white font-black disabled:opacity-40"
       >
         {saving ? t('saving') : t('createUser')}
       </button>

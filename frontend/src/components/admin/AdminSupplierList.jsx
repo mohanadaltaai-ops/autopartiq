@@ -6,7 +6,7 @@ export default function AdminSupplierList({ suppliers, token, reload }) {
   const { t } = useLanguage();
 
   if (!suppliers.length) {
-    return <div className="rounded-[1.5rem] border border-dashed border-blue-200 bg-white/80 p-6 text-center text-sm font-bold text-slate-400 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-500">{t('noSuppliersYet')}</div>;
+    return <div className="bg-white rounded-[28px] border border-dashed border-slate-200 p-6 text-center shadow-sm text-sm font-bold text-slate-500">{t('noSuppliersYet')}</div>;
   }
 
   return (
