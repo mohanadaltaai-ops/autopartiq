@@ -265,6 +265,7 @@ select:disabled {
   border-color: var(--apiq-hairline) !important;
 }
 
+.dark .text-slate-950,
 .dark .text-slate-900,
 .dark .text-slate-800,
 .dark .text-slate-700 {

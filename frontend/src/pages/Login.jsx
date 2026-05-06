@@ -95,16 +95,23 @@ export default function Login() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="apiq-card-muted p-4">
-                  <div className="text-[11px] font-black uppercase tracking-wide text-orange-600">Offers</div>
-                  <div className="text-2xl font-black text-slate-900 mt-1">12</div>
-                  <div className="text-[11px] font-bold text-slate-500 mt-1">Active today</div>
+              <div className="apiq-card p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-[11px] font-black uppercase tracking-wide text-orange-600">Live Offers</div>
+                    <div className="text-xl font-black text-slate-900 mt-1">12 supplier offers</div>
+                    <div className="text-xs font-bold text-slate-500 mt-1">Best prices, delivery options, and verified sellers</div>
+                  </div>
+                  <div className="flex flex-col gap-2 items-end">
+                    <div className="apiq-chip apiq-status-info">IQD</div>
+                    <div className="apiq-chip">24/7</div>
+                  </div>
                 </div>
-                <div className="apiq-card-muted p-4">
-                  <div className="text-[11px] font-black uppercase tracking-wide text-blue-600">Suppliers</div>
-                  <div className="text-2xl font-black text-slate-900 mt-1">150+</div>
-                  <div className="text-[11px] font-bold text-slate-500 mt-1">Across العراق</div>
+
+                <div className="mt-4 flex gap-2 flex-wrap">
+                  <span className="apiq-chip">Fast quotes</span>
+                  <span className="apiq-chip">Trusted suppliers</span>
+                  <span className="apiq-chip">All in one place</span>
                 </div>
               </div>
             </div>
