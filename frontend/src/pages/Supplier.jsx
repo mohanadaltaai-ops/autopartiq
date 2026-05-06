@@ -701,25 +701,70 @@ function Lead({ req, token, reload, onSubmitted, existingCount, onToast }) {
     }
   }
 
+  const customerInitial = (req.customerName || req.customer?.name || req.customerPhone || req.partName || 'A').trim().slice(0, 1).toUpperCase();
+  const requestCode = req.requestNumber || req.code || `REQ-${String(req.id || '').slice(-4).toUpperCase()}`;
+  const requestAge = req.createdAt ? new Date(req.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
+  const budgetText = req.budgetMin || req.budgetMax
+    ? `${req.budgetMin ? formatIQD(req.budgetMin) : ''}${req.budgetMin && req.budgetMax ? ' - ' : ''}${req.budgetMax ? formatIQD(req.budgetMax) : ''}`
+    : '';
+  const hot = existingCount > 0 || req.priority === 'HOT';
+
   return (
-    <div className="bg-white rounded-[28px] border border-slate-200 p-4 space-y-3 shadow-sm">
-      <button type="button" onClick={() => setOpen(value => !value)} className="w-full text-left flex justify-between gap-3">
-        <div className="min-w-0">
-          <div className="inline-flex px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-[10px] font-black mb-2">
-            {existingCount ? `${existingCount} ${t('sentOffers')}` : t('open')}
-          </div>
-          <div className="font-black text-slate-950 text-lg leading-tight">{req.partName}</div>
-          <div className="text-xs text-slate-500 font-bold mt-1">{req.make} {req.model} ({req.year})</div>
-          <div className="text-[11px] text-slate-400 font-bold mt-2">{req.origin}</div>
+    <div className="bg-white rounded-[24px] border border-slate-200 p-3 space-y-3 shadow-sm">
+      <div className="flex items-start gap-3">
+        <div className="w-14 h-14 rounded-[18px] bg-slate-50 border border-slate-100 shrink-0 flex items-center justify-center overflow-hidden">
+          {requestPhotos[0] ? (
+            <ImagePreview src={requestPhotos[0]} alt="Request" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-11 h-11 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-[10px] font-black text-slate-300">
+              PART
+            </div>
+          )}
         </div>
 
-        <div className="text-right shrink-0">
-          <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 font-black">
-            {open ? '−' : '+'}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <div className="text-[10px] font-black text-slate-400 uppercase tracking-wide">
+                {requestCode} · {requestAge || t('open')}
+              </div>
+              <div className="font-black text-slate-950 leading-tight mt-1">{req.partName}</div>
+              <div className="text-xs text-slate-500 font-bold mt-1">
+                {req.make} {req.model} · {req.year || '-'}
+              </div>
+            </div>
+
+            {hot && (
+              <span className="shrink-0 rounded-full bg-orange-500 text-white text-[9px] font-black px-2 py-1">
+                HOT
+              </span>
+            )}
           </div>
-          <div className="text-[10px] text-slate-400 font-black mt-2">{open ? t('hide') : t('details')}</div>
+
+          <div className="flex flex-wrap gap-2 mt-2 text-[10px] font-black">
+            <span className="inline-flex items-center rounded-full bg-blue-50 text-blue-700 border border-blue-100 px-2 py-1">
+              {existingCount ? `${existingCount} ${t('sentOffers')}` : t('open')}
+            </span>
+            {budgetText && (
+              <span className="inline-flex items-center rounded-full bg-orange-50 text-orange-700 border border-orange-100 px-2 py-1">
+                {budgetText}
+              </span>
+            )}
+            <span className="inline-flex items-center rounded-full bg-slate-50 text-slate-500 border border-slate-100 px-2 py-1">
+              {req.origin}
+            </span>
+          </div>
         </div>
-      </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <button type="button" onClick={() => setOpen(value => !value)} className="py-3 rounded-2xl bg-white border border-slate-200 text-slate-700 text-xs font-black">
+          {open ? t('hide') : t('details')}
+        </button>
+        <button type="button" onClick={() => setOpen(true)} className="py-3 rounded-2xl bg-[#27439C] text-white text-xs font-black">
+          {t('sendOffer') || t('submitOfferItems')}
+        </button>
+      </div>
 
       {open && (
         <div className="space-y-3">

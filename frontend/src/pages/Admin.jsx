@@ -291,7 +291,7 @@ function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token
 
 export default function Admin({ tab, setTab }) {
   const { token, user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [supplierForm, setSupplierForm] = useState({ name: '', phone: '', location: '', supportedMakes: ['Japanese'] });
