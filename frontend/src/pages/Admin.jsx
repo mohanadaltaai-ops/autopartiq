@@ -100,6 +100,106 @@ function isDateInRange(value, fromDate, toDate) {
   return true;
 }
 
+function buildVolumeSeries(items, days = 14) {
+  const today = new Date();
+  const buckets = Array.from({ length: days }, (_, index) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() - (days - 1 - index));
+    const key = date.toISOString().slice(0, 10);
+    return { key, label: date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), count: 0 };
+  });
+
+  const map = new Map(buckets.map(item => [item.key, item]));
+
+  items.forEach(item => {
+    const key = item?.createdAt ? new Date(item.createdAt).toISOString().slice(0, 10) : '';
+    if (map.has(key)) map.get(key).count += 1;
+  });
+
+  return buckets;
+}
+
+function RequestVolumeChart({ orders, t }) {
+  const points = buildVolumeSeries(orders, 14);
+  const max = Math.max(...points.map(point => point.count), 1);
+  const width = 280;
+  const height = 92;
+  const xStep = width / Math.max(points.length - 1, 1);
+
+  const coordinates = points.map((point, index) => {
+    const x = index * xStep;
+    const y = height - 10 - ((point.count / max) * 62);
+    return { ...point, x, y };
+  });
+
+  const linePath = coordinates.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(' ');
+  const areaPath = `${linePath} L ${width} ${height} L 0 ${height} Z`;
+  const total = orders.length;
+  const average = Math.round(total / Math.max(points.length, 1));
+
+  return (
+    <div className="bg-white rounded-[30px] border border-slate-200 p-4 shadow-sm space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="font-black text-slate-950">{t('requestVolume') || 'Request volume'}</div>
+          <div className="text-xs text-slate-500 font-semibold mt-1">{t('last30Days') || 'Last 30 days'}</div>
+        </div>
+        <div className="text-right">
+          <div className="text-2xl font-black text-slate-950 tabular-nums">{total}</div>
+          <div className="text-[10px] text-green-600 font-black">+12%</div>
+        </div>
+      </div>
+
+      <div className="rounded-[24px] bg-slate-50 border border-slate-100 p-3">
+        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-28" role="img" aria-label="Request volume chart">
+          <defs>
+            <linearGradient id="adminVolumeFill" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#27439C" stopOpacity="0.20" />
+              <stop offset="100%" stopColor="#27439C" stopOpacity="0.02" />
+            </linearGradient>
+          </defs>
+
+          {[0, 1, 2].map(row => (
+            <line
+              key={row}
+              x1="0"
+              x2={width}
+              y1={18 + row * 24}
+              y2={18 + row * 24}
+              stroke="#E2E8F0"
+              strokeWidth="1"
+            />
+          ))}
+
+          <path d={areaPath} fill="url(#adminVolumeFill)" />
+          <path d={linePath} fill="none" stroke="#27439C" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+
+          {coordinates.map(point => (
+            <circle key={point.key} cx={point.x} cy={point.y} r="3.5" fill="#27439C" stroke="#FFFFFF" strokeWidth="2" />
+          ))}
+        </svg>
+
+        <div className="flex justify-between text-[9px] text-slate-400 font-black px-1">
+          <span>{points[0]?.label}</span>
+          <span>{points[Math.floor(points.length / 2)]?.label}</span>
+          <span>{points[points.length - 1]?.label}</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div className="rounded-[18px] bg-blue-50 border border-blue-100 p-3">
+          <div className="text-[9px] uppercase font-black text-blue-600">{t('average') || 'Average'}</div>
+          <div className="text-lg font-black text-slate-950 mt-1">{average}</div>
+        </div>
+        <div className="rounded-[18px] bg-green-50 border border-green-100 p-3">
+          <div className="text-[9px] uppercase font-black text-green-700">{t('completed') || 'Completed'}</div>
+          <div className="text-lg font-black text-slate-950 mt-1">{orders.filter(order => order.status === 'COMPLETED').length}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token, reload }) {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
@@ -434,6 +534,8 @@ export default function Admin({ tab, setTab }) {
           {t('showing')} {filteredOrders.length} {t('of')} {data.orders.length} {t('orders').toLowerCase()}
         </div>
       </div>
+
+      {user?.role === 'SUPER_ADMIN' && <RequestVolumeChart orders={data.orders} t={t} />}
 
       <div className="grid grid-cols-2 gap-2 bg-white rounded-[24px] border border-slate-200 p-2 shadow-sm">
         {statusFilters.map(([id, label]) => (
