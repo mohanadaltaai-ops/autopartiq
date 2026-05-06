@@ -356,12 +356,25 @@ export default function Admin({ tab, setTab }) {
           <div className="grid grid-cols-2 gap-2">
             {Object.keys(carData).map(origin => {
               const selected = supplierForm.supportedMakes.includes(origin);
+              const isDarkMode = localStorage.getItem('theme') === 'dark';
+              const originStyle = isDarkMode
+                ? {
+                    backgroundColor: selected ? '#1A2549' : '#101A33',
+                    borderColor: selected ? '#60A5FA' : '#334155',
+                    color: selected ? '#DBEAFE' : '#E2E8F0'
+                  }
+                : {
+                    backgroundColor: selected ? '#EEF4FF' : '#FFFFFF',
+                    borderColor: selected ? '#93C5FD' : '#E2E8F0',
+                    color: selected ? '#1D4ED8' : '#475569'
+                  };
+
               return (
-                <label key={origin} className={`text-xs rounded-2xl p-3 flex gap-2 items-center border transition ${
-                  selected
-                    ? '!bg-blue-50 !border-blue-200 !text-blue-700 font-black dark:!bg-[#1A2549] dark:!border-blue-400 dark:!text-blue-100'
-                    : '!bg-white !border-slate-200 !text-slate-600 font-bold dark:!bg-[#101A33] dark:!border-slate-700 dark:!text-slate-200'
-                }`}>
+                <label
+                  key={origin}
+                  style={originStyle}
+                  className="text-xs rounded-2xl p-3 flex gap-2 items-center border transition font-black"
+                >
                   <input type="checkbox" checked={selected} onChange={e => setSupplierForm(current => ({
                     ...current,
                     supportedMakes: e.target.checked ? [...current.supportedMakes, origin] : current.supportedMakes.filter(item => item !== origin)
