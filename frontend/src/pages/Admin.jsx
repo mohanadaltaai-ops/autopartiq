@@ -157,7 +157,7 @@ function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token
   </div>;
 }
 
-export default function Admin({ tab }) {
+export default function Admin({ tab, setTab }) {
   const { token, user } = useAuth();
   const { t } = useLanguage();
   const [data, setData] = useState(null);
@@ -248,17 +248,6 @@ export default function Admin({ tab }) {
             </div>
           </button>
         )}
-
-        <button
-          onClick={() => setTab('profile')}
-          className="bg-white rounded-3xl border p-4 shadow-sm text-left min-h-32 flex flex-col justify-between"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center text-xl">👤</div>
-          <div>
-            <div className="font-black text-slate-900">{t('profile')}</div>
-            <div className="text-xs text-slate-400 mt-1">{t('language')}</div>
-          </div>
-        </button>
       </div>
     </div>;
   }
