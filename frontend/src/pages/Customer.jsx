@@ -44,24 +44,30 @@ function OriginButton({ origin, data, selected, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-[26px] border p-4 text-left min-h-[132px] bg-white shadow-sm transition ${
-        selected ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200'
+      className={`relative text-left rounded-[24px] border p-4 transition-all shadow-sm ${
+        selected
+          ? 'bg-blue-50 border-blue-500 ring-2 ring-blue-200 shadow-md dark:bg-blue-950/40 dark:border-blue-400 dark:ring-blue-500/40'
+          : 'bg-white border-slate-200 hover:border-blue-200 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:hover:border-blue-500/40'
       }`}
     >
-      <div className="text-3xl">{data.emoji}</div>
-      <div className="font-black text-slate-950 mt-3">{origin}</div>
-      <div className="text-[11px] text-slate-400 font-bold mt-1 leading-4">{previewMakes}</div>
+      {selected && (
+        <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-blue-600 text-white text-[11px] font-black flex items-center justify-center shadow-sm">
+          ✓
+        </div>
+      )}
+
+      <div className={`text-xs font-black mb-2 ${selected ? 'text-blue-700 dark:text-blue-300' : 'text-slate-500 dark:text-slate-400'}`}>
+        {data.emoji} {origin}
+      </div>
+
+      <div className={`text-lg font-black leading-tight ${selected ? 'text-slate-950 dark:text-white' : 'text-slate-900 dark:text-slate-100'}`}>
+        {Object.keys(data.makes).length} {Object.keys(data.makes).length === 1 ? 'brand' : 'brands'}
+      </div>
+
+      <div className={`mt-2 text-xs leading-relaxed ${selected ? 'text-slate-700 dark:text-slate-200' : 'text-slate-500 dark:text-slate-400'}`}>
+        {previewMakes}
+      </div>
     </button>
-  );
-}
-
-
-function SummaryRow({ label, value }) {
-  return (
-    <div className="flex justify-between gap-3">
-      <span className="text-slate-400">{label}</span>
-      <strong className="text-slate-700 text-right">{value || '-'}</strong>
-    </div>
   );
 }
 
