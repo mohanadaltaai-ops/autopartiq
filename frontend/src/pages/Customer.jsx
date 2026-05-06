@@ -350,77 +350,123 @@ function RequestForm({ token, onDone }) {
     }
   }
 
-  return <div className="bg-white rounded-3xl border p-4 space-y-3 shadow-sm">
-    <select className="w-full p-3 rounded-xl border" value={form.origin} onChange={e => setForm({ ...form, origin: e.target.value, make: '', model: '' })}>
-      <option value="">{t('selectOrigin')}</option>
-      {Object.keys(carData).map(o => <option key={o} value={o}>{o}</option>)}
-    </select>
-
-    <select className="w-full p-3 rounded-xl border" value={form.make} disabled={!form.origin} onChange={e => setForm({ ...form, make: e.target.value, model: '' })}>
-      <option value="">{t('selectMake')}</option>
-      {makes.map(m => <option key={m} value={m}>{m}</option>)}
-    </select>
-
-    <select className="w-full p-3 rounded-xl border" value={form.model} disabled={!form.make} onChange={e => setForm({ ...form, model: e.target.value })}>
-      <option value="">{t('selectModel')}</option>
-      {models.map(m => <option key={m} value={m}>{m}</option>)}
-    </select>
-
-    <select className="w-full p-3 rounded-xl border" value={form.year} onChange={e => setForm({ ...form, year: e.target.value })}>
-      <option value="">{t('selectYear')}</option>
-      {years.map(y => <option key={y} value={y}>{y}</option>)}
-    </select>
-
-    <div className="bg-orange-50 rounded-2xl p-3 space-y-2">
-      <input className="w-full p-3 rounded-xl border" placeholder={t('describeProblem')} value={problem} onChange={e => setProblem(e.target.value)} />
-      <button onClick={ai} disabled={loading || !problem.trim()} className="w-full py-2 rounded-xl bg-orange-600 text-white font-bold disabled:opacity-40">
-        {loading ? t('analyzing') : t('aiIdentify')}
-      </button>
+  return <div className="space-y-4">
+    <div className="rounded-3xl bg-gradient-to-br from-orange-600 to-orange-500 text-white p-5 shadow">
+      <div className="text-sm opacity-80">{t('newRequest')}</div>
+      <div className="text-2xl font-black leading-tight">{t('findParts')}</div>
+      <div className="text-xs opacity-80 mt-2">{t('landingSubtitle')}</div>
     </div>
 
-    <input className="w-full p-3 rounded-xl border" placeholder={t('partName')} value={form.partName} onChange={e => setForm({ ...form, partName: e.target.value })} />
+    <div className="bg-white rounded-3xl border p-4 space-y-3 shadow-sm">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-[10px] text-orange-600 font-black uppercase">{t('step')} 1</div>
+          <h2 className="font-black text-slate-900">{t('vehicleDetails')}</h2>
+        </div>
+        <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center font-black">🚗</div>
+      </div>
 
-    <div className="grid grid-cols-2 gap-2">
-      <input className="w-full p-3 rounded-xl border" placeholder={t('partNumber')} value={form.partNumber} onChange={e => setForm({ ...form, partNumber: e.target.value })} />
-      <input className="w-full p-3 rounded-xl border" placeholder={t('vinChassis')} value={form.vin} onChange={e => setForm({ ...form, vin: e.target.value })} />
+      <div className="grid grid-cols-2 gap-2">
+        <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.origin} onChange={e => setForm({ ...form, origin: e.target.value, make: '', model: '' })}>
+          <option value="">{t('selectOrigin')}</option>
+          {Object.keys(carData).map(o => <option key={o} value={o}>{o}</option>)}
+        </select>
+
+        <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.year} onChange={e => setForm({ ...form, year: e.target.value })}>
+          <option value="">{t('selectYear')}</option>
+          {years.map(y => <option key={y} value={y}>{y}</option>)}
+        </select>
+      </div>
+
+      <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.make} disabled={!form.origin} onChange={e => setForm({ ...form, make: e.target.value, model: '' })}>
+        <option value="">{t('selectMake')}</option>
+        {makes.map(m => <option key={m} value={m}>{m}</option>)}
+      </select>
+
+      <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.model} disabled={!form.make} onChange={e => setForm({ ...form, model: e.target.value })}>
+        <option value="">{t('selectModel')}</option>
+        {models.map(m => <option key={m} value={m}>{m}</option>)}
+      </select>
     </div>
 
-    <textarea className="w-full p-3 rounded-xl border" placeholder={t('description')} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+    <div className="bg-white rounded-3xl border p-4 space-y-3 shadow-sm">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-[10px] text-orange-600 font-black uppercase">{t('step')} 2</div>
+          <h2 className="font-black text-slate-900">{t('partDetails')}</h2>
+        </div>
+        <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center font-black">🔧</div>
+      </div>
 
-    <div className="bg-slate-50 rounded-2xl p-3 space-y-2">
-      <div className="text-xs font-bold text-slate-500">{t('requestPhotosUpTo4')}</div>
-      <label className="block w-full py-3 rounded-xl bg-slate-900 text-white text-center text-sm font-bold cursor-pointer">
-        {uploading ? t('uploading') : t('uploadPhoto')}
-        <input type="file" accept="image/*" className="hidden" disabled={uploading || form.photoUrls.length >= 4} onChange={e => handlePhotoUpload(e.target.files?.[0])} />
-      </label>
-      <div className="text-[10px] text-slate-400">{t('imageHelp')}</div>
+      <div className="bg-orange-50 rounded-2xl p-3 space-y-2 border border-orange-100">
+        <input className="w-full p-3 rounded-xl border bg-white" placeholder={t('describeProblem')} value={problem} onChange={e => setProblem(e.target.value)} />
+        <button onClick={ai} disabled={loading || !problem.trim()} className="w-full py-2 rounded-xl bg-orange-600 text-white font-bold disabled:opacity-40">
+          {loading ? t('analyzing') : t('aiIdentify')}
+        </button>
+      </div>
+
+      <input className="w-full p-3 rounded-2xl border bg-slate-50" placeholder={t('partName')} value={form.partName} onChange={e => setForm({ ...form, partName: e.target.value })} />
+
+      <div className="grid grid-cols-2 gap-2">
+        <input className="w-full p-3 rounded-2xl border bg-slate-50" placeholder={t('partNumber')} value={form.partNumber} onChange={e => setForm({ ...form, partNumber: e.target.value })} />
+        <input className="w-full p-3 rounded-2xl border bg-slate-50" placeholder={t('vinChassis')} value={form.vin} onChange={e => setForm({ ...form, vin: e.target.value })} />
+      </div>
+
+      <textarea className="w-full p-3 rounded-2xl border bg-slate-50 min-h-24" placeholder={t('description')} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+    </div>
+
+    <div className="bg-white rounded-3xl border p-4 space-y-3 shadow-sm">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-[10px] text-orange-600 font-black uppercase">{t('step')} 3</div>
+          <h2 className="font-black text-slate-900">{t('requestPhotosUpTo4')}</h2>
+          <div className="text-xs text-slate-400 mt-1">{t('imageHelp')}</div>
+        </div>
+        <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center font-black">📷</div>
+      </div>
 
       {form.photoUrls.length > 0 && (
         <div className="flex gap-2 overflow-x-auto">
           {form.photoUrls.map((url, index) => (
-            <div key={url} className="relative">
-              <ImagePreview src={url} alt="Request preview" className="w-16 h-16 rounded-xl object-cover border" />
-              <button onClick={() => removePhotoUrl(index)} type="button" className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold whitespace-nowrap inline-flex items-center shrink-0">×</button>
+            <div key={url} className="relative shrink-0">
+              <ImagePreview src={url} alt="Request preview" className="w-20 h-20 rounded-2xl object-cover border" />
+              <button onClick={() => removePhotoUrl(index)} type="button" className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 text-white text-xs font-black whitespace-nowrap inline-flex items-center justify-center">×</button>
             </div>
           ))}
         </div>
       )}
+
+      <label className="block w-full py-3 rounded-2xl bg-slate-900 text-white text-center text-sm font-black cursor-pointer">
+        {uploading ? t('uploading') : t('uploadPhoto')}
+        <input type="file" accept="image/*" className="hidden" disabled={uploading || form.photoUrls.length >= 4} onChange={e => handlePhotoUpload(e.target.files?.[0])} />
+      </label>
     </div>
 
-    <input className="w-full p-3 rounded-xl border" placeholder={t('yourPhone')} value={form.customerPhone} onChange={e => setForm({ ...form, customerPhone: e.target.value })} />
-    <input className="w-full p-3 rounded-xl border" placeholder={t('detailedLocation')} value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} />
+    <div className="bg-white rounded-3xl border p-4 space-y-3 shadow-sm">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-[10px] text-orange-600 font-black uppercase">{t('step')} 4</div>
+          <h2 className="font-black text-slate-900">{t('deliveryDetails')}</h2>
+        </div>
+        <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center font-black">📍</div>
+      </div>
 
-    {error && <div className="text-xs text-red-600">{error}</div>}
+      <input className="w-full p-3 rounded-2xl border bg-slate-50" placeholder={t('yourPhone')} value={form.customerPhone} onChange={e => setForm({ ...form, customerPhone: e.target.value })} />
+      <input className="w-full p-3 rounded-2xl border bg-slate-50" placeholder={t('detailedLocation')} value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} />
+    </div>
+
+    {error && <div className="text-xs text-red-600 bg-red-50 rounded-2xl p-3">{error}</div>}
 
     <button
       onClick={submit}
       disabled={!form.origin || !form.make || !form.model || !form.year || !form.partName || !form.customerPhone || !form.location || saving}
-      className="w-full py-3 rounded-2xl bg-slate-900 text-white font-black disabled:opacity-40"
+      className="w-full py-4 rounded-3xl bg-slate-900 text-white font-black shadow-lg disabled:opacity-40"
     >
       {saving ? t('uploading') : t('submitRequest')}
     </button>
   </div>;
 }
+
 
 function CustomerOrderCard({ order }) {
   const { t } = useLanguage();
