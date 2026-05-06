@@ -14,6 +14,7 @@ import notificationRoutes from './routes/notificationRoutes.js';
 import auditRoutes from './routes/auditRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import payoutRoutes from './routes/payoutRoutes.js';
+import legalRoutes from './routes/legalRoutes.js';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -45,6 +46,7 @@ app.use(rateLimit({ windowMs: 60_000, limit: 120 }));
 app.get('/', (_, res) => res.json({ ok: true, app: 'AutoPartIQ API', health: '/health' }));
 app.get('/api', (_, res) => res.json({ ok: true, app: 'AutoPartIQ API', routes: ['/api/auth/login', '/api/requests', '/api/orders'] }));
 app.get('/health', (_, res) => res.json({ ok: true, app: 'AutoPartIQ API' }));
+app.use('/legal', legalRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/offers', offerRoutes);
