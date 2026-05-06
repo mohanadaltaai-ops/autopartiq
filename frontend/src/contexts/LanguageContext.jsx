@@ -3,6 +3,7 @@ import React, { createContext, useContext, useMemo, useState } from 'react';
 const translations = {
   en: {
     appName: 'AutoParts IQ',
+    sendOffer: 'Send offer',
     requestVolume: 'Request volume',
     last30Days: 'Last 30 days',
     average: 'Average',
@@ -331,6 +332,7 @@ const translations = {
 
   ar: {
     appName: 'أوتو بارتس IQ',
+    sendOffer: 'إرسال عرض',
     requestVolume: 'حجم الطلبات',
     last30Days: 'آخر 30 يوم',
     average: 'المعدل',
