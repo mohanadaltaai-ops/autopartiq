@@ -10,11 +10,25 @@ import OrderDeliveryControls from '../components/admin/OrderDeliveryControls';
 import SuperAdminEnroll from '../components/admin/SuperAdminEnroll';
 import AdminPayoutManager from '../components/admin/AdminPayoutManager';
 
-function StatCard({ label, value }) {
-  return <div className="bg-white rounded-2xl border p-4 shadow-sm">
-    <div className="text-[10px] text-slate-400 font-bold uppercase">{label}</div>
-    <div className="font-black text-slate-900 mt-1">{value}</div>
-  </div>;
+function StatCard({ label, value, tone = 'blue' }) {
+  const toneClass = tone === 'green'
+    ? 'bg-green-50 text-green-700 border-green-100'
+    : tone === 'red'
+      ? 'bg-red-50 text-red-700 border-red-100'
+      : tone === 'amber'
+        ? 'bg-amber-50 text-amber-700 border-amber-100'
+        : 'bg-blue-50 text-blue-700 border-blue-100';
+
+  return (
+    <div className="bg-white rounded-[24px] border border-slate-200 p-4 shadow-sm min-h-[112px] flex flex-col justify-between">
+      <div className={`self-start max-w-full px-2.5 py-1 rounded-full border text-[9px] leading-tight font-black uppercase ${toneClass}`}>
+        {label}
+      </div>
+      <div className="mt-3 text-[22px] leading-tight font-black tabular-nums text-slate-950 break-words">
+        {value}
+      </div>
+    </div>
+  );
 }
 
 function statusLabel(status, t) {
@@ -197,8 +211,25 @@ export default function Admin({ tab, setTab }) {
 
   useEffect(() => { load(); }, []);
 
-  if (error) return <div className="p-4 text-red-600 text-sm">{error}</div>;
-  if (!data) return <div className="p-4 text-slate-500">{t('loadingDashboard')}</div>;
+  if (error) {
+    return (
+      <div className="p-4">
+        <div className="bg-red-50 rounded-[28px] border border-red-100 p-5 shadow-sm text-sm font-bold text-red-700">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="p-4">
+        <div className="bg-white rounded-[28px] border border-slate-200 p-5 shadow-sm text-sm font-bold text-slate-500">
+          {t('loadingDashboard')}
+        </div>
+      </div>
+    );
+  }
 
   if (user?.role === 'ADMIN' && user?.adminPermission === 'ORDERS_ONLY' && tab !== 'orders') {
     return <div className="p-4 text-slate-500">{t('ordersOnlyAdminAccess')}</div>;
@@ -221,33 +252,49 @@ export default function Admin({ tab, setTab }) {
   }
 
   if (tab === 'more') {
-    return <div className="p-4 space-y-4">
-      <h1 className="font-black text-xl text-slate-900">{t('more')}</h1>
+    const moreItems = [
+      {
+        id: 'audit',
+        title: t('auditLogs'),
+        subtitle: t('audit'),
+        icon: 'AUD',
+        onClick: () => setTab('audit')
+      },
+      ...(user?.role === 'SUPER_ADMIN' ? [{
+        id: 'manage',
+        title: t('adminUsers'),
+        subtitle: t('users'),
+        icon: 'USR',
+        onClick: () => setTab('manage')
+      }] : [])
+    ];
+
+    return <div className="p-4 space-y-4 pb-6">
+      <div className="rounded-[30px] bg-white border border-slate-200 p-5 shadow-sm">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black border border-blue-100">
+          {t('more')}
+        </div>
+        <h1 className="font-black text-2xl text-slate-950 mt-3">{t('more')}</h1>
+        <div className="text-xs font-semibold text-slate-500 mt-1">{t('adminDashboard')}</div>
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <button
-          onClick={() => setTab('audit')}
-          className="bg-white rounded-3xl border p-4 shadow-sm text-left min-h-32 flex flex-col justify-between"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center text-xl">🛡️</div>
-          <div>
-            <div className="font-black text-slate-900">{t('auditLogs')}</div>
-            <div className="text-xs text-slate-400 mt-1">{t('audit')}</div>
-          </div>
-        </button>
-
-        {user?.role === 'SUPER_ADMIN' && (
+        {moreItems.map(item => (
           <button
-            onClick={() => setTab('manage')}
-            className="bg-white rounded-3xl border p-4 shadow-sm text-left min-h-32 flex flex-col justify-between"
+            key={item.id}
+            type="button"
+            onClick={item.onClick}
+            className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm text-left min-h-32 flex flex-col justify-between"
           >
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center text-xl">👥</div>
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center text-xs font-black">
+              {item.icon}
+            </div>
             <div>
-              <div className="font-black text-slate-900">{t('adminUsers')}</div>
-              <div className="text-xs text-slate-400 mt-1">{t('users')}</div>
+              <div className="font-black text-slate-950 leading-tight">{item.title}</div>
+              <div className="text-xs text-slate-500 font-semibold mt-1">{item.subtitle}</div>
             </div>
           </button>
-        )}
+        ))}
       </div>
     </div>;
   }
@@ -384,29 +431,54 @@ export default function Admin({ tab, setTab }) {
     </div>;
   }
 
-  return <div className="p-4 space-y-4">
-    <div className="rounded-3xl bg-gradient-to-br from-slate-900 to-slate-700 text-white p-5 shadow">
-      <div className="text-sm opacity-70">{t('platformOverview')}</div>
-      <div className="text-xl font-black">{t('adminDashboard')}</div>
+  return <div className="p-4 space-y-4 pb-6">
+    <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
+      <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
+      <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/10 pointer-events-none" />
+
+      <div className="relative">
+        <div className="text-xs font-bold text-white/70">{t('platformOverview')}</div>
+        <div className="text-2xl font-black leading-tight mt-1">{t('adminDashboard')}</div>
+
+        <div className="grid grid-cols-3 gap-2 mt-5">
+          <div className="rounded-2xl bg-white/12 border border-white/10 p-3 min-h-[82px] flex flex-col justify-between">
+            <div className="text-[9px] leading-tight font-black uppercase text-white/65">{t('orders')}</div>
+            <div className="text-2xl leading-none font-black tabular-nums">{data.summary.totalOrders}</div>
+          </div>
+          <div className="rounded-2xl bg-white/12 border border-white/10 p-3 min-h-[82px] flex flex-col justify-between">
+            <div className="text-[9px] leading-tight font-black uppercase text-white/65">{t('suppliers')}</div>
+            <div className="text-2xl leading-none font-black tabular-nums">{data.summary.suppliers}</div>
+          </div>
+          <div className="rounded-2xl bg-white/12 border border-white/10 p-3 min-h-[82px] flex flex-col justify-between">
+            <div className="text-[9px] leading-tight font-black uppercase text-white/65">{t('completed')}</div>
+            <div className="text-2xl leading-none font-black tabular-nums">{data.summary.completedOrders ?? 0}</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div className="grid grid-cols-2 gap-3">
-      <StatCard label={t('orders')} value={data.summary.totalOrders} />
-      <StatCard label={t('activeOrders')} value={data.summary.activeOrders ?? data.summary.totalOrders} />
-      <StatCard label={t('waitingPickup')} value={data.summary.waitingPickupOrders ?? 0} />
-      <StatCard label={t('delivering')} value={data.summary.deliveringOrders ?? 0} />
-      <StatCard label={t('completed')} value={data.summary.completedOrders ?? 0} />
-      <StatCard label={t('cancelled')} value={data.summary.cancelledOrders ?? 0} />
-      <StatCard label={t('pendingPayments')} value={data.summary.pendingPayments ?? 0} />
-      <StatCard label={t('paidOrders')} value={data.summary.paidOrders ?? 0} />
-      <StatCard label={t('suppliers')} value={data.summary.suppliers} />
-      <StatCard label={t('activeSuppliers')} value={data.summary.activeSuppliers ?? data.summary.suppliers} />
+      <StatCard label={t('activeOrders')} value={data.summary.activeOrders ?? data.summary.totalOrders} tone="blue" />
+      <StatCard label={t('waitingPickup')} value={data.summary.waitingPickupOrders ?? 0} tone="amber" />
+      <StatCard label={t('delivering')} value={data.summary.deliveringOrders ?? 0} tone="blue" />
+      <StatCard label={t('completed')} value={data.summary.completedOrders ?? 0} tone="green" />
+      <StatCard label={t('cancelled')} value={data.summary.cancelledOrders ?? 0} tone="red" />
+      <StatCard label={t('pendingPayments')} value={data.summary.pendingPayments ?? 0} tone="amber" />
+      <StatCard label={t('paidOrders')} value={data.summary.paidOrders ?? 0} tone="green" />
+      <StatCard label={t('activeSuppliers')} value={data.summary.activeSuppliers ?? data.summary.suppliers} tone="blue" />
       {user?.role === 'SUPER_ADMIN' && (
-        <StatCard label={t('platformRevenue')} value={formatIQD(data.summary.platformRevenue)} />
+        <StatCard label={t('platformRevenue')} value={formatIQD(data.summary.platformRevenue)} tone="blue" />
       )}
     </div>
 
-    <h2 className="font-black text-slate-900">{t('suppliers')}</h2>
+    <div className="rounded-[30px] bg-white border border-slate-200 p-5 shadow-sm">
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black border border-blue-100">
+        {t('suppliers')}
+      </div>
+      <h2 className="font-black text-2xl text-slate-950 mt-3">{t('suppliers')}</h2>
+      <div className="text-xs font-semibold text-slate-500 mt-1">{t('activeSuppliers')}: {data.summary.activeSuppliers ?? data.summary.suppliers}</div>
+    </div>
+
     <AdminSupplierList suppliers={data.suppliers.slice(0, 3)} token={token} reload={load} />
   </div>;
 }
