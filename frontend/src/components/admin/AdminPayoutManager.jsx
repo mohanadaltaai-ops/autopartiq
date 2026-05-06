@@ -120,6 +120,7 @@ export default function AdminPayoutManager({ token }) {
   const [summary, setSummary] = useState(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [supplierFilter, setSupplierFilter] = useState('ALL');
+  const [supplierSearch, setSupplierSearch] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -159,12 +160,20 @@ export default function AdminPayoutManager({ token }) {
   }, [payouts]);
 
   const filteredPayouts = useMemo(() => {
+    const search = supplierSearch.trim().toLowerCase();
+
     return payouts.filter(payout => {
+      const supplierName = (payout.supplier?.name || payout.supplier?.user?.name || '').toLowerCase();
+      const orderNumber = (payout.order?.orderNumber || payout.metadata?.orderNumber || '').toLowerCase();
+      const partName = (payout.order?.offer?.request?.partName || '').toLowerCase();
+
       const matchesStatus = statusFilter === 'ALL' || payout.status === statusFilter;
       const matchesSupplier = supplierFilter === 'ALL' || payout.supplierId === supplierFilter;
-      return matchesStatus && matchesSupplier;
+      const matchesSearch = !search || supplierName.includes(search) || orderNumber.includes(search) || partName.includes(search);
+
+      return matchesStatus && matchesSupplier && matchesSearch;
     });
-  }, [payouts, statusFilter, supplierFilter]);
+  }, [payouts, statusFilter, supplierFilter, supplierSearch]);
 
   if (loading) return <div className="bg-white rounded-2xl border p-4 text-sm text-slate-500">Loading settlements...</div>;
   if (error) return <div className="bg-white rounded-2xl border p-4 text-sm text-red-600">{error}</div>;
@@ -197,12 +206,21 @@ export default function AdminPayoutManager({ token }) {
       ))}
     </div>
 
-    <select className="w-full p-3 rounded-xl border text-sm bg-white" value={supplierFilter} onChange={e => setSupplierFilter(e.target.value)}>
-      <option value="ALL">All suppliers</option>
-      {supplierOptions.map(([supplierId, supplierName]) => (
-        <option key={supplierId} value={supplierId}>{supplierName}</option>
-      ))}
-    </select>
+    <div className="bg-white rounded-2xl border p-3 space-y-2">
+      <input
+        className="w-full p-3 rounded-xl border text-sm"
+        placeholder="Search supplier, order, or part"
+        value={supplierSearch}
+        onChange={e => setSupplierSearch(e.target.value)}
+      />
+
+      <select className="w-full p-3 rounded-xl border text-sm bg-white" value={supplierFilter} onChange={e => setSupplierFilter(e.target.value)}>
+        <option value="ALL">All suppliers</option>
+        {supplierOptions.map(([supplierId, supplierName]) => (
+          <option key={supplierId} value={supplierId}>{supplierName}</option>
+        ))}
+      </select>
+    </div>
 
     <div className="text-[10px] text-slate-400 font-bold">
       Showing {filteredPayouts.length} of {payouts.length} payouts
