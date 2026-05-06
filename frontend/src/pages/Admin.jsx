@@ -62,7 +62,7 @@ function paymentStatusLabel(status, t) {
 }
 
 function StatusBadge({ status }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const colors = {
     WAITING_PICKUP: 'bg-amber-50 text-amber-700 border-amber-100',
     DELIVERING: 'bg-blue-50 text-blue-700 border-blue-100',
@@ -100,13 +100,13 @@ function isDateInRange(value, fromDate, toDate) {
   return true;
 }
 
-function buildVolumeSeries(items, days = 14) {
+function buildVolumeSeries(items, days = 14, language = 'en') {
   const today = new Date();
   const buckets = Array.from({ length: days }, (_, index) => {
     const date = new Date(today);
     date.setDate(today.getDate() - (days - 1 - index));
     const key = date.toISOString().slice(0, 10);
-    return { key, label: date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), count: 0 };
+    return { key, label: date.toLocaleDateString(language === 'ar' ? 'ar-IQ' : undefined, { month: 'short', day: 'numeric' }), count: 0 };
   });
 
   const map = new Map(buckets.map(item => [item.key, item]));
@@ -119,8 +119,8 @@ function buildVolumeSeries(items, days = 14) {
   return buckets;
 }
 
-function RequestVolumeChart({ orders, t }) {
-  const points = buildVolumeSeries(orders, 14);
+function RequestVolumeChart({ orders, t, language }) {
+  const points = buildVolumeSeries(orders, 14, language);
   const max = Math.max(...points.map(point => point.count), 1);
   const width = 280;
   const height = 92;
@@ -535,7 +535,7 @@ export default function Admin({ tab, setTab }) {
         </div>
       </div>
 
-      {user?.role === 'SUPER_ADMIN' && <RequestVolumeChart orders={data.orders} t={t} />}
+      {user?.role === 'SUPER_ADMIN' && <RequestVolumeChart orders={data.orders} t={t} language={language} />}
 
       <div className="grid grid-cols-2 gap-2 bg-white rounded-[24px] border border-slate-200 p-2 shadow-sm">
         {statusFilters.map(([id, label]) => (

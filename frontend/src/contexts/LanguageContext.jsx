@@ -2,7 +2,11 @@ import React, { createContext, useContext, useMemo, useState } from 'react';
 
 const translations = {
   en: {
-    appName: 'AutoParts IQ',
+    
+    requestVolume: 'Request volume',
+    last30Days: 'Last 30 days',
+    average: 'Average',
+appName: 'AutoParts IQ',
     iraqiPartsMarket: 'Iraqi spare parts marketplace',
     landingSubtitle: 'Find parts faster, receive supplier offers, and track orders from one place.',
     enterLogin: 'Enter / Log In',
@@ -322,7 +326,11 @@ const translations = {
   },
 
   ar: {
-    appName: 'أوتو بارتس IQ',
+    
+    requestVolume: 'حجم الطلبات',
+    last30Days: 'آخر 30 يوم',
+    average: 'المعدل',
+appName: 'أوتو بارتس IQ',
     iraqiPartsMarket: 'سوق قطع الغيار العراقي',
     landingSubtitle: 'ابحث عن قطع الغيار بسرعة، استلم عروض الموردين، وتابع طلباتك من مكان واحد.',
     enterLogin: 'دخول',
