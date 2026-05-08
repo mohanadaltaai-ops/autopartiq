@@ -200,6 +200,415 @@ function RequestVolumeChart({ orders, t, language }) {
   );
 }
 
+
+function sumMoney(items, selector) {
+  return items.reduce((total, item) => {
+    const value = Number(selector(item) || 0);
+    return total + (Number.isFinite(value) ? value : 0);
+  }, 0);
+}
+
+function buildFinancialSeries(orders, days = 14, language = 'en') {
+  const today = new Date();
+  const buckets = Array.from({ length: days }, (_, index) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() - (days - 1 - index));
+    const key = date.toISOString().slice(0, 10);
+    return {
+      key,
+      label: date.toLocaleDateString(language === 'ar' ? 'ar-IQ' : undefined, { month: 'short', day: 'numeric' }),
+      revenue: 0,
+      orders: 0
+    };
+  });
+
+  const map = new Map(buckets.map(item => [item.key, item]));
+
+  orders.forEach(order => {
+    const key = order?.createdAt ? new Date(order.createdAt).toISOString().slice(0, 10) : '';
+    if (!map.has(key)) return;
+
+    const bucket = map.get(key);
+    bucket.revenue += Number(order.platformRevenue || 0);
+    bucket.orders += 1;
+  });
+
+  return buckets;
+}
+
+function FinancialSparkline({ points }) {
+  const max = Math.max(...points.map(point => point.revenue), 1);
+  const width = 280;
+  const height = 92;
+  const xStep = width / Math.max(points.length - 1, 1);
+
+  const coordinates = points.map((point, index) => {
+    const x = index * xStep;
+    const y = height - 10 - ((point.revenue / max) * 62);
+    return { ...point, x, y };
+  });
+
+  const linePath = coordinates.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(' ');
+  const areaPath = `${linePath} L ${width} ${height} L 0 ${height} Z`;
+
+  return (
+    <div className="rounded-[24px] bg-slate-50 border border-slate-100 p-3">
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-28" role="img" aria-label="Financial revenue chart">
+        <defs>
+          <linearGradient id="financialRevenueFill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#27439C" stopOpacity="0.20" />
+            <stop offset="100%" stopColor="#27439C" stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+
+        {[0, 1, 2].map(row => (
+          <line
+            key={row}
+            x1="0"
+            x2={width}
+            y1={18 + row * 24}
+            y2={18 + row * 24}
+            stroke="#E2E8F0"
+            strokeWidth="1"
+          />
+        ))}
+
+        <path d={areaPath} fill="url(#financialRevenueFill)" />
+        <path d={linePath} fill="none" stroke="#27439C" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+
+        {coordinates.map(point => (
+          <circle key={point.key} cx={point.x} cy={point.y} r="3.5" fill="#27439C" stroke="#FFFFFF" strokeWidth="2" />
+        ))}
+      </svg>
+
+      <div className="flex justify-between text-[9px] text-slate-400 font-black px-1">
+        <span>{points[0]?.label}</span>
+        <span>{points[Math.floor(points.length / 2)]?.label}</span>
+        <span>{points[points.length - 1]?.label}</span>
+      </div>
+    </div>
+  );
+}
+
+
+function SuperAdminFinancialDashboard({ data, t, language }) {
+  const [supplierFilter, setSupplierFilter] = useState('ALL');
+  const [exportMonth, setExportMonth] = useState('ALL');
+  const isDarkMode = typeof window !== 'undefined' && localStorage.getItem('theme') === 'dark';
+
+  function getOrderSupplierId(order) {
+    return order?.offer?.supplier?.id || order?.offer?.supplierId || order?.supplierId || '';
+  }
+
+  function getOrderSupplierName(order) {
+    return order?.offer?.supplier?.name || order?.offer?.supplier?.user?.name || t('supplier');
+  }
+
+  function getOrderMonth(order) {
+    if (!order?.createdAt) return '';
+    const date = new Date(order.createdAt);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toISOString().slice(0, 7);
+  }
+
+  function monthLabel(monthKey) {
+    if (!monthKey || monthKey === 'ALL') return t('allData');
+    const [year, month] = monthKey.split('-');
+    const date = new Date(Number(year), Number(month) - 1, 1);
+    return date.toLocaleDateString(language === 'ar' ? 'ar-IQ' : undefined, { month: 'long', year: 'numeric' });
+  }
+
+  function excelEscape(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function exportFinancialExcel() {
+    const rowsToExport = exportMonth === 'ALL'
+      ? filteredOrders
+      : filteredOrders.filter(order => getOrderMonth(order) === exportMonth);
+
+    const headers = [
+      t('orderNumber'),
+      t('supplier'),
+      t('partName'),
+      t('status'),
+      t('payment'),
+      t('customerSales'),
+      t('supplierCost'),
+      t('platformRevenue'),
+      t('date')
+    ];
+
+    const rows = rowsToExport.map(order => [
+      order.orderNumber || '',
+      getOrderSupplierName(order),
+      order.offer?.request?.partName || '',
+      statusLabel(order.status, t),
+      paymentStatusLabel(order.paymentStatus, t),
+      order.customerPrice || 0,
+      order.supplierPrice || 0,
+      order.platformRevenue || 0,
+      toDateInputValue(order.createdAt) || ''
+    ]);
+
+    const tableHead = `<tr>${headers.map(header => `<th>${excelEscape(header)}</th>`).join('')}</tr>`;
+    const tableRows = rows.map(row => `<tr>${row.map(cell => `<td>${excelEscape(cell)}</td>`).join('')}</tr>`).join('');
+
+    const html = `
+      <html>
+        <head>
+          <meta charset="UTF-8" />
+          <style>
+            table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; }
+            th { background: #27439C; color: #ffffff; font-weight: bold; }
+            th, td { border: 1px solid #d9e2f3; padding: 8px; text-align: start; }
+          </style>
+        </head>
+        <body>
+          <table>${tableHead}${tableRows}</table>
+        </body>
+      </html>
+    `;
+
+    const supplierName = supplierFilter === 'ALL'
+      ? t('allSuppliers')
+      : supplierOptions.find(([supplierId]) => supplierId === supplierFilter)?.[1] || t('supplier');
+
+    const safeSupplier = String(supplierName).replace(/[\\/:*?"<>|]/g, '-');
+    const safeMonth = exportMonth === 'ALL' ? 'all-data' : exportMonth;
+    const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = `AutoPartsIQ-financial-${safeSupplier}-${safeMonth}.xls`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  function metricToneClasses(tone) {
+    if (isDarkMode) {
+      if (tone === 'green') return 'bg-[#0F2A22] border-[#1F6B52] text-green-300';
+      if (tone === 'red') return 'bg-[#2A1418] border-[#7F1D2D] text-red-300';
+      return 'bg-[#101A33] border-[#31467D] text-blue-300';
+    }
+
+    if (tone === 'green') return 'bg-green-50 border-green-100 text-green-700';
+    if (tone === 'red') return 'bg-red-50 border-red-100 text-red-700';
+    return 'bg-blue-50 border-blue-100 text-blue-600';
+  }
+
+  const valueTextClass = isDarkMode ? 'text-white' : 'text-slate-950';
+  const cardSurfaceClass = isDarkMode
+    ? 'bg-[#101A33] border-slate-700 text-slate-100'
+    : 'bg-white border-slate-200 text-slate-950';
+  const mutedTextClass = isDarkMode ? 'text-slate-300' : 'text-slate-500';
+  const subtleTextClass = isDarkMode ? 'text-slate-400' : 'text-slate-400';
+  const inputSurfaceClass = isDarkMode
+    ? 'bg-[#0B1226] border-slate-700 text-slate-100'
+    : 'bg-slate-50 border-slate-200 text-slate-900';
+
+  const allOrders = data.orders || [];
+
+  const supplierMap = new Map();
+  allOrders.forEach(order => {
+    const supplierId = getOrderSupplierId(order);
+    const supplierName = getOrderSupplierName(order);
+    if (supplierId && !supplierMap.has(supplierId)) {
+      supplierMap.set(supplierId, supplierName);
+    }
+  });
+
+  const supplierOptions = Array.from(supplierMap.entries()).sort((a, b) => a[1].localeCompare(b[1]));
+  const monthOptions = Array.from(new Set(allOrders.map(getOrderMonth).filter(Boolean))).sort().reverse();
+
+  const filteredOrders = supplierFilter === 'ALL'
+    ? allOrders
+    : allOrders.filter(order => getOrderSupplierId(order) === supplierFilter);
+
+  const exportOrders = exportMonth === 'ALL'
+    ? filteredOrders
+    : filteredOrders.filter(order => getOrderMonth(order) === exportMonth);
+
+  const completedOrders = filteredOrders.filter(order => order.status === 'COMPLETED');
+  const paidOrders = filteredOrders.filter(order => order.paymentStatus === 'PAID');
+  const activeOrders = filteredOrders.filter(order => ['WAITING_PICKUP', 'DELIVERING'].includes(order.status));
+  const cancelledOrders = filteredOrders.filter(order => order.status === 'CANCELLED');
+
+  const platformRevenue = supplierFilter === 'ALL'
+    ? Number(data.summary?.platformRevenue || sumMoney(filteredOrders, order => order.platformRevenue))
+    : sumMoney(filteredOrders, order => order.platformRevenue);
+
+  const customerSales = sumMoney(filteredOrders, order => order.customerPrice);
+  const supplierCost = sumMoney(filteredOrders, order => order.supplierPrice);
+  const paidRevenue = sumMoney(paidOrders, order => order.platformRevenue);
+  const pendingRevenue = sumMoney(filteredOrders.filter(order => order.paymentStatus === 'PENDING'), order => order.platformRevenue);
+  const cancelledRevenue = sumMoney(cancelledOrders, order => order.platformRevenue);
+  const averageRevenue = filteredOrders.length ? Math.round(platformRevenue / filteredOrders.length) : 0;
+  const marginPercent = customerSales > 0 ? Math.round((platformRevenue / customerSales) * 100) : 0;
+  const points = buildFinancialSeries(filteredOrders, 14, language);
+
+  const latestTransactions = [...filteredOrders]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5);
+
+  return (
+    <div className="p-4 space-y-4 pb-6">
+      <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
+        <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
+        <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/10 pointer-events-none" />
+
+        <div className="relative">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/12 text-white text-[10px] font-black border border-white/10">
+            {t('superAdminOnly')}
+          </div>
+          <h1 className="text-2xl font-black leading-tight mt-3">{t('financialDashboard')}</h1>
+          <div className="text-xs font-semibold text-white/70 mt-1">{t('financialDashboardHint')}</div>
+
+          <div className="grid grid-cols-2 gap-2 mt-5">
+            <div className="rounded-2xl bg-white/12 border border-white/10 p-3 min-h-[86px] flex flex-col justify-between">
+              <div className="text-[9px] leading-tight font-black uppercase text-white/65">{t('platformRevenue')}</div>
+              <div className="text-lg leading-tight font-black tabular-nums">{formatIQD(platformRevenue)}</div>
+            </div>
+            <div className="rounded-2xl bg-white/12 border border-white/10 p-3 min-h-[86px] flex flex-col justify-between">
+              <div className="text-[9px] leading-tight font-black uppercase text-white/65">{t('margin')}</div>
+              <div className="text-2xl leading-none font-black tabular-nums">{marginPercent}%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className={`rounded-[30px] border p-4 shadow-sm space-y-3 ${cardSurfaceClass}`}>
+        <div>
+          <div className="font-black">{t('supplier')}</div>
+          <div className={`text-xs font-semibold mt-1 ${mutedTextClass}`}>{t('allSuppliers')}</div>
+        </div>
+
+        <select
+          className={`w-full p-3 rounded-2xl border text-sm font-bold ${inputSurfaceClass}`}
+          value={supplierFilter}
+          onChange={e => setSupplierFilter(e.target.value)}
+        >
+          <option value="ALL">{t('allSuppliers')}</option>
+          {supplierOptions.map(([supplierId, supplierName]) => (
+            <option key={supplierId} value={supplierId}>{supplierName}</option>
+          ))}
+        </select>
+
+        <div className={`text-[11px] font-black ${subtleTextClass}`}>
+          {t('showing')} {filteredOrders.length} {t('of')} {allOrders.length} {t('orders').toLowerCase()}
+        </div>
+      </div>
+
+      <div className={`rounded-[30px] border p-4 shadow-sm space-y-3 ${cardSurfaceClass}`}>
+        <div>
+          <div className="font-black">{t('exportFinancialExcel')}</div>
+          <div className={`text-xs font-semibold mt-1 ${mutedTextClass}`}>{t('exportFinancialExcelHint')}</div>
+        </div>
+
+        <select
+          className={`w-full p-3 rounded-2xl border text-sm font-bold ${inputSurfaceClass}`}
+          value={exportMonth}
+          onChange={e => setExportMonth(e.target.value)}
+        >
+          <option value="ALL">{t('allData')}</option>
+          {monthOptions.map(month => (
+            <option key={month} value={month}>{monthLabel(month)}</option>
+          ))}
+        </select>
+
+        <div className={`text-[11px] font-black ${subtleTextClass}`}>
+          {t('exportRows')}: {exportOrders.length}
+        </div>
+
+        <button
+          type="button"
+          onClick={exportFinancialExcel}
+          disabled={exportOrders.length === 0}
+          className="w-full py-3.5 rounded-2xl bg-[#27439C] text-white text-sm font-black shadow-sm disabled:opacity-40"
+        >
+          {t('exportExcel')}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <StatCard label={t('customerSales')} value={formatIQD(customerSales)} tone="blue" />
+        <StatCard label={t('supplierCost')} value={formatIQD(supplierCost)} tone="amber" />
+        <StatCard label={t('paidRevenue')} value={formatIQD(paidRevenue)} tone="green" />
+        <StatCard label={t('pendingRevenue')} value={formatIQD(pendingRevenue)} tone="amber" />
+        <StatCard label={t('cancelledRevenue')} value={formatIQD(cancelledRevenue)} tone="red" />
+        <StatCard label={t('averageRevenue')} value={formatIQD(averageRevenue)} tone="blue" />
+      </div>
+
+      <div className={`rounded-[30px] border p-4 shadow-sm space-y-3 ${cardSurfaceClass}`}>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="font-black">{t('revenueTrend')}</div>
+            <div className={`text-xs font-semibold mt-1 ${mutedTextClass}`}>{t('last14Days')}</div>
+          </div>
+          <div className="text-right">
+            <div className={`text-lg font-black tabular-nums ${valueTextClass}`}>{formatIQD(platformRevenue)}</div>
+            <div className="text-[10px] text-blue-600 font-black">{t('platformRevenue')}</div>
+          </div>
+        </div>
+
+        <FinancialSparkline points={points} />
+
+        <div className="grid grid-cols-3 gap-2">
+          <div className={`rounded-[18px] border p-3 ${metricToneClasses('blue')}`}>
+            <div className="text-[9px] uppercase font-black">{t('activeOrders')}</div>
+            <div className={`text-lg font-black mt-1 ${valueTextClass}`}>{activeOrders.length}</div>
+          </div>
+          <div className={`rounded-[18px] border p-3 ${metricToneClasses('green')}`}>
+            <div className="text-[9px] uppercase font-black">{t('completed')}</div>
+            <div className={`text-lg font-black mt-1 ${valueTextClass}`}>{completedOrders.length}</div>
+          </div>
+          <div className={`rounded-[18px] border p-3 ${metricToneClasses('red')}`}>
+            <div className="text-[9px] uppercase font-black">{t('cancelled')}</div>
+            <div className={`text-lg font-black mt-1 ${valueTextClass}`}>{cancelledOrders.length}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className={`rounded-[30px] border p-4 shadow-sm space-y-3 ${cardSurfaceClass}`}>
+        <div>
+          <div className="font-black">{t('recentFinancialTransactions')}</div>
+          <div className={`text-xs font-semibold mt-1 ${mutedTextClass}`}>{t('latestOrdersFinancialHint')}</div>
+        </div>
+
+        {latestTransactions.length === 0 && (
+          <div className="border border-dashed border-slate-200 rounded-[24px] p-5 text-center text-sm font-bold text-slate-400">
+            {t('noMatchingOrders')}
+          </div>
+        )}
+
+        {latestTransactions.map(order => (
+          <div key={order.id} className={`${isDarkMode ? 'bg-[#0B1226] border-slate-700' : 'bg-slate-50 border-slate-100'} rounded-[22px] border p-3 flex items-start justify-between gap-3`}>
+            <div className="min-w-0">
+              <div className="text-[11px] font-black text-blue-600">{order.orderNumber}</div>
+              <div className={`font-black text-sm leading-tight mt-1 truncate ${valueTextClass}`}>{order.offer?.request?.partName || t('notAvailable')}</div>
+              <div className={`text-[11px] font-semibold mt-1 ${mutedTextClass}`}>
+                {toDateInputValue(order.createdAt) || t('notAvailable')} • {paymentStatusLabel(order.paymentStatus, t)}
+              </div>
+              <div className={`text-[11px] font-semibold mt-1 ${subtleTextClass}`}>{getOrderSupplierName(order)}</div>
+            </div>
+            <div className="text-right shrink-0">
+              <div className={`font-black text-sm leading-tight ${valueTextClass}`}>{formatIQD(order.platformRevenue || 0)}</div>
+              <div className="text-[10px] text-slate-400 font-black mt-1">{statusLabel(order.status, t)}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
 function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token, reload }) {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
@@ -378,13 +787,22 @@ export default function Admin({ tab, setTab }) {
         icon: 'AUD',
         onClick: () => setTab('audit')
       },
-      ...(user?.role === 'SUPER_ADMIN' ? [{
+      ...(user?.role === 'SUPER_ADMIN' ? [
+      {
+        id: 'finance',
+        title: t('financialDashboard'),
+        subtitle: t('financialDashboardShort'),
+        icon: 'FIN',
+        onClick: () => setTab('finance')
+      },
+      {
         id: 'manage',
         title: t('adminUsers'),
         subtitle: t('users'),
         icon: 'USR',
         onClick: () => setTab('manage')
-      }] : [])
+      }
+      ] : [])
     ];
 
     return <div className="p-4 space-y-4 pb-6">
@@ -502,6 +920,12 @@ export default function Admin({ tab, setTab }) {
       <AdminPayoutManager token={token} />
     </div>;
   }
+
+  if (tab === 'finance') {
+    if (user?.role !== 'SUPER_ADMIN') return <div className="p-4 text-red-600 text-sm">{t('superAdminOnlyUsers')}</div>;
+    return <SuperAdminFinancialDashboard data={data} t={t} language={language} />;
+  }
+
   if (tab === 'orders') {
     const filteredOrders = [...data.orders]
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
