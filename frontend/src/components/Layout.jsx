@@ -97,7 +97,29 @@ function notificationVisual(item) {
   return { icon: '•', bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-blue-500' };
 }
 
+function resetMainScrollPosition() {
+  if (typeof window === 'undefined') return;
+
+  window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+
+  const scrollTargets = document.querySelectorAll('main, [data-scroll-container], .overflow-y-auto, .overflow-auto');
+  scrollTargets.forEach(target => {
+    if (target && typeof target.scrollTo === 'function') {
+      target.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    } else if (target) {
+      target.scrollTop = 0;
+    }
+  });
+}
+
+
 export default function Layout({ tab, setTab, children }) {
+  useEffect(() => {
+    resetMainScrollPosition();
+  }, [tab]);
+
   const { user, token } = useAuth();
   const { t, language } = useLanguage();
   const [notifications, setNotifications] = useState([]);
