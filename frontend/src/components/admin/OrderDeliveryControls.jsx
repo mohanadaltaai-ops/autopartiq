@@ -61,7 +61,6 @@ export default function OrderDeliveryControls({ order, token, reload }) {
     <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-3">
       <div>
         <div className="text-[10px] uppercase font-black text-blue-600">{t('deliveryAssignment')}</div>
-        <div className="text-[10px] text-slate-500 font-semibold mt-1">{t('deliveryAssignmentHint')}</div>
       </div>
 
       <div className="rounded-[20px] bg-white border border-slate-200 p-3 space-y-2">

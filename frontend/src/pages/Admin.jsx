@@ -120,6 +120,7 @@ function buildVolumeSeries(items, days = 14, language = 'en') {
 }
 
 function RequestVolumeChart({ orders, t, language }) {
+  const isDarkMode = typeof window !== 'undefined' && localStorage.getItem('theme') === 'dark';
   const points = buildVolumeSeries(orders, 14, language);
   const max = Math.max(...points.map(point => point.count), 1);
   const width = 280;
@@ -137,20 +138,43 @@ function RequestVolumeChart({ orders, t, language }) {
   const total = orders.length;
   const average = Math.round(total / Math.max(points.length, 1));
 
+  const outerClass = isDarkMode
+    ? 'bg-[#101A33] border-slate-700'
+    : 'bg-white border-slate-200';
+
+  const chartClass = isDarkMode
+    ? 'bg-[#0B1226] border-slate-700'
+    : 'bg-slate-50 border-slate-100';
+
+  const titleClass = isDarkMode ? 'text-white' : 'text-slate-950';
+  const mutedClass = isDarkMode ? 'text-slate-300' : 'text-slate-500';
+  const axisClass = isDarkMode ? 'text-slate-400' : 'text-slate-400';
+  const gridStroke = isDarkMode ? '#334155' : '#E2E8F0';
+
+  const boxClass = (tone) => {
+    if (isDarkMode) {
+      if (tone === 'green') return 'bg-[#0F2A22] border-[#1F6B52] text-green-300';
+      return 'bg-[#101A33] border-[#31467D] text-blue-300';
+    }
+
+    if (tone === 'green') return 'bg-green-50 border-green-100 text-green-700';
+    return 'bg-blue-50 border-blue-100 text-blue-600';
+  };
+
   return (
-    <div className="bg-white rounded-[30px] border border-slate-200 p-4 shadow-sm space-y-3">
+    <div className={`rounded-[30px] border p-4 shadow-sm space-y-3 ${outerClass}`}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="font-black text-slate-950">{t('requestVolume') || 'Request volume'}</div>
-          <div className="text-xs text-slate-500 font-semibold mt-1">{t('last30Days') || 'Last 30 days'}</div>
+          <div className={`font-black ${titleClass}`}>{t('requestVolume') || 'Request volume'}</div>
+          <div className={`text-xs font-semibold mt-1 ${mutedClass}`}>{t('last30Days') || 'Last 30 days'}</div>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-black text-slate-950 tabular-nums">{total}</div>
+          <div className={`text-2xl font-black tabular-nums ${titleClass}`}>{total}</div>
           <div className="text-[10px] text-green-600 font-black">+12%</div>
         </div>
       </div>
 
-      <div className="rounded-[24px] bg-slate-50 border border-slate-100 p-3">
+      <div className={`rounded-[24px] border p-3 ${chartClass}`}>
         <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-28" role="img" aria-label="Request volume chart">
           <defs>
             <linearGradient id="adminVolumeFill" x1="0" x2="0" y1="0" y2="1">
@@ -166,7 +190,7 @@ function RequestVolumeChart({ orders, t, language }) {
               x2={width}
               y1={18 + row * 24}
               y2={18 + row * 24}
-              stroke="#E2E8F0"
+              stroke={gridStroke}
               strokeWidth="1"
             />
           ))}
@@ -179,7 +203,7 @@ function RequestVolumeChart({ orders, t, language }) {
           ))}
         </svg>
 
-        <div className="flex justify-between text-[9px] text-slate-400 font-black px-1">
+        <div className={`flex justify-between text-[9px] font-black px-1 ${axisClass}`}>
           <span>{points[0]?.label}</span>
           <span>{points[Math.floor(points.length / 2)]?.label}</span>
           <span>{points[points.length - 1]?.label}</span>
@@ -187,19 +211,18 @@ function RequestVolumeChart({ orders, t, language }) {
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <div className="rounded-[18px] bg-blue-50 border border-blue-100 p-3">
-          <div className="text-[9px] uppercase font-black text-blue-600">{t('average') || 'Average'}</div>
-          <div className="text-lg font-black text-slate-950 mt-1">{average}</div>
+        <div className={`rounded-[18px] border p-3 ${boxClass('blue')}`}>
+          <div className="text-[9px] uppercase font-black">{t('average') || 'Average'}</div>
+          <div className={`text-lg font-black mt-1 ${titleClass}`}>{average}</div>
         </div>
-        <div className="rounded-[18px] bg-green-50 border border-green-100 p-3">
-          <div className="text-[9px] uppercase font-black text-green-700">{t('completed') || 'Completed'}</div>
-          <div className="text-lg font-black text-slate-950 mt-1">{orders.filter(order => order.status === 'COMPLETED').length}</div>
+        <div className={`rounded-[18px] border p-3 ${boxClass('green')}`}>
+          <div className="text-[9px] uppercase font-black">{t('completed') || 'Completed'}</div>
+          <div className={`text-lg font-black mt-1 ${titleClass}`}>{orders.filter(order => order.status === 'COMPLETED').length}</div>
         </div>
       </div>
     </div>
   );
 }
-
 
 function sumMoney(items, selector) {
   return items.reduce((total, item) => {
@@ -612,76 +635,144 @@ function SuperAdminFinancialDashboard({ data, t, language }) {
 function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token, reload }) {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
+  const isDarkMode = typeof window !== 'undefined' && localStorage.getItem('theme') === 'dark';
+
+  const request = order.offer?.request || {};
+  const supplier = order.offer?.supplier || {};
+  const orderDate = toDateInputValue(order.createdAt) || t('notAvailable');
+  const partTitle = request.partName || t('partDetails');
+  const vehicleTitle = [request.make, request.model, request.year].filter(Boolean).join(' ');
+  const statusText = statusLabel(order.status, t);
+  const paymentText = paymentStatusLabel(order.paymentStatus, t);
+  const totalValue = Number(order.customerPrice || 0) + Number(order.deliveryFee || 0);
+
+  const surfaceClass = isDarkMode
+    ? 'bg-[#101A33] border-slate-700 text-slate-100'
+    : 'bg-white border-slate-200 text-slate-950';
+
+  const innerSurfaceClass = isDarkMode
+    ? 'bg-[#0B1226] border-slate-700'
+    : 'bg-slate-50 border-slate-100';
+
+  const mutedTextClass = isDarkMode ? 'text-slate-300' : 'text-slate-500';
+  const softTextClass = isDarkMode ? 'text-slate-400' : 'text-slate-400';
+  const titleTextClass = isDarkMode ? 'text-white' : 'text-slate-950';
+
+  const statusTone = order.status === 'COMPLETED'
+    ? 'bg-green-50 text-green-700 border-green-100'
+    : order.status === 'CANCELLED'
+      ? 'bg-red-50 text-red-700 border-red-100'
+      : 'bg-blue-50 text-blue-700 border-blue-100';
+
+  const paymentTone = order.paymentStatus === 'PAID'
+    ? 'bg-green-50 text-green-700 border-green-100'
+    : order.paymentStatus === 'FAILED' || order.paymentStatus === 'REFUNDED'
+      ? 'bg-red-50 text-red-700 border-red-100'
+      : 'bg-amber-50 text-amber-700 border-amber-100';
 
   return (
-    <div className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm space-y-3">
+    <div className={`rounded-[30px] border p-3 shadow-sm space-y-3 ${surfaceClass}`}>
       <button
         type="button"
         onClick={() => setOpen(value => !value)}
-        className="w-full text-left flex items-start justify-between gap-3"
+        className="w-full text-left"
       >
-        <div className="min-w-0">
-          <div className="flex flex-wrap gap-2 mb-3">
-            <StatusBadge status={order.status} />
-            <span className="inline-flex px-2.5 py-1 rounded-full border bg-blue-50 text-blue-700 border-blue-100 text-[10px] font-black">
-              {paymentStatusLabel(order.paymentStatus, t)}
-            </span>
+        <div className="flex items-start gap-3">
+          <div className={`w-[76px] h-[76px] shrink-0 rounded-[24px] border overflow-hidden flex items-center justify-center ${isDarkMode ? 'bg-[#0B1226] border-slate-700' : 'bg-blue-50 border-blue-100'}`}>
+            {request.photoUrl || request.imageUrl ? (
+              <img src={request.photoUrl || request.imageUrl} alt={partTitle} className="w-full h-full object-cover" />
+            ) : (
+              <div className="text-center px-2">
+                <div className="text-[10px] font-black text-blue-700 uppercase leading-tight">{request.origin || 'IQ'}</div>
+                <div className={`text-[9px] font-bold mt-1 leading-tight ${softTextClass}`}>{request.make || t('partDetails')}</div>
+              </div>
+            )}
           </div>
 
-          <div className="text-[11px] font-black text-blue-600">{order.orderNumber}</div>
-          <div className="font-black text-slate-950 text-lg leading-tight mt-1">{order.offer.request.partName}</div>
-          <div className="text-xs text-slate-500 font-bold mt-1">
-            {order.offer.request.make} {order.offer.request.model} • {toDateInputValue(order.createdAt) || t('notAvailable')}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="text-[11px] font-black text-blue-600 truncate">{order.orderNumber}</div>
+                <div className={`font-black text-lg leading-tight mt-1 truncate ${titleTextClass}`}>{partTitle}</div>
+                <div className={`text-xs font-bold mt-1 truncate ${mutedTextClass}`}>{vehicleTitle || t('notAvailable')}</div>
+              </div>
+
+              <div className="shrink-0 text-right">
+                <div className={`w-10 h-10 rounded-2xl border flex items-center justify-center font-black ${isDarkMode ? 'bg-[#0B1226] border-slate-700 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-500'}`}>
+                  {open ? '−' : '+'}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2 mt-3">
+              <span className={`inline-flex px-2.5 py-1 rounded-full border text-[10px] font-black ${statusTone}`}>
+                {statusText}
+              </span>
+              <span className={`inline-flex px-2.5 py-1 rounded-full border text-[10px] font-black ${paymentTone}`}>
+                {paymentText}
+              </span>
+            </div>
           </div>
-          <div className="text-xs text-slate-500 font-bold mt-1">{t('supplier')}: {order.offer.supplier.name}</div>
         </div>
 
-        <div className="text-right shrink-0">
-          <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 font-black">
-            {open ? '−' : '+'}
+        <div className={`mt-3 rounded-[22px] border p-3 grid grid-cols-3 gap-2 ${innerSurfaceClass}`}>
+          <div>
+            <div className="text-[9px] uppercase font-black text-blue-600">{t('date')}</div>
+            <div className={`text-[11px] font-black mt-1 ${titleTextClass}`}>{orderDate}</div>
           </div>
-          <div className="text-[10px] text-slate-400 font-black mt-2">{open ? t('hide') : t('details')}</div>
+          <div>
+            <div className="text-[9px] uppercase font-black text-blue-600">{t('supplier')}</div>
+            <div className={`text-[11px] font-black mt-1 truncate ${titleTextClass}`}>{supplier.name || t('notAvailable')}</div>
+          </div>
+          <div className="text-right">
+            <div className="text-[9px] uppercase font-black text-blue-600">{t('total')}</div>
+            <div className={`text-[11px] font-black mt-1 ${titleTextClass}`}>{formatIQD(totalValue)}</div>
+          </div>
+        </div>
+
+        <div className={`text-[10px] font-black mt-2 text-right ${softTextClass}`}>
+          {open ? t('hide') : t('details')}
         </div>
       </button>
 
       {open && (
         <div className="space-y-3">
-          <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1 text-xs">
+          <div className={`rounded-[22px] border p-3 space-y-1 text-xs ${innerSurfaceClass}`}>
             <div className="text-[10px] uppercase font-black text-blue-600">{t('partDetails')}</div>
-            <div className="text-slate-900 font-black">{order.offer.request.partName}</div>
-            <div className="text-slate-500 font-semibold">{order.offer.request.origin} / {order.offer.request.make} / {order.offer.request.model} / {order.offer.request.year}</div>
-            <div className="text-slate-500 font-semibold">{t('condition')}: {order.offer.condition === 'NEW' ? t('new') : t('used')}</div>
+            <div className={`font-black ${titleTextClass}`}>{partTitle}</div>
+            <div className={`font-semibold ${mutedTextClass}`}>{request.origin} / {request.make} / {request.model} / {request.year}</div>
+            <div className={`font-semibold ${mutedTextClass}`}>{t('condition')}: {order.offer.condition === 'NEW' ? t('new') : t('used')}</div>
           </div>
 
-          <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1 text-xs">
+          <div className={`rounded-[22px] border p-3 space-y-1 text-xs ${innerSurfaceClass}`}>
             <div className="text-[10px] uppercase font-black text-blue-600">{t('customer')}</div>
-            <div className="text-slate-500 font-semibold">{t('customerPhone')}: {order.offer.request.customerPhone || t('notAvailable')}</div>
-            <div className="text-slate-500 font-semibold">{t('location')}: {order.offer.request.location || t('notAvailable')}</div>
+            <div className={`font-semibold ${mutedTextClass}`}>{t('customerPhone')}: {request.customerPhone || t('notAvailable')}</div>
+            <div className={`font-semibold ${mutedTextClass}`}>{t('location')}: {request.location || t('notAvailable')}</div>
           </div>
 
-          <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1 text-xs">
+          <div className={`rounded-[22px] border p-3 space-y-1 text-xs ${innerSurfaceClass}`}>
             <div className="text-[10px] uppercase font-black text-blue-600">{t('supplier')}</div>
-            <div className="text-slate-900 font-black">{order.offer.supplier.name}</div>
+            <div className={`font-black ${titleTextClass}`}>{supplier.name || t('notAvailable')}</div>
             {user?.role === 'SUPER_ADMIN' && (
               <div className="grid grid-cols-1 gap-1 pt-1">
-                <div className="text-slate-500 font-semibold">{t('supplier')}: {formatIQD(order.supplierPrice)}</div>
-                <div className="text-slate-500 font-semibold">{t('customer')}: {formatIQD(order.customerPrice)}</div>
-                <div className="text-slate-500 font-semibold">{t('revenue')}: {formatIQD(order.platformRevenue)}</div>
+                <div className={`font-semibold ${mutedTextClass}`}>{t('supplier')}: {formatIQD(order.supplierPrice)}</div>
+                <div className={`font-semibold ${mutedTextClass}`}>{t('customer')}: {formatIQD(order.customerPrice)}</div>
+                <div className={`font-semibold ${mutedTextClass}`}>{t('revenue')}: {formatIQD(order.platformRevenue)}</div>
               </div>
             )}
           </div>
 
-          <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1 text-xs">
+          <div className={`rounded-[22px] border p-3 space-y-1 text-xs ${innerSurfaceClass}`}>
             <div className="text-[10px] uppercase font-black text-blue-600">{t('payment')}</div>
-            <div className="text-slate-500 font-semibold">{t('payment')}: {paymentMethodLabel(order.paymentMethod, t)}</div>
-            <div className="text-slate-500 font-semibold">{t('status')}: {paymentStatusLabel(order.paymentStatus, t)}</div>
+            <div className={`font-semibold ${mutedTextClass}`}>{t('payment')}: {paymentMethodLabel(order.paymentMethod, t)}</div>
+            <div className={`font-semibold ${mutedTextClass}`}>{t('status')}: {paymentText}</div>
           </div>
 
-          <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1 text-xs">
+          <div className={`rounded-[22px] border p-3 space-y-1 text-xs ${innerSurfaceClass}`}>
             <div className="text-[10px] uppercase font-black text-blue-600">{t('delivery')}</div>
-            <div className="text-slate-500 font-semibold">{t('delivery')}: {formatIQD(order.deliveryFee)}</div>
-            <div className="text-slate-500 font-semibold">{t('driver')}: {order.driverName || t('notAssigned')}</div>
-            <div className="text-slate-500 font-semibold">{t('deliveryEta')}: {order.deliveryEta || t('pending')}</div>
+            <div className={`font-semibold ${mutedTextClass}`}>{t('delivery')}: {formatIQD(order.deliveryFee)}</div>
+            <div className={`font-semibold ${mutedTextClass}`}>{t('driver')}: {order.driverName || t('notAssigned')}</div>
+            <div className={`font-semibold ${mutedTextClass}`}>{t('deliveryEta')}: {order.deliveryEta || t('pending')}</div>
           </div>
 
           <div className="grid grid-cols-3 gap-2">
