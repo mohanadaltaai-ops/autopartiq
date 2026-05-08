@@ -3,6 +3,21 @@ import { writeAuditLog } from '../services/auditService.js';
 
 const PAYOUT_METHODS = ['CASH', 'ZAINCASH', 'MANUAL', 'OTHER'];
 
+function resolvePayoutMarketWhere(req) {
+  if (req.user.role === 'SUPER_ADMIN') {
+    const requestedMarket = String(req.query.market || 'ALL').toUpperCase();
+    if (requestedMarket === 'IQ' || requestedMarket === 'AE') return { market: requestedMarket };
+    return {};
+  }
+
+  return { market: req.user.market || 'IQ' };
+}
+
+function canAccessPayoutMarket(req, payout) {
+  if (req.user.role === 'SUPER_ADMIN') return true;
+  return (payout.market || payout.supplier?.market || 'IQ') === (req.user.market || 'IQ');
+}
+
 function parsePayoutMetadata(payout) {
   if (!payout) return payout;
 
@@ -70,7 +85,10 @@ function summarizePayouts(payouts) {
 
 export async function adminPayouts(req, res) {
   const status = req.query.status;
-  const where = status ? { status } : {};
+  const where = {
+    ...resolvePayoutMarketWhere(req),
+    ...(status ? { status } : {})
+  };
 
   const payouts = await prisma.supplierPayout.findMany({
     where,
@@ -82,7 +100,9 @@ export async function adminPayouts(req, res) {
 }
 
 export async function adminPayoutSummary(req, res) {
-  const payouts = await prisma.supplierPayout.findMany();
+  const payouts = await prisma.supplierPayout.findMany({
+    where: resolvePayoutMarketWhere(req)
+  });
   res.json({ summary: summarizePayouts(payouts) });
 }
 
@@ -93,6 +113,7 @@ export async function markPayoutPaid(req, res) {
   });
 
   if (!existing) return res.status(404).json({ message: 'Payout not found' });
+  if (!canAccessPayoutMarket(req, existing)) return res.status(403).json({ message: 'This payout belongs to another market' });
   if (existing.status === 'PAID') return res.status(400).json({ message: 'Payout is already paid' });
   if (existing.status === 'CANCELLED') return res.status(400).json({ message: 'Cancelled payout cannot be paid' });
 

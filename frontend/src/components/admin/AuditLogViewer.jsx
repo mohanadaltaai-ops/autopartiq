@@ -102,18 +102,21 @@ function metadataRows(metadata, t) {
   return rows;
 }
 
-export default function AuditLogViewer({ token }) {
+export default function AuditLogViewer({ token, marketFilter = 'ALL' }) {
   const { t, language } = useLanguage();
   const [logs, setLogs] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api('/audit-logs', { token })
+    setLoading(true);
+    setError('');
+    const marketQuery = `?market=${marketFilter || 'ALL'}`;
+    api(`/audit-logs${marketQuery}`, { token })
       .then(result => setLogs(result.logs || []))
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [token, marketFilter]);
 
   if (loading) return <div className="bg-white rounded-[28px] border border-slate-200 p-5 text-sm font-bold text-slate-500 shadow-sm">{t('loadingAuditLogs')}</div>;
   if (error) return <div className="bg-red-50 rounded-[28px] border border-red-100 p-5 text-sm font-bold text-red-700 shadow-sm">{error}</div>;

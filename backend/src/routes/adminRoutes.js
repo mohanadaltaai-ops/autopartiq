@@ -4,7 +4,10 @@ import {
   createSupplier,
   updateSupplier,
   disableSupplier,
-  createAdminUser
+  createAdminUser,
+  listAdminUsers,
+  updateAdminUser,
+  disableAdminUser
 } from '../controllers/adminController.js';
 import { requireAuth, requireRole, requireFullAdmin } from '../middleware/auth.js';
 import { validateBody } from '../middleware/validate.js';
@@ -14,7 +17,10 @@ const router = Router();
 
 router.get('/dashboard', requireAuth, requireRole('ADMIN', 'SUPER_ADMIN'), dashboard);
 
+router.get('/users', requireAuth, requireRole('SUPER_ADMIN'), listAdminUsers);
 router.post('/users', requireAuth, requireRole('SUPER_ADMIN'), createAdminUser);
+router.patch('/users/:id', requireAuth, requireRole('SUPER_ADMIN'), updateAdminUser);
+router.delete('/users/:id', requireAuth, requireRole('SUPER_ADMIN'), disableAdminUser);
 
 router.post(
   '/suppliers',

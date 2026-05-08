@@ -314,7 +314,7 @@ function FinancialSparkline({ points }) {
 }
 
 
-function SuperAdminFinancialDashboard({ data, t, language }) {
+function SuperAdminFinancialDashboard({ data, t, language, marketFilter = 'ALL' }) {
   const [supplierFilter, setSupplierFilter] = useState('ALL');
   const [exportMonth, setExportMonth] = useState('ALL');
   const isDarkMode = typeof window !== 'undefined' && localStorage.getItem('theme') === 'dark';
@@ -436,7 +436,7 @@ function SuperAdminFinancialDashboard({ data, t, language }) {
     ? 'bg-[#0B1226] border-slate-700 text-slate-100'
     : 'bg-slate-50 border-slate-200 text-slate-900';
 
-  const allOrders = data.orders || [];
+  const allOrders = (data.orders || []).filter(order => marketFilter === 'ALL' || (order.market || 'IQ') === marketFilter);
 
   const supplierMap = new Map();
   allOrders.forEach(order => {
@@ -794,7 +794,8 @@ export default function Admin({ tab, setTab }) {
   const { t, language } = useLanguage();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
-  const [supplierForm, setSupplierForm] = useState({ name: '', phone: '', location: '', supportedMakes: ['Japanese'] });
+  const [supplierForm, setSupplierForm] = useState({ name: '', phone: '', location: '', market: user?.market || 'IQ', supportedMakes: ['Japanese'] });
+  const [marketFilter, setMarketFilter] = useState('ALL');
   const [updatingOrderId, setUpdatingOrderId] = useState('');
   const [orderSearch, setOrderSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -804,7 +805,8 @@ export default function Admin({ tab, setTab }) {
 
   async function load() {
     try {
-      const result = await api('/admin/dashboard', { token });
+      const marketQuery = user?.role === 'SUPER_ADMIN' ? `?market=${marketFilter}` : '';
+      const result = await api(`/admin/dashboard${marketQuery}`, { token });
       setData(result);
     } catch (e) {
       setError(e.message);
@@ -813,7 +815,7 @@ export default function Admin({ tab, setTab }) {
 
   async function addSupplier() {
     await api('/admin/suppliers', { method: 'POST', token, body: supplierForm });
-    setSupplierForm({ name: '', phone: '', location: '', supportedMakes: ['Japanese'] });
+    setSupplierForm({ name: '', phone: '', location: '', market: user?.role === 'SUPER_ADMIN' ? supplierForm.market : (user?.market || 'IQ'), supportedMakes: ['Japanese'] });
     await load();
   }
 
@@ -827,7 +829,7 @@ export default function Admin({ tab, setTab }) {
     }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [marketFilter]);
 
   if (error) {
     return (
@@ -848,24 +850,44 @@ export default function Admin({ tab, setTab }) {
       </div>
     );
   }
-
   if (user?.role === 'ADMIN' && user?.adminPermission === 'ORDERS_ONLY' && tab !== 'orders') {
     return <div className="p-4 text-slate-500">{t('ordersOnlyAdminAccess')}</div>;
+  }
+
+  function MarketFilterBar() {
+    if (user?.role !== 'SUPER_ADMIN') return null;
+
+    return (
+      <div className="bg-white rounded-[24px] border border-slate-200 p-2 shadow-sm grid grid-cols-3 gap-2">
+        {['ALL', 'IQ', 'AE'].map(item => (
+          <button
+            key={item}
+            type="button"
+            onClick={() => setMarketFilter(item)}
+            className={`py-2.5 rounded-2xl text-xs font-black border transition ${marketFilter === item ? 'bg-[#27439C] text-white border-[#27439C]' : 'bg-slate-50 text-slate-600 border-slate-100'}`}
+          >
+            {item === 'ALL' ? t('allMarkets') : item === 'IQ' ? t('iraqMarket') : t('uaeMarket')}
+          </button>
+        ))}
+      </div>
+    );
   }
 
   if (tab === 'manage') {
     if (user?.role !== 'SUPER_ADMIN') return <div className="p-4 text-red-600 text-sm">{t('superAdminOnlyUsers')}</div>;
 
     return <div className="p-4 space-y-4">
+      <MarketFilterBar />
       <h1 className="font-black text-xl text-slate-900">{t('adminUsers')}</h1>
-      <SuperAdminEnroll token={token} />
+      <SuperAdminEnroll token={token} marketFilter={marketFilter} />
     </div>;
   }
 
   if (tab === 'audit') {
     return <div className="p-4 space-y-4">
+      <MarketFilterBar />
       <h1 className="font-black text-xl text-slate-900">{t('auditLogs')}</h1>
-      <AuditLogViewer token={token} />
+      <AuditLogViewer token={token} marketFilter={marketFilter} />
     </div>;
   }
 
@@ -897,14 +919,6 @@ export default function Admin({ tab, setTab }) {
     ];
 
     return <div className="p-4 space-y-4 pb-6">
-      <div className="rounded-[30px] bg-white border border-slate-200 p-5 shadow-sm">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black border border-blue-100">
-          {t('more')}
-        </div>
-        <h1 className="font-black text-2xl text-slate-950 mt-3">{t('more')}</h1>
-        <div className="text-xs font-semibold text-slate-500 mt-1">{t('adminDashboard')}</div>
-      </div>
-
       <div className="grid grid-cols-2 gap-3">
         {moreItems.map(item => (
           <button
@@ -928,6 +942,7 @@ export default function Admin({ tab, setTab }) {
 
   if (tab === 'suppliers') {
     return <div className="p-4 space-y-4 pb-6">
+      <MarketFilterBar />
       <div className="rounded-[30px] bg-white border border-slate-200 p-5 shadow-sm">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black border border-blue-100">
           {t('suppliers')}
@@ -949,6 +964,16 @@ export default function Admin({ tab, setTab }) {
           <input className="w-full p-3 rounded-2xl border bg-white text-sm font-bold" placeholder={t('supplierName')} value={supplierForm.name} onChange={e => setSupplierForm({ ...supplierForm, name: e.target.value })} />
           <input className="w-full p-3 rounded-2xl border bg-white text-sm font-bold" placeholder={t('phone')} value={supplierForm.phone} onChange={e => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
           <input className="w-full p-3 rounded-2xl border bg-white text-sm font-bold" placeholder={t('location')} value={supplierForm.location} onChange={e => setSupplierForm({ ...supplierForm, location: e.target.value })} />
+          {user?.role === 'SUPER_ADMIN' && (
+            <select
+              className="w-full p-3 rounded-2xl border bg-white text-sm font-black text-slate-700"
+              value={supplierForm.market}
+              onChange={e => setSupplierForm({ ...supplierForm, market: e.target.value })}
+            >
+              <option value="IQ">{t('iraqMarket')}</option>
+              <option value="AE">{t('uaeMarket')}</option>
+            </select>
+          )}
         </div>
 
         <div className="rounded-[24px] bg-slate-50 border border-slate-100 p-3 space-y-3">
@@ -1007,14 +1032,18 @@ export default function Admin({ tab, setTab }) {
 
   if (tab === 'settlements') {
     return <div className="p-4 space-y-4">
+      <MarketFilterBar />
       <h1 className="font-black text-xl text-slate-900">{t('supplierSettlements')}</h1>
-      <AdminPayoutManager token={token} />
+      <AdminPayoutManager token={token} marketFilter={marketFilter} />
     </div>;
   }
 
   if (tab === 'finance') {
     if (user?.role !== 'SUPER_ADMIN') return <div className="p-4 text-red-600 text-sm">{t('superAdminOnlyUsers')}</div>;
-    return <SuperAdminFinancialDashboard data={data} t={t} language={language} />;
+    return <div className="p-4 space-y-4 pb-6">
+      <MarketFilterBar />
+      <SuperAdminFinancialDashboard data={data} t={t} language={language} marketFilter={marketFilter} />
+    </div>;
   }
 
   if (tab === 'orders') {
@@ -1040,6 +1069,7 @@ export default function Admin({ tab, setTab }) {
     ];
 
     return <div className="p-4 space-y-4 pb-6">
+      <MarketFilterBar />
       <div className="rounded-[30px] bg-white border border-slate-200 p-5 shadow-sm">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black border border-blue-100">
           {t('orders')}
@@ -1116,6 +1146,7 @@ export default function Admin({ tab, setTab }) {
   }
 
   return <div className="p-4 space-y-4 pb-6">
+    <MarketFilterBar />
     <div className="rounded-[30px] bg-[#27439C] text-white p-5 shadow-sm overflow-hidden relative">
       <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
       <div className="absolute right-8 bottom-4 w-16 h-16 rounded-full bg-orange-400/10 pointer-events-none" />

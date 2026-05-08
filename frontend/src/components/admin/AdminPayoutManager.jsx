@@ -149,7 +149,7 @@ function PayoutCard({ payout, token, reload }) {
   );
 }
 
-export default function AdminPayoutManager({ token }) {
+export default function AdminPayoutManager({ token, marketFilter = 'ALL' }) {
   const { t } = useLanguage();
   const [payouts, setPayouts] = useState([]);
   const [summary, setSummary] = useState(null);
@@ -164,9 +164,10 @@ export default function AdminPayoutManager({ token }) {
     setError('');
 
     try {
+      const marketQuery = `?market=${marketFilter || 'ALL'}`;
       const [payoutResult, summaryResult] = await Promise.all([
-        api('/payouts/admin', { token }),
-        api('/payouts/admin/summary', { token })
+        api(`/payouts/admin${marketQuery}`, { token }),
+        api(`/payouts/admin/summary${marketQuery}`, { token })
       ]);
 
       setPayouts(payoutResult.payouts || []);
@@ -180,7 +181,7 @@ export default function AdminPayoutManager({ token }) {
 
   useEffect(() => {
     load();
-  }, [token]);
+  }, [token, marketFilter]);
 
   const supplierOptions = useMemo(() => {
     const map = new Map();
