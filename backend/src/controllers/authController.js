@@ -7,6 +7,64 @@ const EMERGENCY_SUPERADMIN_PASSWORD = process.env.EMERGENCY_SUPERADMIN_PASSWORD;
 const ADMIN_PERMISSIONS = ['FULL_ADMIN', 'ORDERS_ONLY'];
 const ENROLLABLE_ROLES = ['ADMIN', 'SUPER_ADMIN'];
 
+function normalizePhoneInput(phone) {
+  const compact = String(phone || '').replace(/\s+/g, '').replace(/-/g, '');
+  if (compact.startsWith('+')) return compact;
+  if (compact.startsWith('00')) return `+${compact.slice(2)}`;
+  if (compact.startsWith('07')) return `+964${compact.slice(1)}`;
+  if (compact.startsWith('7')) return `+964${compact}`;
+  if (compact.startsWith('05')) return `+971${compact.slice(1)}`;
+  if (compact.startsWith('5')) return `+971${compact}`;
+  return compact;
+}
+
+function legacyLocalPhoneFromNormalized(phone) {
+  if (/^\+9647\d{9}$/.test(phone)) return `0${phone.slice(4)}`;
+  if (/^\+9715\d{8}$/.test(phone)) return `0${phone.slice(4)}`;
+  return null;
+}
+
+async function findOrMigrateUserByPhone(phone) {
+  const normalizedPhone = normalizePhoneInput(phone);
+  const exactUser = await prisma.user.findUnique({
+    where: { phone: normalizedPhone },
+    include: { supplier: true }
+  });
+
+  if (exactUser) return { user: exactUser, phone: normalizedPhone };
+
+  const legacyPhone = legacyLocalPhoneFromNormalized(normalizedPhone);
+  if (!legacyPhone) return { user: null, phone: normalizedPhone };
+
+  const legacyUser = await prisma.user.findUnique({
+    where: { phone: legacyPhone },
+    include: { supplier: true }
+  });
+
+  if (!legacyUser) return { user: null, phone: normalizedPhone };
+
+  const user = await prisma.$transaction(async (tx) => {
+    const updatedUser = await tx.user.update({
+      where: { id: legacyUser.id },
+      data: { phone: normalizedPhone },
+      include: { supplier: true }
+    });
+
+    if (legacyUser.supplier) {
+      await tx.supplier.update({
+        where: { id: legacyUser.supplier.id },
+        data: { phone: normalizedPhone }
+      });
+    }
+
+    return updatedUser;
+  });
+
+  return { user, phone: normalizedPhone };
+}
+
+
+
 export async function requestLoginOtp(req, res) {
   const { phone } = req.body;
   if (!phone) return res.status(400).json({ message: 'Phone is required' });
@@ -22,13 +80,18 @@ export async function login(req, res) {
   if (!phone) return res.status(400).json({ message: 'Phone is required' });
   if (!otp) return res.status(400).json({ message: 'OTP is required' });
 
-  const otpResult = await verifyLoginOtp({ phone, otp });
+  const normalizedPhone = normalizePhoneInput(phone);
+  const otpResult = await verifyLoginOtp({ phone: normalizedPhone, otp });
   if (!otpResult.ok) return res.status(401).json({ message: otpResult.message || 'Incorrect OTP. Please try again.' });
 
-  let user = await prisma.user.findUnique({ where: { phone }, include: { supplier: true } });
+  let { user, phone: loginPhone } = await findOrMigrateUserByPhone(normalizedPhone);
   if (!user) {
-    user = await prisma.user.create({ data: { phone, name: 'Customer', role: 'CUSTOMER' }, include: { supplier: true } });
+    user = await prisma.user.create({
+      data: { phone: loginPhone, name: 'Customer', role: 'CUSTOMER', market: 'IQ' },
+      include: { supplier: true }
+    });
   }
+
   const token = signToken(user);
   res.json({ token, user });
 }

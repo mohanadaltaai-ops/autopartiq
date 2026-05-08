@@ -15,6 +15,11 @@ enum Role {
   SUPER_ADMIN
 }
 
+enum Market {
+  IQ
+  AE
+}
+
 enum RequestStatus {
   WAITING
   PROCESSING
@@ -77,11 +82,14 @@ model User {
   password        String?
   role            Role           @default(CUSTOMER)
   adminPermission String         @default("FULL_ADMIN")
+  market          Market         @default(IQ)
   createdAt       DateTime       @default(now())
   supplier        Supplier?
   requests        PartRequest[]
   notifications   Notification[]
   auditLogs       AuditLog[]
+
+  @@index([market])
 }
 
 model Supplier {
@@ -93,11 +101,14 @@ model Supplier {
   location           String
   supportedMakesJson String
   isActive           Boolean          @default(true)
+  market             Market           @default(IQ)
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
   offers             Offer[]
   orders             Order[]
   payouts            SupplierPayout[]
+
+  @@index([market])
 }
 
 model PartRequest {
@@ -117,9 +128,12 @@ model PartRequest {
   photoUrlsJson      String        @default("[]")
   cancellationReason String?
   status             RequestStatus @default(WAITING)
+  market             Market        @default(IQ)
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
   offers             Offer[]
+
+  @@index([market])
 }
 
 model Offer {
@@ -137,8 +151,11 @@ model Offer {
   photoUrl           String?
   photoUrlsJson      String        @default("[]")
   status             OfferStatus   @default(ACTIVE)
+  market             Market        @default(IQ)
   createdAt          DateTime      @default(now())
   order              Order?
+
+  @@index([market])
 }
 
 model Order {
@@ -162,9 +179,12 @@ model Order {
   deliveryEta        String?
   proofOfDeliveryUrl String?
   deliveryNotes      String?
+  market             Market          @default(IQ)
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
   payout             SupplierPayout?
+
+  @@index([market])
 }
 
 model SupplierPayout {
@@ -182,12 +202,15 @@ model SupplierPayout {
   providerTransactionId String?
   metadataJson          String  @default("{}")
 
+  market    Market    @default(IQ)
   paidAt    DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
   supplier Supplier @relation(fields: [supplierId], references: [id])
   order    Order?   @relation(fields: [orderId], references: [id])
+
+  @@index([market])
 }
 
 model Notification {
@@ -197,7 +220,10 @@ model Notification {
   message      String
   metadataJson String   @default("{}")
   read         Boolean  @default(false)
+  market       Market   @default(IQ)
   createdAt    DateTime @default(now())
+
+  @@index([market])
 }
 
 model AuditLog {
@@ -208,5 +234,8 @@ model AuditLog {
   entityType   String
   entityId     String?
   metadataJson String   @default("{}")
+  market       Market   @default(IQ)
   createdAt    DateTime @default(now())
+
+  @@index([market])
 }
