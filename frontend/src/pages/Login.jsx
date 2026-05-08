@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import logo from '../assets/logo.png';
-import { formatMarketMoney, getMarketAppName, getMarketCode, getMarketCountryName } from '../lib/market';
+import { formatMarketMoney, getMarketAppName, getMarketCode, getMarketCountryName, getMarketPhonePrefix } from '../lib/market';
 
 export default function Login() {
   const { login } = useAuth();
@@ -11,6 +11,7 @@ export default function Login() {
   const marketCode = getMarketCode();
   const appName = getMarketAppName(language);
   const countryName = getMarketCountryName(language);
+  const phonePrefix = getMarketPhonePrefix();
   const samplePrice = marketCode === 'AE' ? formatMarketMoney(120) : formatMarketMoney(120000);
   const [phone, setPhone] = useState('');
   const [screen, setScreen] = useState('landing');
@@ -39,6 +40,9 @@ export default function Login() {
           offers: '+3 عروض',
           phoneTitle: 'تسجيل الدخول برقم الهاتف',
           phoneHint: 'أدخل رقم هاتفك للمتابعة',
+          phonePlaceholder: marketCode === 'AE' ? '+971 5X XXX XXXX' : '+964 7XX XXX XXXX',
+          phoneHelper: marketCode === 'AE' ? 'أدخل رقمك الإماراتي مع رمز الدولة +971' : 'أدخل رقمك العراقي مع رمز الدولة +964',
+          phoneValidationError: marketCode === 'AE' ? 'يرجى إدخال رقم إماراتي صحيح مثل +9715XXXXXXXX' : 'يرجى إدخال رقم عراقي صحيح مثل +9647XXXXXXXXX',
           otpTitle: 'أدخل رمز التحقق',
           otpHint: 'أدخل رمز التحقق المكوّن من 4 أرقام',
           continue: 'متابعة',
@@ -58,6 +62,9 @@ export default function Login() {
           offers: '+3 offers',
           phoneTitle: 'Phone number sign in',
           phoneHint: 'Enter your phone number to continue',
+          phonePlaceholder: marketCode === 'AE' ? '+971 5X XXX XXXX' : '+964 7XX XXX XXXX',
+          phoneHelper: marketCode === 'AE' ? 'Enter your UAE mobile number with +971' : 'Enter your Iraq mobile number with +964',
+          phoneValidationError: marketCode === 'AE' ? 'Enter a valid UAE mobile number like +9715XXXXXXXX' : 'Enter a valid Iraq mobile number like +9647XXXXXXXXX',
           otpTitle: 'Enter verification code',
           otpHint: 'Enter your 4-digit verification code',
           continue: 'Continue',
@@ -67,6 +74,47 @@ export default function Login() {
         };
   }, [language, marketCode, countryName, samplePrice]);
 
+  function normalizePhoneNumber(value) {
+    const compact = String(value || '').replace(/\s+/g, '').replace(/-/g, '');
+
+    if (compact.startsWith('+')) return compact;
+    if (compact.startsWith('00')) return `+${compact.slice(2)}`;
+
+    if (marketCode === 'AE') {
+      if (compact.startsWith('05')) return `+971${compact.slice(1)}`;
+      if (compact.startsWith('5')) return `+971${compact}`;
+    }
+
+    if (marketCode === 'IQ') {
+      if (compact.startsWith('07')) return `+964${compact.slice(1)}`;
+      if (compact.startsWith('7')) return `+964${compact}`;
+    }
+
+    return compact.startsWith(phonePrefix.replace('+', ''))
+      ? `+${compact}`
+      : compact;
+  }
+
+  function isValidMarketPhone(value) {
+    if (marketCode === 'AE') return /^\+9715\d{8}$/.test(value);
+    if (marketCode === 'IQ') return /^\+9647\d{9}$/.test(value);
+    return Boolean(value);
+  }
+
+  function continueToOtp() {
+    const normalized = normalizePhoneNumber(phone);
+
+    if (!isValidMarketPhone(normalized)) {
+      setPhone(normalized);
+      setError(copy.phoneValidationError);
+      return;
+    }
+
+    setError('');
+    setPhone(normalized);
+    setScreen('otp');
+  }
+
   async function submit() {
     const cleanOtp = otp.trim();
 
@@ -75,9 +123,17 @@ export default function Login() {
       return;
     }
 
+    const normalizedPhone = normalizePhoneNumber(phone);
+
+    if (!isValidMarketPhone(normalizedPhone)) {
+      setPhone(normalizedPhone);
+      setError(copy.phoneValidationError);
+      return;
+    }
+
     try {
       setError('');
-      await login(phone, cleanOtp);
+      await login(normalizedPhone, cleanOtp);
     } catch (e) {
       const message = e.message || '';
 
@@ -220,19 +276,29 @@ export default function Login() {
               {screen === 'phone' ? (
                 <>
                   <div className="bg-white rounded-[24px] border border-slate-200 shadow-sm p-3">
-                    <input
-                      className="w-full h-14 px-4 rounded-[18px] bg-[#F8FAFD] border border-slate-200 outline-none text-[18px] font-bold"
-                      value={phone}
-                      onChange={e => {
-                        setPhone(e.target.value);
-                        setError('');
-                      }}
-                      placeholder={t('phoneNumber')}
-                    />
+                    <div dir="ltr" className="flex items-center gap-2">
+                      <div className="h-14 px-3 rounded-[18px] bg-blue-50 border border-blue-100 text-blue-700 text-sm font-black flex items-center justify-center whitespace-nowrap">
+                        {phonePrefix}
+                      </div>
+                      <input
+                        dir="ltr"
+                        inputMode="tel"
+                        className="min-w-0 flex-1 h-14 px-4 rounded-[18px] bg-[#F8FAFD] border border-slate-200 outline-none text-[18px] font-bold text-left placeholder:text-left"
+                        value={phone}
+                        onChange={e => {
+                          setPhone(e.target.value);
+                          setError('');
+                        }}
+                        placeholder={copy.phonePlaceholder}
+                      />
+                    </div>
+                    <div className="mt-2 text-[11px] font-bold text-[#8B95A7]">
+                      {copy.phoneHelper}
+                    </div>
                   </div>
 
                   <button
-                    onClick={() => setScreen('otp')}
+                    onClick={continueToOtp}
                     disabled={!phone.trim()}
                     className="w-full h-14 rounded-[18px] bg-[#27439C] text-white font-black text-[15px] disabled:opacity-40 shadow-[0_14px_30px_rgba(39,67,156,0.20)]"
                   >
