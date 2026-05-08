@@ -2,16 +2,19 @@ import { z } from 'zod';
 
 const emptyToNull = value => value === '' ? null : value;
 const phone = z.string().min(7).max(20);
+const market = z.enum(['IQ', 'AE']).optional();
 const optionalText = z.preprocess(emptyToNull, z.string().max(500).optional().nullable());
 const optionalUrl = z.preprocess(emptyToNull, z.string().url().optional().nullable());
 const photoUrls = z.array(z.string().url()).max(5).optional().default([]);
 
 export const requestOtpSchema = z.object({
-  phone
+  phone,
+  market
 });
 
 export const loginSchema = z.object({
   phone,
+  market,
   otp: z.string().min(4).max(8)
 });
 

@@ -146,7 +146,7 @@ export default function Login() {
         return;
       }
 
-      setError(t('incorrectOtp'));
+      setError(message || t('incorrectOtp'));
     }
   }
 

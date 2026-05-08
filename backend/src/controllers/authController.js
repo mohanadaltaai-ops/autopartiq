@@ -7,6 +7,15 @@ const EMERGENCY_SUPERADMIN_PASSWORD = process.env.EMERGENCY_SUPERADMIN_PASSWORD;
 const ADMIN_PERMISSIONS = ['FULL_ADMIN', 'ORDERS_ONLY'];
 const ENROLLABLE_ROLES = ['ADMIN', 'SUPER_ADMIN'];
 
+function normalizeMarketInput(market) {
+  return market === 'AE' ? 'AE' : 'IQ';
+}
+
+function isValidPhoneForMarket(phone, market) {
+  if (market === 'AE') return /^\+9715\d{8}$/.test(phone);
+  return /^\+9647\d{9}$/.test(phone);
+}
+
 function normalizePhoneInput(phone) {
   const compact = String(phone || '').replace(/\s+/g, '').replace(/-/g, '');
   if (compact.startsWith('+')) return compact;
@@ -67,9 +76,19 @@ async function findOrMigrateUserByPhone(phone) {
 
 export async function requestLoginOtp(req, res) {
   const { phone } = req.body;
+  const market = normalizeMarketInput(req.body.market);
   if (!phone) return res.status(400).json({ message: 'Phone is required' });
 
-  const result = await sendLoginOtp(phone);
+  const normalizedPhone = normalizePhoneInput(phone);
+  if (!isValidPhoneForMarket(normalizedPhone, market)) {
+    return res.status(400).json({
+      message: market === 'AE'
+        ? 'Enter a valid UAE mobile number like +9715XXXXXXXX'
+        : 'Enter a valid Iraq mobile number like +9647XXXXXXXXX'
+    });
+  }
+
+  const result = await sendLoginOtp(normalizedPhone);
   if (!result.ok) return res.status(400).json({ message: result.message });
 
   res.json({ ok: true, provider: result.provider, expiresInMinutes: result.expiresInMinutes });
@@ -77,17 +96,35 @@ export async function requestLoginOtp(req, res) {
 
 export async function login(req, res) {
   const { phone, otp } = req.body;
+  const market = normalizeMarketInput(req.body.market);
   if (!phone) return res.status(400).json({ message: 'Phone is required' });
   if (!otp) return res.status(400).json({ message: 'OTP is required' });
 
   const normalizedPhone = normalizePhoneInput(phone);
+  if (!isValidPhoneForMarket(normalizedPhone, market)) {
+    return res.status(400).json({
+      message: market === 'AE'
+        ? 'Enter a valid UAE mobile number like +9715XXXXXXXX'
+        : 'Enter a valid Iraq mobile number like +9647XXXXXXXXX'
+    });
+  }
+
   const otpResult = await verifyLoginOtp({ phone: normalizedPhone, otp });
   if (!otpResult.ok) return res.status(401).json({ message: otpResult.message || 'Incorrect OTP. Please try again.' });
 
   let { user, phone: loginPhone } = await findOrMigrateUserByPhone(normalizedPhone);
+
+  if (user && user.market !== market) {
+    return res.status(403).json({
+      message: market === 'AE'
+        ? 'This phone number is registered for another market. Please use the correct app.'
+        : 'This phone number is registered for another market. Please use the correct app.'
+    });
+  }
+
   if (!user) {
     user = await prisma.user.create({
-      data: { phone: loginPhone, name: 'Customer', role: 'CUSTOMER', market: 'IQ' },
+      data: { phone: loginPhone, name: 'Customer', role: 'CUSTOMER', market },
       include: { supplier: true }
     });
   }

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { api } from '../lib/api';
+import { getMarketCode } from '../lib/market';
 
 const AuthContext = createContext(null);
 
@@ -26,7 +27,8 @@ export function AuthProvider({ children }) {
   }, [token]);
 
   async function login(phone, otp) {
-    const res = await api('/auth/login', { method: 'POST', body: { phone, otp } });
+    const market = getMarketCode();
+    const res = await api('/auth/login', { method: 'POST', body: { phone, otp, market } });
     localStorage.setItem('token', res.token);
     setToken(res.token);
     setUser(res.user);
