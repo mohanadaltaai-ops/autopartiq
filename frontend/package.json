@@ -6,7 +6,11 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "node -e \"console.log('Frontend lint placeholder OK')\""
+    "lint": "node -e \"console.log('Frontend lint placeholder OK')\"",
+    "dev:iq": "vite --host 0.0.0.0 --mode iq",
+    "dev:ae": "vite --host 0.0.0.0 --mode ae",
+    "build:iq": "vite build --mode iq",
+    "build:ae": "vite build --mode ae"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.4",

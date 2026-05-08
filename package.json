@@ -11,7 +11,11 @@
     "dev": "concurrently \"npm run dev --workspace backend\" \"npm run dev --workspace frontend\"",
     "build": "npm run build --workspace frontend && npm run build --workspace backend",
     "seed": "npm run db:seed --workspace backend",
-    "db:push": "npm run db:push --workspace backend"
+    "db:push": "npm run db:push --workspace backend",
+    "build:iq": "npm run build:iq --workspace frontend && npm run build --workspace backend",
+    "build:ae": "npm run build:ae --workspace frontend && npm run build --workspace backend",
+    "dev:frontend:iq": "npm run dev:iq --workspace frontend",
+    "dev:frontend:ae": "npm run dev:ae --workspace frontend"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

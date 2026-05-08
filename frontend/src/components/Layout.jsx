@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Bell, Home, Package, User, BarChart3, Users, ShieldCheck, UserPlus, Wallet, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getMarketAppName } from '../lib/market';
 import { api } from '../lib/api';
 import logo from '../assets/logo.png';
 
@@ -98,7 +99,7 @@ function notificationVisual(item) {
 
 export default function Layout({ tab, setTab, children }) {
   const { user, token } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -189,7 +190,7 @@ export default function Layout({ tab, setTab, children }) {
           </button>
 
           <div>
-            <div className="font-black text-slate-900 leading-tight tracking-tight">{t('appName')}</div>
+            <div className="font-black text-slate-900 leading-tight tracking-tight">{getMarketAppName(language)}</div>
             <div className={`text-[10px] font-black ${roleColor}`}>{roleLabel}</div>
           </div>
         </div>

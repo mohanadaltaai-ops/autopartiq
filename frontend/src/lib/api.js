@@ -1,3 +1,4 @@
+import { formatMarketMoney } from './market';
 const isBrowser = typeof window !== 'undefined';
 const isLocalhost = isBrowser && ['localhost', '127.0.0.1'].includes(window.location.hostname);
 const DEFAULT_API_URL = isLocalhost ? 'http://localhost:4000/api' : 'https://autopartiq.onrender.com/api';
@@ -52,5 +53,9 @@ export async function uploadImage(file, { token, context = 'request' } = {}) {
 }
 
 export function formatIQD(value) {
-  return `${Number(value || 0).toLocaleString()} IQD`;
+  return formatMarketMoney(value);
+}
+
+export function formatMoney(value) {
+  return formatMarketMoney(value);
 }

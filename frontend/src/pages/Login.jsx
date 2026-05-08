@@ -3,26 +3,39 @@ import { ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import logo from '../assets/logo.png';
+import { formatMarketMoney, getMarketAppName, getMarketCode, getMarketCountryName } from '../lib/market';
 
 export default function Login() {
   const { login } = useAuth();
   const { t, language, toggleLanguage } = useLanguage();
+  const marketCode = getMarketCode();
+  const appName = getMarketAppName(language);
+  const countryName = getMarketCountryName(language);
+  const samplePrice = marketCode === 'AE' ? formatMarketMoney(120) : formatMarketMoney(120000);
   const [phone, setPhone] = useState('');
   const [screen, setScreen] = useState('landing');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
 
   const copy = useMemo(() => {
+    const englishMarket = marketCode === 'AE'
+      ? 'UAE spare parts marketplace'
+      : 'Iraqi spare parts marketplace';
+
+    const arabicMarket = marketCode === 'AE'
+      ? 'سوق قطع الغيار في الإمارات'
+      : 'سوق قطع الغيار العراقي';
+
     return language === 'ar'
       ? {
-          market: 'سوق قطع الغيار العراقي',
+          market: arabicMarket,
           heroTitle: 'اعثر على أي قطعة سيارة.\nواحصل على عروض خلال دقائق.',
-          heroSubtitle: 'أرسل طلباً واحداً — وسيتنافس الموردون المعتمدون في العراق لتلبيته.',
+          heroSubtitle: `أرسل طلباً واحداً — وسيتنافس الموردون المعتمدون في ${countryName} لتلبيته.`,
           getStarted: 'ابدأ الآن',
           haveAccount: 'لديك حساب؟',
           logIn: 'تسجيل الدخول',
           partName: 'BRAKE PAD',
-          price: '120,000 د.ع',
+          price: samplePrice,
           offers: '+3 عروض',
           phoneTitle: 'تسجيل الدخول برقم الهاتف',
           phoneHint: 'أدخل رقم هاتفك للمتابعة',
@@ -34,14 +47,14 @@ export default function Login() {
           changeNumber: 'تغيير الرقم'
         }
       : {
-          market: 'Iraqi spare parts marketplace',
+          market: englishMarket,
           heroTitle: 'Find any car part.\nQuoted in minutes.',
-          heroSubtitle: 'Send one request — verified suppliers across Iraq compete to fulfill it.',
+          heroSubtitle: `Send one request — verified suppliers across ${countryName} compete to fulfill it.`,
           getStarted: 'Get started',
           haveAccount: 'Have an account?',
           logIn: 'Log in',
           partName: 'BRAKE PAD',
-          price: '120,000 IQD',
+          price: samplePrice,
           offers: '+3 offers',
           phoneTitle: 'Phone number sign in',
           phoneHint: 'Enter your phone number to continue',
@@ -52,7 +65,7 @@ export default function Login() {
           back: 'Back',
           changeNumber: 'Change number'
         };
-  }, [language]);
+  }, [language, marketCode, countryName, samplePrice]);
 
   async function submit() {
     const cleanOtp = otp.trim();
@@ -106,7 +119,7 @@ export default function Login() {
           <div className="flex-1 px-8 pt-20 pb-5 flex flex-col bg-[linear-gradient(135deg,#F6F0EC_0%,#EEF3FF_55%,#F4F7FF_100%)]">
             <div className="flex justify-start">
               <div className="logo-surface w-[88px] h-[88px] rounded-[26px] bg-white shadow-sm border border-slate-100 flex items-center justify-center p-3">
-                <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain" />
+                <img src={logo} alt={`${appName} Logo`} className="w-full h-full object-contain" />
               </div>
             </div>
 
@@ -182,10 +195,10 @@ export default function Login() {
             <div className="px-7 pt-24 pb-6">
               <div className="flex items-center gap-4">
                 <div className="logo-surface w-16 h-16 rounded-[22px] bg-white shadow-sm border border-slate-100 flex items-center justify-center p-2">
-                  <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain" />
+                  <img src={logo} alt={`${appName} Logo`} className="w-full h-full object-contain" />
                 </div>
                 <div>
-                  <div className="text-[26px] font-black tracking-tight text-[#081B4B]">AutoParts IQ</div>
+                  <div className="text-[26px] font-black tracking-tight text-[#081B4B]">{appName}</div>
                   <div className="text-[12px] font-bold text-[#8B95A7]">{copy.phoneTitle}</div>
                 </div>
               </div>
