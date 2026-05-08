@@ -21,6 +21,9 @@ export async function createOffer(req, res) {
 
   const request = await prisma.partRequest.findUnique({ where: { id: req.params.requestId } });
   if (!request) return res.status(404).json({ message: 'Request not found' });
+  if ((supplier.market || req.user.market || 'IQ') !== (request.market || 'IQ')) {
+    return res.status(403).json({ message: 'This request belongs to another market' });
+  }
   if (request.status !== 'WAITING') return res.status(400).json({ message: 'Only waiting requests can receive offers' });
 
   const supportedMakes = JSON.parse(supplier.supportedMakesJson || '[]');
@@ -37,6 +40,7 @@ export async function createOffer(req, res) {
     data: {
       requestId: request.id,
       supplierId: supplier.id,
+      market: request.market || supplier.market || req.user.market || 'IQ',
       supplierPrice,
       customerPrice: pricing.customerPrice,
       platformRevenue: pricing.platformRevenue,
@@ -106,6 +110,7 @@ export async function acceptOffer(req, res) {
         offerId: offer.id,
         supplierId: offer.supplierId,
         customerId: offer.request.customerId,
+        market: offer.market || offer.request.market || 'IQ',
         supplierPrice: offer.supplierPrice,
         customerPrice: offer.customerPrice,
         platformRevenue: offer.platformRevenue

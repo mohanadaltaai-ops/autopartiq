@@ -18,10 +18,11 @@ export async function myOrders(req, res) {
   if (req.user.role === 'SUPPLIER') {
     const supplier = await prisma.supplier.findUnique({ where: { userId: req.user.id } });
     if (!supplier) return res.status(404).json({ message: 'Supplier profile not found' });
-    where = { supplierId: supplier.id };
+    where = { supplierId: supplier.id, market: supplier.market || req.user.market || 'IQ' };
   }
 
-  if (['ADMIN', 'SUPER_ADMIN'].includes(req.user.role)) where = {};
+  if (req.user.role === 'ADMIN') where = { market: req.user.market || 'IQ' };
+  if (req.user.role === 'SUPER_ADMIN') where = {};
 
   const orders = await prisma.order.findMany({
     where,

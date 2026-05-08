@@ -22,6 +22,7 @@ export async function createRequest(req, res) {
   const request = await prisma.partRequest.create({
     data: {
       customerId: req.user.id,
+      market: req.user.market || 'IQ',
       origin: data.origin,
       make: data.make,
       model: data.model,
@@ -38,7 +39,10 @@ export async function createRequest(req, res) {
 
   try {
     const suppliers = await prisma.supplier.findMany({
-      where: { isActive: true },
+      where: {
+        isActive: true,
+        market: request.market
+      },
       include: { user: true }
     });
 
@@ -112,6 +116,7 @@ export async function supplierLeads(req, res) {
     where: {
       origin: { in: supportedMakes },
       status: 'WAITING',
+      market: supplier.market || req.user.market || 'IQ',
       offers: { none: { supplierId: supplier.id } }
     },
     include: { offers: true },
