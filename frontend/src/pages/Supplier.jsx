@@ -234,6 +234,26 @@ export default function Supplier({ tab }) {
 function OrderCard({ order }) {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
+  const isDarkMode = typeof window !== 'undefined' && localStorage.getItem('theme') === 'dark';
+
+  const request = order.offer?.request || {};
+  const partTitle = request.partName || t('partDetails');
+  const vehicleTitle = [request.make, request.model, request.year].filter(Boolean).join(' ');
+  const orderDate = order.createdAt ? new Date(order.createdAt).toISOString().slice(0, 10) : t('notAvailable');
+  const statusText = orderStatusLabel(order.status, t);
+  const totalValue = Number(order.supplierPrice || 0);
+
+  const surfaceClass = isDarkMode
+    ? 'bg-[#101A33] border-slate-700 text-slate-100'
+    : 'bg-white border-slate-200 text-slate-950';
+
+  const innerSurfaceClass = isDarkMode
+    ? 'bg-[#0B1226] border-slate-700'
+    : 'bg-slate-50 border-slate-100';
+
+  const titleTextClass = isDarkMode ? 'text-white' : 'text-slate-950';
+  const mutedTextClass = isDarkMode ? 'text-slate-300' : 'text-slate-500';
+  const softTextClass = isDarkMode ? 'text-slate-400' : 'text-slate-400';
 
   const statusTone = order.status === 'COMPLETED'
     ? 'bg-green-50 text-green-700 border-green-100'
@@ -242,33 +262,69 @@ function OrderCard({ order }) {
       : 'bg-blue-50 text-blue-700 border-blue-100';
 
   return (
-    <div className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm space-y-3">
+    <div className={`rounded-[30px] border p-3 shadow-sm space-y-3 ${surfaceClass}`}>
       <button
         type="button"
         onClick={() => setOpen(value => !value)}
-        className="w-full text-left flex items-start justify-between gap-3"
+        className="w-full text-left"
       >
-        <div className="min-w-0">
-          <div className={`inline-flex px-2.5 py-1 rounded-full border text-[10px] font-black mb-2 ${statusTone}`}>
-            {orderStatusLabel(order.status, t)}
+        <div className="flex items-start gap-3">
+          <div className={`w-[76px] h-[76px] shrink-0 rounded-[24px] border overflow-hidden flex items-center justify-center ${isDarkMode ? 'bg-[#0B1226] border-slate-700' : 'bg-blue-50 border-blue-100'}`}>
+            {request.photoUrl || request.imageUrl ? (
+              <img src={request.photoUrl || request.imageUrl} alt={partTitle} className="w-full h-full object-cover" />
+            ) : (
+              <div className="text-center px-2">
+                <div className="text-[10px] font-black text-blue-700 uppercase leading-tight">{request.origin || 'IQ'}</div>
+                <div className={`text-[9px] font-bold mt-1 leading-tight ${softTextClass}`}>{request.make || t('partDetails')}</div>
+              </div>
+            )}
           </div>
 
-          <div className="font-black text-slate-950 text-lg leading-tight">{order.offer.request.partName}</div>
-          <div className="text-xs text-slate-500 font-bold mt-1">
-            {order.offer.request.make} {order.offer.request.model} • {conditionLabel(order.offer.condition, t)}
-          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="text-[11px] font-black text-blue-600 truncate">{order.orderNumber}</div>
+                <div className={`font-black text-lg leading-tight mt-1 truncate ${titleTextClass}`}>{partTitle}</div>
+                <div className={`text-xs font-bold mt-1 truncate ${mutedTextClass}`}>
+                  {vehicleTitle || t('notAvailable')} • {conditionLabel(order.offer.condition, t)}
+                </div>
+              </div>
 
-          <div className="mt-3 inline-flex items-center gap-2 rounded-2xl bg-slate-50 border border-slate-100 px-3 py-2">
-            <span className="text-[10px] font-black text-slate-400 uppercase">{t('yourPrice')}</span>
-            <span className="text-sm font-black text-blue-700">{formatIQD(order.supplierPrice)}</span>
+              <div className="shrink-0 text-right">
+                <div className={`w-10 h-10 rounded-2xl border flex items-center justify-center font-black ${isDarkMode ? 'bg-[#0B1226] border-slate-700 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-500'}`}>
+                  {open ? '−' : '+'}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2 mt-3">
+              <span className={`inline-flex px-2.5 py-1 rounded-full border text-[10px] font-black ${statusTone}`}>
+                {statusText}
+              </span>
+              <span className="inline-flex px-2.5 py-1 rounded-full border bg-blue-50 text-blue-700 border-blue-100 text-[10px] font-black">
+                {t('yourPrice')}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="text-right shrink-0">
-          <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 font-black">
-            {open ? '−' : '+'}
+        <div className={`mt-3 rounded-[22px] border p-3 grid grid-cols-3 gap-2 ${innerSurfaceClass}`}>
+          <div>
+            <div className="text-[9px] uppercase font-black text-blue-600">{t('date')}</div>
+            <div className={`text-[11px] font-black mt-1 ${titleTextClass}`}>{orderDate}</div>
           </div>
-          <div className="text-[10px] text-slate-400 font-black mt-2">{open ? t('hide') : t('details')}</div>
+          <div>
+            <div className="text-[9px] uppercase font-black text-blue-600">{t('condition')}</div>
+            <div className={`text-[11px] font-black mt-1 ${titleTextClass}`}>{conditionLabel(order.offer.condition, t)}</div>
+          </div>
+          <div className="text-right">
+            <div className="text-[9px] uppercase font-black text-blue-600">{t('yourPrice')}</div>
+            <div className={`text-[11px] font-black mt-1 ${titleTextClass}`}>{formatIQD(totalValue)}</div>
+          </div>
+        </div>
+
+        <div className={`text-[10px] font-black mt-2 text-right ${softTextClass}`}>
+          {open ? t('hide') : t('details')}
         </div>
       </button>
 
@@ -276,7 +332,7 @@ function OrderCard({ order }) {
         <div className="space-y-3">
           <OrderInfoPanel order={order} />
           <DeliveryWorkflow status={order.status} />
-          <div className="rounded-[20px] bg-slate-50 border border-slate-100 text-slate-500 text-xs p-3 font-bold">
+          <div className={`rounded-[20px] border text-xs p-3 font-bold ${isDarkMode ? 'bg-[#0B1226] border-slate-700 text-slate-300' : 'bg-slate-50 border-slate-100 text-slate-500'}`}>
             {t('orderReadOnly')}
           </div>
         </div>
