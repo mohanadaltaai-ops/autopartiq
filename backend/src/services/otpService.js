@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { OTPiqClient } from 'otpiq';
 import { prisma } from '../db.js';
 
 const OTP_PROVIDER = process.env.OTP_PROVIDER || 'test';
@@ -8,8 +9,29 @@ const OTP_RESEND_SECONDS = Number(process.env.OTP_RESEND_SECONDS || 60);
 const OTP_MAX_ATTEMPTS = Number(process.env.OTP_MAX_ATTEMPTS || 5);
 const OTP_HASH_SECRET = process.env.OTP_HASH_SECRET || process.env.JWT_SECRET || 'local-otp-secret';
 
+const IQ_OTP_PROVIDER = process.env.IQ_OTP_PROVIDER || 'test';
+const AE_OTP_PROVIDER = process.env.AE_OTP_PROVIDER || 'test';
+
+const OTPIQ_API_KEY = process.env.OTPIQ_API_KEY || '';
+const OTPIQ_PRIMARY_PROVIDER = process.env.OTPIQ_PRIMARY_PROVIDER || 'whatsapp';
+const OTPIQ_FALLBACK_PROVIDER = process.env.OTPIQ_FALLBACK_PROVIDER || 'sms';
+
 function normalizeMarket(market) {
   return market === 'AE' ? 'AE' : 'IQ';
+}
+
+function providerForMarket(market) {
+  const normalizedMarket = normalizeMarket(market);
+
+  if (OTP_PROVIDER === 'market') {
+    return normalizedMarket === 'AE' ? AE_OTP_PROVIDER : IQ_OTP_PROVIDER;
+  }
+
+  return OTP_PROVIDER;
+}
+
+function phoneForOtpiq(phone) {
+  return String(phone || '').replace(/^\+/, '');
 }
 
 function hashOtp({ phone, otp }) {
@@ -51,12 +73,81 @@ async function createChallenge({ phone, market, otp, provider }) {
   return { expiresAt };
 }
 
-async function sendSmsThroughProvider({ phone, otp }) {
-  // Provider integration will be added in the next batch after we choose the SMS provider.
-  // This function intentionally does not log the OTP.
+async function sendOtpThroughOtpiq({ phone, otp }) {
+  if (!OTPIQ_API_KEY) {
+    return {
+      ok: false,
+      message: 'OTPIQ is not configured. Missing OTPIQ_API_KEY.'
+    };
+  }
+
+  const client = new OTPiqClient({
+    apiKey: OTPIQ_API_KEY
+  });
+
+  const phoneNumber = phoneForOtpiq(phone);
+
+  try {
+    const response = await client.sendSMS({
+      phoneNumber,
+      smsType: 'verification',
+      verificationCode: otp,
+      provider: OTPIQ_PRIMARY_PROVIDER
+    });
+
+    return {
+      ok: true,
+      provider: `otpiq:${OTPIQ_PRIMARY_PROVIDER}`,
+      externalId: response?.smsId || null
+    };
+  } catch (primaryError) {
+    if (!OTPIQ_FALLBACK_PROVIDER || OTPIQ_FALLBACK_PROVIDER === OTPIQ_PRIMARY_PROVIDER) {
+      return {
+        ok: false,
+        message: primaryError?.message || 'OTPIQ OTP sending failed'
+      };
+    }
+
+    try {
+      const fallbackResponse = await client.sendSMS({
+        phoneNumber,
+        smsType: 'verification',
+        verificationCode: otp,
+        provider: OTPIQ_FALLBACK_PROVIDER
+      });
+
+      return {
+        ok: true,
+        provider: `otpiq:${OTPIQ_FALLBACK_PROVIDER}`,
+        externalId: fallbackResponse?.smsId || null,
+        fallbackUsed: true
+      };
+    } catch (fallbackError) {
+      return {
+        ok: false,
+        message: fallbackError?.message || primaryError?.message || 'OTPIQ OTP sending failed'
+      };
+    }
+  }
+}
+
+async function sendOtpThroughProvider({ phone, otp, market }) {
+  const provider = providerForMarket(market);
+
+  if (provider === 'test') {
+    return {
+      ok: true,
+      provider: 'test'
+    };
+  }
+
+  if (provider === 'otpiq') {
+    return sendOtpThroughOtpiq({ phone, otp });
+  }
+
   return {
     ok: false,
-    message: 'SMS OTP provider is not configured yet'
+    message: `Unsupported OTP provider for market: ${provider}`
   };
 }
 
@@ -89,46 +180,32 @@ export async function sendLoginOtp(phone, market = 'IQ') {
     }
   }
 
-  if (OTP_PROVIDER === 'test') {
-    await createChallenge({
-      phone,
-      market: normalizedMarket,
-      otp: TEST_OTP,
-      provider: 'test'
-    });
+  const provider = providerForMarket(normalizedMarket);
+  const otp = provider === 'test' ? TEST_OTP : generateOtp();
 
-    return {
-      ok: true,
-      provider: 'test',
-      message: 'Test OTP is ready',
-      expiresInMinutes: OTP_EXPIRY_MINUTES
-    };
+  const sendResult = await sendOtpThroughProvider({
+    phone,
+    otp,
+    market: normalizedMarket
+  });
+
+  if (!sendResult.ok) {
+    return sendResult;
   }
 
-  if (OTP_PROVIDER === 'sms') {
-    const otp = generateOtp();
-    const smsResult = await sendSmsThroughProvider({ phone, otp, market: normalizedMarket });
+  await createChallenge({
+    phone,
+    market: normalizedMarket,
+    otp,
+    provider: sendResult.provider || provider
+  });
 
-    if (!smsResult.ok) {
-      return smsResult;
-    }
-
-    await createChallenge({
-      phone,
-      market: normalizedMarket,
-      otp,
-      provider: 'sms'
-    });
-
-    return {
-      ok: true,
-      provider: 'sms',
-      message: 'OTP sent',
-      expiresInMinutes: OTP_EXPIRY_MINUTES
-    };
-  }
-
-  return { ok: false, message: 'Unsupported OTP provider' };
+  return {
+    ok: true,
+    provider: sendResult.provider || provider,
+    message: provider === 'test' ? 'Test OTP is ready' : 'OTP sent',
+    expiresInMinutes: OTP_EXPIRY_MINUTES
+  };
 }
 
 export async function verifyLoginOtp({ phone, otp, market = 'IQ' }) {
@@ -137,8 +214,10 @@ export async function verifyLoginOtp({ phone, otp, market = 'IQ' }) {
 
   const normalizedMarket = normalizeMarket(market);
 
+  const activeProvider = providerForMarket(normalizedMarket);
+
   // Keep direct local/test login working even if the request-OTP step was skipped.
-  if (OTP_PROVIDER === 'test' && String(otp).trim() === TEST_OTP) {
+  if (activeProvider === 'test' && String(otp).trim() === TEST_OTP) {
     const active = await latestActiveChallenge(phone, normalizedMarket);
 
     if (active && active.consumedAt === null) {
