@@ -442,7 +442,7 @@ function RequestCard({ req, token, reload, onToast, focus, onFocusHandled }) {
 }
 
 function RequestForm({ token, onDone }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [form, setForm] = useState({
     origin: '',
     make: '',
@@ -457,20 +457,44 @@ function RequestForm({ token, onDone }) {
     photoUrls: []
   });
   const [uploading, setUploading] = useState(false);
-  const [problem, setProblem] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [aiResult, setAiResult] = useState(null);
   const makes = form.origin ? Object.keys(carData[form.origin].makes) : [];
   const models = form.origin && form.make ? carData[form.origin].makes[form.make] || [] : [];
 
-  async function ai() {
-    if (!problem.trim()) return;
+  async function analyzeLatestPhoto() {
+    const photoUrl = form.photoUrls[0];
+    if (!photoUrl) {
+      setError(t('aiPhotoRequired'));
+      return;
+    }
+
     setLoading(true);
     setError('');
+
     try {
-      const r = await api('/ai/identify-part', { method: 'POST', token, body: { problem } });
-      setForm(f => ({ ...f, partName: r.partName, description: r.description }));
+      const r = await api('/ai/identify-part', {
+        method: 'POST',
+        token,
+        body: {
+          photoUrl,
+          language,
+          origin: form.origin,
+          make: form.make,
+          model: form.model,
+          year: form.year || undefined
+        }
+      });
+
+      setAiResult(r);
+      setForm(f => ({
+        ...f,
+        partName: r.partName || f.partName,
+        description: r.description || f.description,
+        partNumber: r.partNumberFormat && !f.partNumber ? r.partNumberFormat : f.partNumber
+      }));
     } catch (e) {
       setError(e.message);
     } finally {
@@ -565,11 +589,58 @@ function RequestForm({ token, onDone }) {
         <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black">🔧</div>
       </div>
 
-      <div className="bg-blue-50 rounded-2xl p-3 space-y-2 border border-blue-100">
-        <input className="w-full p-3 rounded-xl border bg-white" placeholder={t('describeProblem')} value={problem} onChange={e => setProblem(e.target.value)} />
-        <button onClick={ai} disabled={loading || !problem.trim()} className="w-full py-2 rounded-xl bg-[#27439C] text-white font-bold disabled:opacity-40">
-          {loading ? t('analyzing') : t('aiIdentify')}
+      <div className="bg-blue-50 rounded-[24px] p-3 space-y-3 border border-blue-100">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="text-[10px] uppercase font-black text-blue-700">{t('scanPartPhoto')}</div>
+            <div className="text-xs font-bold text-slate-500 mt-1">{t('scanPartPhotoHelp')}</div>
+          </div>
+          <div className="w-10 h-10 rounded-2xl bg-white border border-blue-100 text-blue-700 flex items-center justify-center font-black">📷</div>
+        </div>
+
+        {form.photoUrls.length > 0 && (
+          <div className="grid grid-cols-4 gap-2">
+            {form.photoUrls.map((url, index) => (
+              <div key={url} className="relative">
+                <ImagePreview src={url} alt="Request preview" className="w-full aspect-square rounded-2xl object-cover border border-white shadow-sm" />
+                <button onClick={() => removePhotoUrl(index)} type="button" className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 text-white text-xs font-black whitespace-nowrap inline-flex items-center justify-center">×</button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <label className="block w-full py-3 rounded-2xl bg-white border border-blue-100 text-blue-700 text-center text-sm font-black cursor-pointer shadow-sm">
+          {uploading ? t('uploading') : t('takePartPhoto')}
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            disabled={uploading || form.photoUrls.length >= 4}
+            onChange={e => handlePhotoUpload(e.target.files?.[0])}
+          />
+        </label>
+
+        <button onClick={analyzeLatestPhoto} disabled={loading || !form.photoUrls.length} className="w-full py-3 rounded-2xl bg-[#27439C] text-white font-black disabled:opacity-40 shadow-sm">
+          {loading ? t('analyzing') : t('analyzePhotoWithAi')}
         </button>
+
+        {aiResult && (
+          <div className="rounded-[22px] bg-white border border-blue-100 p-3 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-[10px] uppercase font-black text-blue-700">{t('aiSuggestion')}</div>
+              <div className="text-[10px] font-black px-2 py-1 rounded-full bg-blue-50 text-blue-700">{aiResult.confidence || 'LOW'}</div>
+            </div>
+            <div className="font-black text-slate-900">{aiResult.partName}</div>
+            {aiResult.category && <div className="text-xs font-bold text-slate-500">{aiResult.category}</div>}
+            {aiResult.followUpQuestions?.length > 0 && (
+              <div className="text-[11px] font-semibold text-slate-500 leading-relaxed">
+                {aiResult.followUpQuestions.join(' • ')}
+              </div>
+            )}
+            <div className="text-[11px] font-bold text-amber-600">{t('aiConfirmBeforeSubmit')}</div>
+          </div>
+        )}
       </div>
 
       <input className="w-full p-3 rounded-2xl border bg-slate-50" placeholder={t('partName')} value={form.partName} onChange={e => setForm({ ...form, partName: e.target.value })} />
@@ -586,33 +657,6 @@ function RequestForm({ token, onDone }) {
       <div className="flex items-center justify-between">
         <div>
           <div className="text-[10px] text-blue-600 font-black uppercase">{t('step')} 3</div>
-          <h2 className="font-black text-slate-900">{t('requestPhotosUpTo4')}</h2>
-          <div className="text-xs text-slate-400 mt-1">{t('imageHelp')}</div>
-        </div>
-        <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black">📷</div>
-      </div>
-
-      {form.photoUrls.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto">
-          {form.photoUrls.map((url, index) => (
-            <div key={url} className="relative shrink-0">
-              <ImagePreview src={url} alt="Request preview" className="w-20 h-20 rounded-2xl object-cover border" />
-              <button onClick={() => removePhotoUrl(index)} type="button" className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 text-white text-xs font-black whitespace-nowrap inline-flex items-center justify-center">×</button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <label className="block w-full py-3 rounded-2xl bg-[#27439C] text-white text-center text-sm font-black cursor-pointer">
-        {uploading ? t('uploading') : t('uploadPhoto')}
-        <input type="file" accept="image/*" className="hidden" disabled={uploading || form.photoUrls.length >= 4} onChange={e => handlePhotoUpload(e.target.files?.[0])} />
-      </label>
-    </div>
-
-    <div className="bg-white rounded-3xl border p-4 space-y-3 shadow-sm">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-[10px] text-blue-600 font-black uppercase">{t('step')} 4</div>
           <h2 className="font-black text-slate-900">{t('deliveryDetails')}</h2>
         </div>
         <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black">📍</div>
