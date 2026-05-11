@@ -24,6 +24,31 @@ function resolveWritableMarket(req, requestedMarket) {
   return req.user.market || 'IQ';
 }
 
+const APP_OWNER_PHONE = process.env.APP_OWNER_PHONE || '+9647733664151';
+
+function normalizeOwnerPhone(phone) {
+  const compact = String(phone || '').replace(/\s+/g, '').replace(/-/g, '');
+  if (compact.startsWith('+')) return compact;
+  if (compact.startsWith('00')) return `+${compact.slice(2)}`;
+  if (compact.startsWith('07')) return `+964${compact.slice(1)}`;
+  if (compact.startsWith('7')) return `+964${compact}`;
+  return compact;
+}
+
+function isAppOwnerPhone(phone) {
+  return normalizeOwnerPhone(phone) === normalizeOwnerPhone(APP_OWNER_PHONE);
+}
+
+function isAppOwnerUser(user) {
+  return Boolean(user && isAppOwnerPhone(user.phone));
+}
+
+function ownerProtectedResponse(res) {
+  return res.status(403).json({
+    message: 'This is the protected App Owner account and cannot be edited or disabled.'
+  });
+}
+
 export async function dashboard(req, res) {
   const marketWhere = resolveAdminMarketWhere(req);
 
@@ -113,6 +138,10 @@ export async function createAdminUser(req, res) {
 
   if (!name || !phone) {
     return res.status(400).json({ message: 'Name and phone are required' });
+  }
+
+  if (isAppOwnerPhone(phone)) {
+    return ownerProtectedResponse(res);
   }
 
   const nextRole = role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'ADMIN';
@@ -299,7 +328,12 @@ export async function listAdminUsers(req, res) {
     orderBy: { createdAt: 'desc' }
   });
 
-  res.json({ users });
+  res.json({
+    users: users.map(user => ({
+      ...user,
+      isAppOwner: isAppOwnerUser(user)
+    }))
+  });
 }
 
 export async function updateAdminUser(req, res) {
@@ -310,6 +344,10 @@ export async function updateAdminUser(req, res) {
   const existing = await prisma.user.findUnique({ where: { id: req.params.id } });
   if (!existing || !['ADMIN', 'SUPER_ADMIN'].includes(existing.role)) {
     return res.status(404).json({ message: 'Admin user not found' });
+  }
+
+  if (isAppOwnerUser(existing)) {
+    return ownerProtectedResponse(res);
   }
 
   const { name, phone, email, username, role, adminPermission, market } = req.body;
@@ -367,6 +405,10 @@ export async function disableAdminUser(req, res) {
   const existing = await prisma.user.findUnique({ where: { id: req.params.id } });
   if (!existing || !['ADMIN', 'SUPER_ADMIN'].includes(existing.role)) {
     return res.status(404).json({ message: 'Admin user not found' });
+  }
+
+  if (isAppOwnerUser(existing)) {
+    return ownerProtectedResponse(res);
   }
 
   const disabledPhone = existing.phone.startsWith('disabled:')

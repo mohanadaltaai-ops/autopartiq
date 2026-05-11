@@ -9,6 +9,7 @@ function AdminUserCard({ admin, token, reload }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const isDisabled = String(admin.phone || '').startsWith('disabled:');
+  const isAppOwner = Boolean(admin.isAppOwner);
 
   const [form, setForm] = useState({
     name: admin.name || '',
@@ -21,8 +22,15 @@ function AdminUserCard({ admin, token, reload }) {
   });
 
   async function save() {
+    if (isAppOwner) {
+      setError(t('appOwnerProtected'));
+      setEditing(false);
+      return;
+    }
+
     setSaving(true);
     setError('');
+
     try {
       await api(`/admin/users/${admin.id}`, {
         method: 'PATCH',
@@ -32,6 +40,7 @@ function AdminUserCard({ admin, token, reload }) {
           adminPermission: form.role === 'ADMIN' ? form.adminPermission : 'FULL_ADMIN'
         }
       });
+
       setEditing(false);
       setOpen(false);
       await reload();
@@ -43,10 +52,19 @@ function AdminUserCard({ admin, token, reload }) {
   }
 
   async function disable() {
+    if (isAppOwner) {
+      setError(t('appOwnerProtected'));
+      return;
+    }
+
+    if (!window.confirm(t('confirmDisableAdmin'))) return;
+
     setSaving(true);
     setError('');
+
     try {
       await api(`/admin/users/${admin.id}`, { method: 'DELETE', token });
+      setOpen(false);
       await reload();
     } catch (e) {
       setError(e.message);
@@ -56,8 +74,8 @@ function AdminUserCard({ admin, token, reload }) {
   }
 
   return (
-    <div className="bg-white rounded-[30px] border border-slate-200 p-4 shadow-sm space-y-3">
-      <button type="button" onClick={() => setOpen(value => !value)} className="w-full text-left">
+    <div className="bg-white rounded-[28px] border border-slate-200 p-4 shadow-sm">
+      <button type="button" onClick={() => setOpen(!open)} className="w-full text-left">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex flex-wrap gap-2 items-center">
@@ -67,6 +85,11 @@ function AdminUserCard({ admin, token, reload }) {
               <span className="text-[10px] px-2 py-1 rounded-full bg-slate-50 text-slate-600 border border-slate-100 font-black">
                 {admin.market === 'AE' ? t('uaeMarket') : t('iraqMarket')}
               </span>
+              {isAppOwner && (
+                <span className="text-[10px] px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100 font-black">
+                  {t('appOwner')}
+                </span>
+              )}
               {isDisabled && (
                 <span className="text-[10px] px-2 py-1 rounded-full bg-red-50 text-red-700 border border-red-100 font-black">
                   {t('disabled')}
@@ -85,19 +108,19 @@ function AdminUserCard({ admin, token, reload }) {
       </button>
 
       {open && (
-        <div className="pt-2 border-t border-slate-100 space-y-3">
+        <div className="mt-4 pt-4 border-t border-slate-100 space-y-3">
           {!editing ? (
             <>
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="rounded-2xl bg-slate-50 border border-slate-100 p-3">
                   <div className="text-[10px] uppercase font-black text-blue-600">{t('phone')}</div>
-                  <div className="text-xs font-black text-slate-700 mt-1 break-words">{admin.phone}</div>
+                  <div className="text-xs font-black text-slate-700 mt-1 break-words">{admin.phone || '-'}</div>
                 </div>
                 <div className="rounded-2xl bg-slate-50 border border-slate-100 p-3">
                   <div className="text-[10px] uppercase font-black text-blue-600">{t('email')}</div>
                   <div className="text-xs font-black text-slate-700 mt-1 break-words">{admin.email || '-'}</div>
                 </div>
-                <div className="rounded-2xl bg-slate-50 border border-slate-100 p-3">
+                <div className="rounded-2xl bg-slate-50 border border-slate-100 p-3 col-span-2">
                   <div className="text-[10px] uppercase font-black text-blue-600">{t('username')}</div>
                   <div className="text-xs font-black text-slate-700 mt-1 break-words">{admin.username || '-'}</div>
                 </div>
@@ -105,14 +128,20 @@ function AdminUserCard({ admin, token, reload }) {
 
               {error && <div className="text-xs text-red-700 bg-red-50 border border-red-100 rounded-2xl p-3 font-bold">{error}</div>}
 
-              <div className="grid grid-cols-2 gap-2">
-                <button type="button" onClick={() => setEditing(true)} className="py-3 rounded-2xl bg-blue-50 border border-blue-100 text-blue-700 text-sm font-black">
-                  {t('edit')}
-                </button>
-                <button type="button" onClick={disable} disabled={saving || isDisabled} className="py-3 rounded-2xl bg-red-50 border border-red-100 text-red-700 text-sm font-black disabled:opacity-40">
-                  {saving ? t('saving') : t('disable')}
-                </button>
-              </div>
+              {isAppOwner ? (
+                <div className="rounded-2xl bg-amber-50 border border-amber-100 p-3 text-xs font-black text-amber-700">
+                  {t('appOwnerProtected')}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <button type="button" onClick={() => setEditing(true)} className="py-3 rounded-2xl bg-blue-50 border border-blue-100 text-blue-700 text-sm font-black">
+                    {t('edit')}
+                  </button>
+                  <button type="button" onClick={disable} disabled={saving || isDisabled} className="py-3 rounded-2xl bg-red-50 border border-red-100 text-red-700 text-sm font-black disabled:opacity-40">
+                    {saving ? t('saving') : t('disable')}
+                  </button>
+                </div>
+              )}
             </>
           ) : (
             <div className="space-y-2">
@@ -138,12 +167,14 @@ function AdminUserCard({ admin, token, reload }) {
                 <option value="AE">{t('uaeMarket')}</option>
               </select>
 
+              {error && <div className="text-xs text-red-700 bg-red-50 border border-red-100 rounded-2xl p-3 font-bold">{error}</div>}
+
               <div className="grid grid-cols-2 gap-2">
-                <button type="button" onClick={save} disabled={saving || !form.name || !form.phone} className="py-3 rounded-2xl bg-[#27439C] text-white font-black disabled:opacity-40">
-                  {saving ? t('saving') : t('save')}
-                </button>
-                <button type="button" onClick={() => setEditing(false)} className="py-3 rounded-2xl bg-slate-100 text-slate-600 font-black">
+                <button type="button" onClick={() => setEditing(false)} className="py-3 rounded-2xl bg-slate-100 text-slate-600 text-sm font-black">
                   {t('cancel')}
+                </button>
+                <button type="button" onClick={save} disabled={saving} className="py-3 rounded-2xl bg-[#27439C] text-white text-sm font-black disabled:opacity-40">
+                  {saving ? t('saving') : t('save')}
                 </button>
               </div>
             </div>
