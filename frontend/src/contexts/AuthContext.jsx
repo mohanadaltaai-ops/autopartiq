@@ -26,6 +26,11 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false));
   }, [token]);
 
+  async function requestOtp(phone) {
+    const market = getMarketCode();
+    return api('/auth/request-otp', { method: 'POST', body: { phone, market } });
+  }
+
   async function login(phone, otp) {
     const market = getMarketCode();
     const res = await api('/auth/login', { method: 'POST', body: { phone, otp, market } });
@@ -41,7 +46,7 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }
 
-  return <AuthContext.Provider value={{ token, user, loading, login, logout, setUser }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ token, user, loading, requestOtp, login, logout, setUser }}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => useContext(AuthContext);

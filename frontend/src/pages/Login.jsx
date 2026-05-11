@@ -6,7 +6,7 @@ import logo from '../assets/logo.png';
 import { formatMarketMoney, getMarketAppName, getMarketCode, getMarketCountryName, getMarketPhonePrefix } from '../lib/market';
 
 export default function Login() {
-  const { login } = useAuth();
+  const { requestOtp, login } = useAuth();
   const { t, language, toggleLanguage } = useLanguage();
   const marketCode = getMarketCode();
   const appName = getMarketAppName(language);
@@ -17,6 +17,7 @@ export default function Login() {
   const [screen, setScreen] = useState('landing');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
+  const [sendingOtp, setSendingOtp] = useState(false);
 
   const copy = useMemo(() => {
     const englishMarket = marketCode === 'AE'
@@ -44,7 +45,7 @@ export default function Login() {
           phoneHelper: marketCode === 'AE' ? 'أدخل رقمك الإماراتي مع رمز الدولة +971' : 'أدخل رقمك العراقي مع رمز الدولة +964',
           phoneValidationError: marketCode === 'AE' ? 'يرجى إدخال رقم إماراتي صحيح مثل +9715XXXXXXXX' : 'يرجى إدخال رقم عراقي صحيح مثل +9647XXXXXXXXX',
           otpTitle: 'أدخل رمز التحقق',
-          otpHint: 'أدخل رمز التحقق المكوّن من 4 أرقام',
+          otpHint: 'أدخل رمز التحقق المرسل إليك',
           continue: 'متابعة',
           verify: 'تحقق وتسجيل الدخول',
           back: 'رجوع',
@@ -66,7 +67,7 @@ export default function Login() {
           phoneHelper: marketCode === 'AE' ? 'Enter your UAE mobile number with +971' : 'Enter your Iraq mobile number with +964',
           phoneValidationError: marketCode === 'AE' ? 'Enter a valid UAE mobile number like +9715XXXXXXXX' : 'Enter a valid Iraq mobile number like +9647XXXXXXXXX',
           otpTitle: 'Enter verification code',
-          otpHint: 'Enter your 4-digit verification code',
+          otpHint: 'Enter the verification code sent to you',
           continue: 'Continue',
           verify: 'Verify & sign in',
           back: 'Back',
@@ -101,7 +102,7 @@ export default function Login() {
     return Boolean(value);
   }
 
-  function continueToOtp() {
+  async function continueToOtp() {
     const normalized = normalizePhoneNumber(phone);
 
     if (!isValidMarketPhone(normalized)) {
@@ -110,9 +111,28 @@ export default function Login() {
       return;
     }
 
-    setError('');
-    setPhone(normalized);
-    setScreen('otp');
+    try {
+      setSendingOtp(true);
+      setError('');
+      setPhone(normalized);
+      await requestOtp(normalized);
+      setScreen('otp');
+    } catch (e) {
+      const message = e.message || '';
+
+      if (
+        message.includes('Failed to reach API') ||
+        message.includes('Internal server error') ||
+        message.includes('API request failed with status')
+      ) {
+        setError(t('loginServerError'));
+        return;
+      }
+
+      setError(message || t('otpSendFailed'));
+    } finally {
+      setSendingOtp(false);
+    }
   }
 
   async function submit() {
@@ -299,10 +319,10 @@ export default function Login() {
 
                   <button
                     onClick={continueToOtp}
-                    disabled={!phone.trim()}
+                    disabled={!phone.trim() || sendingOtp}
                     className="w-full h-14 rounded-[18px] bg-[#27439C] text-white font-black text-[15px] disabled:opacity-40 shadow-[0_14px_30px_rgba(39,67,156,0.20)]"
                   >
-                    {copy.continue}
+                    {sendingOtp ? t('sendingOtp') : copy.continue}
                   </button>
 
                   <button
@@ -316,13 +336,13 @@ export default function Login() {
                 <>
                   <div className="bg-white rounded-[24px] border border-slate-200 shadow-sm p-3">
                     <input
-                      className="w-full h-16 px-4 rounded-[18px] bg-[#F8FAFD] border border-slate-200 outline-none text-center text-[28px] tracking-[0.45em] font-black"
+                      className="w-full h-16 px-4 rounded-[18px] bg-[#F8FAFD] border border-slate-200 outline-none text-center text-[28px] tracking-[0.28em] font-black"
                       value={otp}
                       onChange={e => {
                         setOtp(e.target.value);
                         setError('');
                       }}
-                      maxLength={4}
+                      maxLength={6}
                       inputMode="numeric"
                       placeholder="••••"
                     />
