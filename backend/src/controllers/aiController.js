@@ -101,6 +101,19 @@ function googleAiErrorMessage(payload, status) {
     };
   }
 
+  if (status === 400 || status === 404 || statusText === 'INVALID_ARGUMENT' || statusText === 'NOT_FOUND' || /model|schema|generationConfig|api key|invalid/i.test(rawMessage)) {
+    console.error('Google AI configuration error:', {
+      status,
+      statusText,
+      message: rawMessage
+    });
+
+    return {
+      status: 502,
+      message: 'AI photo analysis is not configured correctly. Please contact support or enter the part details manually.'
+    };
+  }
+
   if (/image|file|mime|unsupported/i.test(rawMessage)) {
     return {
       status: 400,
@@ -239,8 +252,7 @@ export async function identifyPart(req, res) {
           generationConfig: {
             temperature: 0,
             maxOutputTokens: 800,
-            responseMimeType: 'application/json',
-            responseSchema: geminiResponseSchema
+            responseMimeType: 'application/json'
           },
           contents: [
             {
