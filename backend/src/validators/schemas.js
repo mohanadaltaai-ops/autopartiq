@@ -71,5 +71,14 @@ export const supplierSchema = z.object({
 });
 
 export const aiIdentifySchema = z.object({
-  problem: z.string().min(3).max(1000)
+  photoUrl: z.string().url().optional(),
+  problem: z.string().max(1000).optional().default(''),
+  language: z.enum(['en', 'ar']).optional().default('en'),
+  origin: z.string().max(80).optional().default(''),
+  make: z.string().max(80).optional().default(''),
+  model: z.string().max(80).optional().default(''),
+  year: z.coerce.number().int().min(1980).max(new Date().getFullYear() + 1).optional()
+}).refine(data => Boolean(data.photoUrl || data.problem?.trim()), {
+  message: 'Photo or problem description is required',
+  path: ['photoUrl']
 });

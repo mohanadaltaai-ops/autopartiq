@@ -160,7 +160,7 @@ export default function Customer({ tab }) {
       setRequests(r.requests || []);
       setOrders(o.orders || []);
     } catch (e) {
-      setError(e.message);
+      setError(localizeAiErrorMessage(e.message, t));
     } finally {
       setLoading(false);
     }
@@ -441,6 +441,28 @@ function RequestCard({ req, token, reload, onToast, focus, onFocusHandled }) {
   );
 }
 
+function localizeAiErrorMessage(message, t) {
+  const text = String(message || '');
+
+  if (text.includes('AI photo analysis limit reached')) {
+    return t('aiLimitReached');
+  }
+
+  if (text.includes('AI photo analysis is not available')) {
+    return t('aiUnavailable');
+  }
+
+  if (text.includes('This image could not be analyzed')) {
+    return t('aiImageCouldNotBeAnalyzed');
+  }
+
+  if (text.includes('AI photo analysis failed')) {
+    return t('aiAnalysisFailed');
+  }
+
+  return text || t('aiAnalysisFailed');
+}
+
 function RequestForm({ token, onDone }) {
   const { t, language } = useLanguage();
   const [form, setForm] = useState({
@@ -491,12 +513,11 @@ function RequestForm({ token, onDone }) {
       setAiResult(r);
       setForm(f => ({
         ...f,
-        partName: r.partName || f.partName,
-        description: r.description || f.description,
-        partNumber: r.partNumberFormat && !f.partNumber ? r.partNumberFormat : f.partNumber
+        partName: r.partName && !r.unclear ? r.partName : f.partName,
+        description: r.description && !r.unclear ? r.description : f.description
       }));
     } catch (e) {
-      setError(e.message);
+      setError(localizeAiErrorMessage(e.message, t));
     } finally {
       setLoading(false);
     }
@@ -631,7 +652,7 @@ function RequestForm({ token, onDone }) {
               <div className="text-[10px] uppercase font-black text-blue-700">{t('aiSuggestion')}</div>
               <div className="text-[10px] font-black px-2 py-1 rounded-full bg-blue-50 text-blue-700">{aiResult.confidence || 'LOW'}</div>
             </div>
-            <div className="font-black text-slate-900">{aiResult.partName}</div>
+            <div className="font-black text-slate-900">{aiResult.partName || t('aiUnableToIdentify')}</div>
             {aiResult.category && <div className="text-xs font-bold text-slate-500">{aiResult.category}</div>}
             {aiResult.followUpQuestions?.length > 0 && (
               <div className="text-[11px] font-semibold text-slate-500 leading-relaxed">
