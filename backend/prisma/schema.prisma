@@ -239,3 +239,21 @@ model AuditLog {
 
   @@index([market])
 }
+
+model OtpChallenge {
+  id          String    @id @default(cuid())
+  phone       String
+  market      Market    @default(IQ)
+  codeHash    String
+  provider    String    @default("test")
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(5)
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([phone, market, createdAt])
+  @@index([phone, market, consumedAt, expiresAt])
+}
+

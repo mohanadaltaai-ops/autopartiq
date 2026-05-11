@@ -88,7 +88,7 @@ export async function requestLoginOtp(req, res) {
     });
   }
 
-  const result = await sendLoginOtp(normalizedPhone);
+  const result = await sendLoginOtp(normalizedPhone, market);
   if (!result.ok) return res.status(400).json({ message: result.message });
 
   res.json({ ok: true, provider: result.provider, expiresInMinutes: result.expiresInMinutes });
@@ -109,7 +109,7 @@ export async function login(req, res) {
     });
   }
 
-  const otpResult = await verifyLoginOtp({ phone: normalizedPhone, otp });
+  const otpResult = await verifyLoginOtp({ phone: normalizedPhone, otp, market });
   if (!otpResult.ok) return res.status(401).json({ message: otpResult.message || 'Incorrect OTP. Please try again.' });
 
   let { user, phone: loginPhone } = await findOrMigrateUserByPhone(normalizedPhone);
