@@ -47,7 +47,9 @@ export default function AuthConfirm() {
   useEffect(() => {
     async function confirmMagicLinkOnce() {
       if (!supabase) {
-        throw new Error('Supabase is not configured for this app build');
+        throw new Error(
+          'Supabase is not configured for this AE build. On Vercel, set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY for Production, use build command npm run build:ae, then redeploy with Clear build cache.'
+        );
       }
 
       const existingAppToken = localStorage.getItem('token') || sessionStorage.getItem('ae_magic_app_token');
