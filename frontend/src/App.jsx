@@ -8,6 +8,8 @@ import Supplier from './pages/Supplier';
 import Admin from './pages/Admin';
 import Profile from './pages/Profile';
 import SuperAdminAccess from './components/auth/SuperAdminAccess';
+import AuthConfirm from './pages/AuthConfirm';
+import AuthCallback from './pages/AuthCallback';
 
 function AppInner() {
   const { user, loading } = useAuth();
@@ -23,6 +25,8 @@ function AppInner() {
     setTab(user?.role === 'ADMIN' && user?.adminPermission === 'ORDERS_ONLY' ? 'orders' : 'home');
   }, [user?.id, user?.role, user?.adminPermission]);
 
+  if (path === '/auth/callback') return <AuthCallback />;
+  if (path === '/auth/confirm') return <AuthConfirm />;
   if (loading) return <div className="min-h-screen bg-slate-600 text-white flex items-center justify-center">Loading...</div>;
   if (!user && path === '/super-access') return <div dir={direction} className="min-h-screen flex items-center justify-center bg-slate-600 p-5"><div className="phone-frame bg-white rounded-[40px] border-8 border-slate-900 overflow-hidden shadow-2xl flex flex-col p-6 justify-center gap-4"><SuperAdminAccess onBack={() => { window.location.href = '/'; }} /></div></div>;
   if (!user) return <div dir={direction}><Login /></div>;

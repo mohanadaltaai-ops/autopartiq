@@ -69,6 +69,9 @@ web_modules/
 .env
 .env.*
 !.env.example
+frontend/.env
+frontend/.env.iq
+frontend/.env.ae
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -141,3 +144,12 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Local design mockups (reference only — not for GitHub)
+Design files/
+Raw files/
+
+# Local AE Magic Link debug notes
+ae_build_error.txt
+ae_magic_link_inspect.txt
+ae_magic_white_screen_inspect.txt

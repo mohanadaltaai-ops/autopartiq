@@ -33,6 +33,38 @@ function legacyLocalPhoneFromNormalized(phone) {
   return null;
 }
 
+function normalizeEmailInput(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
+async function getSupabaseUserFromAccessToken(accessToken) {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase auth is not configured on the backend');
+  }
+
+  const response = await fetch(`${supabaseUrl.replace(/\/$/, '')}/auth/v1/user`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      apikey: supabaseKey
+    }
+  });
+
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok || !payload?.email) {
+    throw new Error(payload?.message || payload?.error_description || 'Invalid Supabase session');
+  }
+
+  return payload;
+}
+
+function emailPhonePlaceholder(email) {
+  return `email:${normalizeEmailInput(email)}`;
+}
+
 async function findOrMigrateUserByPhone(phone) {
   const normalizedPhone = normalizePhoneInput(phone);
   const exactUser = await prisma.user.findUnique({
@@ -125,6 +157,60 @@ export async function login(req, res) {
   if (!user) {
     user = await prisma.user.create({
       data: { phone: loginPhone, name: 'Customer', role: 'CUSTOMER', market },
+      include: { supplier: true }
+    });
+  }
+
+  const token = signToken(user);
+  res.json({ token, user });
+}
+
+export async function supabaseMagicLogin(req, res) {
+  const { accessToken } = req.body;
+  const market = normalizeMarketInput(req.body.market);
+
+  if (market !== 'AE') {
+    return res.status(400).json({ message: 'Magic Link login is only enabled for Auto Parts AE' });
+  }
+
+  if (!accessToken) {
+    return res.status(400).json({ message: 'Missing Supabase access token' });
+  }
+
+  let supabaseUser;
+  try {
+    supabaseUser = await getSupabaseUserFromAccessToken(accessToken);
+  } catch (error) {
+    return res.status(401).json({ message: error.message || 'Invalid Supabase session' });
+  }
+
+  const email = normalizeEmailInput(supabaseUser.email);
+  const fallbackName =
+    supabaseUser.user_metadata?.full_name ||
+    supabaseUser.user_metadata?.name ||
+    email.split('@')[0] ||
+    'Customer';
+
+  let user = await prisma.user.findUnique({
+    where: { email },
+    include: { supplier: true }
+  });
+
+  if (user && user.market !== 'AE') {
+    return res.status(403).json({
+      message: 'This email is registered for another market. Please use the correct app.'
+    });
+  }
+
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        email,
+        phone: emailPhonePlaceholder(email),
+        name: fallbackName,
+        role: 'CUSTOMER',
+        market: 'AE'
+      },
       include: { supplier: true }
     });
   }

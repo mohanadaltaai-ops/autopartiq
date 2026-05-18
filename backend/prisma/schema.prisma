@@ -246,6 +246,8 @@ model OtpChallenge {
   market      Market    @default(IQ)
   codeHash    String
   provider    String    @default("test")
+  providerReference String?
+  metadataJson String    @default("{}")
   attempts    Int       @default(0)
   maxAttempts Int       @default(5)
   expiresAt   DateTime

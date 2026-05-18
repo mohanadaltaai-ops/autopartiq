@@ -100,11 +100,12 @@ export async function acceptOffer(req, res) {
   if (offer.status !== 'ACTIVE') return res.status(400).json({ message: 'Only active offers can be accepted' });
   if (offer.request.status !== 'WAITING') return res.status(400).json({ message: 'This request is no longer available' });
 
-  const order = await prisma.$transaction(async (tx) => {
-    await tx.offer.update({ where: { id: offer.id }, data: { status: 'ACCEPTED' } });
-    await tx.partRequest.update({ where: { id: offer.requestId }, data: { status: 'PROCESSING' } });
-    await tx.offer.updateMany({ where: { requestId: offer.requestId, id: { not: offer.id } }, data: { status: 'REJECTED' } });
-    return tx.order.create({
+  // Batch transaction (not interactive) — required for Supabase PgBouncer / pooled DATABASE_URL.
+  const [, , , order] = await prisma.$transaction([
+    prisma.offer.update({ where: { id: offer.id }, data: { status: 'ACCEPTED' } }),
+    prisma.partRequest.update({ where: { id: offer.requestId }, data: { status: 'PROCESSING' } }),
+    prisma.offer.updateMany({ where: { requestId: offer.requestId, id: { not: offer.id } }, data: { status: 'REJECTED' } }),
+    prisma.order.create({
       data: {
         orderNumber: generateOrderNumber(),
         offerId: offer.id,
@@ -116,8 +117,8 @@ export async function acceptOffer(req, res) {
         platformRevenue: offer.platformRevenue
       },
       include: { offer: { include: { request: true, supplier: true } } }
-    });
-  });
+    })
+  ]);
 
   await prisma.notification.create({
     data: {
