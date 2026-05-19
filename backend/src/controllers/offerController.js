@@ -100,7 +100,9 @@ export async function acceptOffer(req, res) {
   if (offer.status !== 'ACTIVE') return res.status(400).json({ message: 'Only active offers can be accepted' });
   if (offer.request.status !== 'WAITING') return res.status(400).json({ message: 'This request is no longer available' });
 
-  // Batch transaction (not interactive) — required for Supabase PgBouncer / pooled DATABASE_URL.
+  const market = offer.market || offer.request.market || req.user.market || 'IQ';
+
+  // Batch transaction (not interactive) - required for Supabase PgBouncer / pooled DATABASE_URL.
   const [, , , order] = await prisma.$transaction([
     prisma.offer.update({ where: { id: offer.id }, data: { status: 'ACCEPTED' } }),
     prisma.partRequest.update({ where: { id: offer.requestId }, data: { status: 'PROCESSING' } }),
@@ -111,7 +113,7 @@ export async function acceptOffer(req, res) {
         offerId: offer.id,
         supplierId: offer.supplierId,
         customerId: offer.request.customerId,
-        market: offer.market || offer.request.market || 'IQ',
+        market,
         supplierPrice: offer.supplierPrice,
         customerPrice: offer.customerPrice,
         platformRevenue: offer.platformRevenue
@@ -123,80 +125,18 @@ export async function acceptOffer(req, res) {
   await prisma.notification.create({
     data: {
       userId: order.offer.supplier.userId,
+      market,
       message: `Your offer was accepted for ${order.offer.request.partName}`,
       metadataJson: JSON.stringify({
         type: 'OFFER_ACCEPTED',
         orderId: order.id,
         orderNumber: order.orderNumber,
         partName: order.offer.request.partName,
+        market,
         tab: 'orders'
       })
     }
   });
-
-  try {
-    const losingOffers = await prisma.offer.findMany({
-      where: {
-        requestId: offer.requestId,
-        id: { not: offer.id },
-        status: 'REJECTED'
-      },
-      include: { supplier: true }
-    });
-
-    const notifications = losingOffers
-      .filter(losingOffer => losingOffer.supplier?.userId)
-      .map(losingOffer => ({
-        userId: losingOffer.supplier.userId,
-        message: `Request ended: customer selected another supplier for ${order.offer.request.partName}`,
-        metadataJson: JSON.stringify({
-          type: 'OFFER_NOT_SELECTED',
-          requestId: offer.requestId,
-          offerId: losingOffer.id,
-          partName: order.offer.request.partName,
-          tab: 'home',
-          subTab: 'sent'
-        })
-      }));
-
-    if (notifications.length) {
-      await prisma.notification.createMany({ data: notifications });
-    }
-  } catch (error) {
-    console.error('Failed to notify losing suppliers after offer acceptance', error);
-  }
-
-  try {
-    const losingOffers = await prisma.offer.findMany({
-      where: {
-        requestId: offer.requestId,
-        id: { not: offer.id },
-        status: 'REJECTED'
-      },
-      include: { supplier: true }
-    });
-
-    const notifications = losingOffers
-      .filter(losingOffer => losingOffer.supplier?.userId)
-      .map(losingOffer => ({
-        userId: losingOffer.supplier.userId,
-        message: `Request ended: customer selected another supplier for ${order.offer.request.partName}`,
-        metadataJson: JSON.stringify({
-          type: 'OFFER_NOT_SELECTED',
-          requestId: offer.requestId,
-          offerId: losingOffer.id,
-          partName: order.offer.request.partName,
-          tab: 'home',
-          subTab: 'sent'
-        })
-      }));
-
-    if (notifications.length) {
-      await prisma.notification.createMany({ data: notifications });
-    }
-  } catch (error) {
-    console.error('Failed to notify losing suppliers after offer acceptance', error);
-  }
 
   try {
     const losingOffers = await prisma.offer.findMany({
@@ -216,12 +156,14 @@ export async function acceptOffer(req, res) {
 
       notificationsByUserId.set(userId, {
         userId,
+        market,
         message: `Request ended: customer selected another supplier for ${order.offer.request.partName}`,
         metadataJson: JSON.stringify({
           type: 'OFFER_NOT_SELECTED',
           requestId: offer.requestId,
           offerId: losingOffer.id,
           partName: order.offer.request.partName,
+          market,
           tab: 'home',
           subTab: 'sent'
         })
@@ -237,5 +179,48 @@ export async function acceptOffer(req, res) {
     console.error('Failed to notify losing suppliers after offer acceptance', error);
   }
 
+  try {
+    const admins = await prisma.user.findMany({
+      where: {
+        OR: [
+          {
+            role: 'ADMIN',
+            market,
+            adminPermission: { in: ['ORDERS_ONLY', 'FULL_ADMIN'] }
+          },
+          {
+            role: 'SUPER_ADMIN'
+          }
+        ]
+      },
+      select: { id: true }
+    });
+
+    const adminNotifications = Array.from(new Set(admins.map(admin => admin.id)))
+      .filter(userId => userId && userId !== req.user.id)
+      .map(userId => ({
+        userId,
+        market,
+        message: `New order created: ${order.orderNumber} for ${order.offer.request.partName}`,
+        metadataJson: JSON.stringify({
+          type: 'NEW_ORDER',
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          requestId: offer.requestId,
+          partName: order.offer.request.partName,
+          market,
+          tab: 'orders'
+        })
+      }));
+
+    if (adminNotifications.length) {
+      await prisma.notification.createMany({ data: adminNotifications });
+    }
+  } catch (error) {
+    console.error('Failed to notify admins after order creation', error);
+  }
+
   res.status(201).json({ order });
 }
+
+

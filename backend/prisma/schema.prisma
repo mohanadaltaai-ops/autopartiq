@@ -86,6 +86,7 @@ model User {
   createdAt       DateTime       @default(now())
   supplier        Supplier?
   requests        PartRequest[]
+  savedVehicles   SavedVehicle[]
   notifications   Notification[]
   auditLogs       AuditLog[]
 
@@ -109,6 +110,25 @@ model Supplier {
   payouts            SupplierPayout[]
 
   @@index([market])
+}
+
+model SavedVehicle {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  market    Market   @default(IQ)
+  origin    String
+  make      String
+  model     String
+  year      Int
+  label     String?
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([market])
+  @@unique([userId, market, origin, make, model, year])
 }
 
 model PartRequest {

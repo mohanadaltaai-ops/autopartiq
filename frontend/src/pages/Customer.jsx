@@ -478,6 +478,9 @@ function RequestForm({ token, onDone }) {
     location: '',
     photoUrls: []
   });
+  const [savedVehicles, setSavedVehicles] = useState([]);
+  const [selectedSavedVehicleId, setSelectedSavedVehicleId] = useState('');
+  const [saveVehicle, setSaveVehicle] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -485,6 +488,86 @@ function RequestForm({ token, onDone }) {
   const [aiResult, setAiResult] = useState(null);
   const makes = form.origin ? Object.keys(carData[form.origin].makes) : [];
   const models = form.origin && form.make ? carData[form.origin].makes[form.make] || [] : [];
+
+  async function loadSavedVehicles() {
+    try {
+      const result = await api('/vehicles/mine', { token });
+      const vehicles = result.vehicles || [];
+      setSavedVehicles(vehicles);
+
+      const defaultVehicle = vehicles.find(vehicle => vehicle.isDefault) || vehicles[0];
+      if (defaultVehicle && !form.origin && !form.make && !form.model && !form.year) {
+        setSelectedSavedVehicleId(defaultVehicle.id);
+        setForm(current => ({
+          ...current,
+          origin: defaultVehicle.origin,
+          make: defaultVehicle.make,
+          model: defaultVehicle.model,
+          year: String(defaultVehicle.year)
+        }));
+      }
+    } catch {
+      setSavedVehicles([]);
+    }
+  }
+
+  function applySavedVehicle(vehicleId) {
+    setSelectedSavedVehicleId(vehicleId);
+    const vehicle = savedVehicles.find(item => item.id === vehicleId);
+    if (!vehicle) return;
+
+    setForm(current => ({
+      ...current,
+      origin: vehicle.origin,
+      make: vehicle.make,
+      model: vehicle.model,
+      year: String(vehicle.year)
+    }));
+  }
+
+  useEffect(() => {
+    loadSavedVehicles();
+  }, [token]);
+
+  async function loadSavedVehicles() {
+    try {
+      const result = await api('/vehicles/mine', { token });
+      const vehicles = result.vehicles || [];
+      setSavedVehicles(vehicles);
+
+      const defaultVehicle = vehicles.find(vehicle => vehicle.isDefault) || vehicles[0];
+      if (defaultVehicle && !form.origin && !form.make && !form.model && !form.year) {
+        setSelectedSavedVehicleId(defaultVehicle.id);
+        setForm(current => ({
+          ...current,
+          origin: defaultVehicle.origin,
+          make: defaultVehicle.make,
+          model: defaultVehicle.model,
+          year: String(defaultVehicle.year)
+        }));
+      }
+    } catch {
+      setSavedVehicles([]);
+    }
+  }
+
+  function applySavedVehicle(vehicleId) {
+    setSelectedSavedVehicleId(vehicleId);
+    const vehicle = savedVehicles.find(item => item.id === vehicleId);
+    if (!vehicle) return;
+
+    setForm(current => ({
+      ...current,
+      origin: vehicle.origin,
+      make: vehicle.make,
+      model: vehicle.model,
+      year: String(vehicle.year)
+    }));
+  }
+
+  useEffect(() => {
+    loadSavedVehicles();
+  }, [token]);
 
   async function analyzeLatestPhoto() {
     const photoUrl = form.photoUrls[0];
@@ -547,6 +630,21 @@ function RequestForm({ token, onDone }) {
       setSaving(true);
       setError('');
       await api('/requests', { method: 'POST', token, body: form });
+
+      if (saveVehicle) {
+        await api('/vehicles', {
+          method: 'POST',
+          token,
+          body: {
+            origin: form.origin,
+            make: form.make,
+            model: form.model,
+            year: form.year
+          }
+        });
+        await loadSavedVehicles();
+      }
+
       onDone();
     } catch (e) {
       setError(e.message);
@@ -573,6 +671,42 @@ function RequestForm({ token, onDone }) {
         <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black">🚗</div>
       </div>
 
+      {savedVehicles.length > 0 && (
+        <div className="rounded-[24px] bg-blue-50 border border-blue-100 p-3 space-y-2">
+          <div className="text-[10px] uppercase font-black text-blue-700">Saved cars</div>
+          <select
+            className="w-full p-3 rounded-2xl border bg-white text-sm font-bold"
+            value={selectedSavedVehicleId}
+            onChange={e => applySavedVehicle(e.target.value)}
+          >
+            <option value="">Choose another car manually</option>
+            {savedVehicles.map(vehicle => (
+              <option key={vehicle.id} value={vehicle.id}>
+                {vehicle.label || `${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {savedVehicles.length > 0 && (
+        <div className="rounded-[24px] bg-blue-50 border border-blue-100 p-3 space-y-2">
+          <div className="text-[10px] uppercase font-black text-blue-700">Saved cars</div>
+          <select
+            className="w-full p-3 rounded-2xl border bg-white text-sm font-bold"
+            value={selectedSavedVehicleId}
+            onChange={e => applySavedVehicle(e.target.value)}
+          >
+            <option value="">Choose another car manually</option>
+            {savedVehicles.map(vehicle => (
+              <option key={vehicle.id} value={vehicle.id}>
+                {vehicle.label || `${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-3">
         {Object.entries(carData).slice(0, 8).map(([origin, data]) => (
           <OriginButton
@@ -580,22 +714,25 @@ function RequestForm({ token, onDone }) {
             origin={origin}
             data={data}
             selected={form.origin === origin}
-            onClick={() => setForm({ ...form, origin, make: '', model: '' })}
+            onClick={() => {
+              setSelectedSavedVehicleId('');
+              setForm({ ...form, origin, make: '', model: '' });
+            }}
           />
         ))}
       </div>
 
-      <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.year} onChange={e => setForm({ ...form, year: e.target.value })}>
+      <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.year} onChange={e => { setSelectedSavedVehicleId(''); setForm({ ...form, year: e.target.value }); }}>
         <option value="">{t('selectYear')}</option>
         {years.map(y => <option key={y} value={y}>{y}</option>)}
       </select>
 
-      <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.make} disabled={!form.origin} onChange={e => setForm({ ...form, make: e.target.value, model: '' })}>
+      <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.make} disabled={!form.origin} onChange={e => { setSelectedSavedVehicleId(''); setForm({ ...form, make: e.target.value, model: '' }); }}>
         <option value="">{t('selectMake')}</option>
         {makes.map(m => <option key={m} value={m}>{m}</option>)}
       </select>
 
-      <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.model} disabled={!form.make} onChange={e => setForm({ ...form, model: e.target.value })}>
+      <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.model} disabled={!form.make} onChange={e => { setSelectedSavedVehicleId(''); setForm({ ...form, model: e.target.value }); }}>
         <option value="">{t('selectModel')}</option>
         {models.map(m => <option key={m} value={m}>{m}</option>)}
       </select>
@@ -686,6 +823,32 @@ function RequestForm({ token, onDone }) {
       <input className="w-full p-3 rounded-2xl border bg-slate-50" placeholder={t('yourPhone')} value={form.customerPhone} onChange={e => setForm({ ...form, customerPhone: e.target.value })} />
       <input className="w-full p-3 rounded-2xl border bg-slate-50" placeholder={t('detailedLocation')} value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} />
     </div>
+
+    <label className="flex items-center gap-3 bg-white rounded-[24px] border border-slate-200 p-4 shadow-sm">
+      <input
+        type="checkbox"
+        checked={saveVehicle}
+        onChange={e => setSaveVehicle(e.target.checked)}
+        className="w-5 h-5"
+      />
+      <div>
+        <div className="text-sm font-black text-slate-900">Save this car model</div>
+        <div className="text-xs font-semibold text-slate-500">Use it faster next time you request a part.</div>
+      </div>
+    </label>
+
+    <label className="flex items-center gap-3 bg-white rounded-[24px] border border-slate-200 p-4 shadow-sm">
+      <input
+        type="checkbox"
+        checked={saveVehicle}
+        onChange={e => setSaveVehicle(e.target.checked)}
+        className="w-5 h-5"
+      />
+      <div>
+        <div className="text-sm font-black text-slate-900">Save this car model</div>
+        <div className="text-xs font-semibold text-slate-500">Use it faster next time you request a part.</div>
+      </div>
+    </label>
 
     {error && <div className="text-xs text-red-600 bg-red-50 rounded-2xl p-3">{error}</div>}
 
