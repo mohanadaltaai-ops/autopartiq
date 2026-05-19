@@ -637,12 +637,6 @@ function SentOffers({ offers, token, reload, onToast }) {
                   </div>
                 )}
 
-                {offer.status === 'REJECTED' && (
-                  <div className="text-xs bg-amber-50 border border-amber-100 text-amber-700 rounded-[18px] p-3 font-bold">
-                    Customer purchased this part from another supplier. This request is now closed.
-                  </div>
-                )}
-
                 {offer.cancellationReason && (
                   <div className="text-xs bg-red-50 border border-red-100 text-red-700 rounded-[18px] p-3 font-bold">
                     {t('reasonForCancellation')}: {offer.cancellationReason}

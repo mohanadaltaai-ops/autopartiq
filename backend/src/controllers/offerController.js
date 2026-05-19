@@ -198,5 +198,44 @@ export async function acceptOffer(req, res) {
     console.error('Failed to notify losing suppliers after offer acceptance', error);
   }
 
+  try {
+    const losingOffers = await prisma.offer.findMany({
+      where: {
+        requestId: offer.requestId,
+        id: { not: offer.id },
+        status: 'REJECTED'
+      },
+      include: { supplier: true }
+    });
+
+    const notificationsByUserId = new Map();
+
+    for (const losingOffer of losingOffers) {
+      const userId = losingOffer.supplier?.userId;
+      if (!userId || notificationsByUserId.has(userId)) continue;
+
+      notificationsByUserId.set(userId, {
+        userId,
+        message: `Request ended: customer selected another supplier for ${order.offer.request.partName}`,
+        metadataJson: JSON.stringify({
+          type: 'OFFER_NOT_SELECTED',
+          requestId: offer.requestId,
+          offerId: losingOffer.id,
+          partName: order.offer.request.partName,
+          tab: 'home',
+          subTab: 'sent'
+        })
+      });
+    }
+
+    const notifications = Array.from(notificationsByUserId.values());
+
+    if (notifications.length) {
+      await prisma.notification.createMany({ data: notifications });
+    }
+  } catch (error) {
+    console.error('Failed to notify losing suppliers after offer acceptance', error);
+  }
+
   res.status(201).json({ order });
 }
