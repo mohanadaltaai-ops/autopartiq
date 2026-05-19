@@ -632,19 +632,10 @@ function SuperAdminFinancialDashboard({ data, t, language, marketFilter = 'ALL' 
 }
 
 
-function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token, reload, focus, onFocusHandled }) {
+function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token, reload }) {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
-  const cardRef = useRef(null);
   const isDarkMode = typeof window !== 'undefined' && localStorage.getItem('theme') === 'dark';
-
-  useEffect(() => {
-    if (focus) {
-      setOpen(true);
-      setTimeout(() => cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
-      setTimeout(() => onFocusHandled?.(), 900);
-    }
-  }, [focus, onFocusHandled]);
 
   const request = order.offer?.request || {};
   const supplier = order.offer?.supplier || {};
@@ -680,7 +671,7 @@ function AdminOrderCard({ order, user, updatingOrderId, changeOrderStatus, token
       : 'bg-amber-50 text-amber-700 border-amber-100';
 
   return (
-    <div ref={cardRef} className={`rounded-[30px] border p-3 shadow-sm space-y-3 ${surfaceClass} ${focus ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}>
+    <div className={`rounded-[30px] border p-3 shadow-sm space-y-3 ${surfaceClass}`}>
       <button
         type="button"
         onClick={() => setOpen(value => !value)}
@@ -811,35 +802,6 @@ export default function Admin({ tab, setTab }) {
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('ALL');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  const [targetOrderId, setTargetOrderId] = useState('');
-
-  function openNotificationTarget(metadata) {
-    if (!metadata?.orderId) return;
-    setTab('orders');
-    setStatusFilter('ALL');
-    setPaymentStatusFilter('ALL');
-    setOrderSearch('');
-    setDateFrom('');
-    setDateTo('');
-    setTargetOrderId(metadata.orderId);
-  }
-
-  useEffect(() => {
-    const storedTarget = localStorage.getItem('notificationTarget');
-    if (storedTarget) {
-      try {
-        openNotificationTarget(JSON.parse(storedTarget));
-      } catch {}
-      localStorage.removeItem('notificationTarget');
-    }
-
-    function handleNotificationNavigation(event) {
-      openNotificationTarget(event.detail);
-    }
-
-    window.addEventListener('autopartiq:navigate-notification', handleNotificationNavigation);
-    return () => window.removeEventListener('autopartiq:navigate-notification', handleNotificationNavigation);
-  }, []);
 
   async function load() {
     try {
@@ -1179,19 +1141,7 @@ export default function Admin({ tab, setTab }) {
         </div>
       )}
 
-      {filteredOrders.map(order => (
-        <AdminOrderCard
-          key={order.id}
-          order={order}
-          user={user}
-          updatingOrderId={updatingOrderId}
-          changeOrderStatus={changeOrderStatus}
-          token={token}
-          reload={load}
-          focus={targetOrderId === order.id}
-          onFocusHandled={() => setTargetOrderId('')}
-        />
-      ))}
+      {filteredOrders.map(order => <AdminOrderCard key={order.id} order={order} user={user} updatingOrderId={updatingOrderId} changeOrderStatus={changeOrderStatus} token={token} reload={load} />)}
     </div>;
   }
 
