@@ -49,7 +49,7 @@ function orderStatusLabel(status, t) {
 
 function offerStatusLabel(status, t) {
   if (status === 'ACTIVE') return t('pending');
-  if (status === 'REJECTED') return t('rejected') || 'Rejected';
+  if (status === 'REJECTED') return 'Not selected';
   if (status === 'CANCELLED') return t('cancelled');
   if (status === 'ACCEPTED') return t('accepted') || 'Accepted';
   return status;
@@ -533,14 +533,14 @@ function SentOffers({ offers, token, reload, onToast }) {
   }
 
   function statusClass(status) {
-    if (status === 'REJECTED') return 'bg-slate-100 text-slate-700 border-slate-200';
+    if (status === 'REJECTED') return 'bg-amber-50 text-amber-700 border-amber-100';
     if (status === 'CANCELLED') return 'bg-red-50 text-red-700 border-red-100';
     return 'bg-blue-50 text-blue-700 border-blue-100';
   }
 
   const filters = [
     ['ACTIVE', t('active')],
-    ['REJECTED', t('rejected')],
+    ['REJECTED', 'Not selected'],
     ['CANCELLED', t('cancelled')],
     ['ALL', t('all')]
   ];
@@ -628,6 +628,18 @@ function SentOffers({ offers, token, reload, onToast }) {
                 {offer.notes && (
                   <div className="text-xs text-slate-600 bg-slate-50 border border-slate-100 rounded-[18px] p-3 font-semibold leading-relaxed">
                     {offer.notes}
+                  </div>
+                )}
+
+                {offer.status === 'REJECTED' && (
+                  <div className="text-xs bg-amber-50 border border-amber-100 text-amber-700 rounded-[18px] p-3 font-bold">
+                    Customer purchased this part from another supplier. This request is now closed.
+                  </div>
+                )}
+
+                {offer.status === 'REJECTED' && (
+                  <div className="text-xs bg-amber-50 border border-amber-100 text-amber-700 rounded-[18px] p-3 font-bold">
+                    Customer purchased this part from another supplier. This request is now closed.
                   </div>
                 )}
 
