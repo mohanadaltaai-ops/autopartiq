@@ -90,3 +90,30 @@ export async function deleteSavedVehicle(req, res) {
   await prisma.savedVehicle.delete({ where: { id: existing.id } });
   res.json({ ok: true });
 }
+
+
+export async function setDefaultSavedVehicle(req, res) {
+  const existing = await prisma.savedVehicle.findUnique({
+    where: { id: req.params.id }
+  });
+
+  if (!existing) return res.status(404).json({ message: 'Saved vehicle not found' });
+  if (existing.userId !== req.user.id) return res.status(403).json({ message: 'Forbidden' });
+
+  const market = existing.market || req.user.market || 'IQ';
+
+  await prisma.savedVehicle.updateMany({
+    where: {
+      userId: req.user.id,
+      market
+    },
+    data: { isDefault: false }
+  });
+
+  const vehicle = await prisma.savedVehicle.update({
+    where: { id: existing.id },
+    data: { isDefault: true }
+  });
+
+  res.json({ vehicle });
+}

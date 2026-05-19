@@ -42,6 +42,7 @@ export default function Profile() {
   const [customerOrders, setCustomerOrders] = useState([]);
   const [savedVehicles, setSavedVehicles] = useState([]);
   const [deletingVehicleId, setDeletingVehicleId] = useState('');
+  const [settingDefaultVehicleId, setSettingDefaultVehicleId] = useState('');
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -67,6 +68,27 @@ export default function Profile() {
         setSavedVehicles([]);
       });
   }, [user?.role, token]);
+
+  async function setDefaultSavedVehicle(vehicleId) {
+    if (!vehicleId) return;
+
+    setSettingDefaultVehicleId(vehicleId);
+    try {
+      const result = await api(`/vehicles/${vehicleId}/default`, { method: 'PATCH', token });
+      const updatedVehicle = result.vehicle;
+
+      setSavedVehicles(current =>
+        current
+          .map(vehicle => ({
+            ...vehicle,
+            isDefault: vehicle.id === updatedVehicle.id
+          }))
+          .sort((a, b) => Number(b.isDefault) - Number(a.isDefault))
+      );
+    } finally {
+      setSettingDefaultVehicleId('');
+    }
+  }
 
   async function deleteSavedVehicle(vehicleId) {
     if (!vehicleId) return;
@@ -178,14 +200,27 @@ Name: ${user?.name || '-'}`);
                     )}
                   </div>
 
-                  <button
-                    type="button"
-                    disabled={deletingVehicleId === vehicle.id}
-                    onClick={() => deleteSavedVehicle(vehicle.id)}
-                    className="shrink-0 px-3 py-2 rounded-2xl bg-red-50 border border-red-100 text-red-700 text-xs font-black disabled:opacity-50"
-                  >
-                    {deletingVehicleId === vehicle.id ? 'Deleting...' : 'Delete'}
-                  </button>
+                  <div className="shrink-0 flex flex-col gap-2">
+                    {!vehicle.isDefault && (
+                      <button
+                        type="button"
+                        disabled={settingDefaultVehicleId === vehicle.id}
+                        onClick={() => setDefaultSavedVehicle(vehicle.id)}
+                        className="px-3 py-2 rounded-2xl bg-blue-50 border border-blue-100 text-blue-700 text-xs font-black disabled:opacity-50"
+                      >
+                        {settingDefaultVehicleId === vehicle.id ? 'Saving...' : 'Set default'}
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      disabled={deletingVehicleId === vehicle.id}
+                      onClick={() => deleteSavedVehicle(vehicle.id)}
+                      className="px-3 py-2 rounded-2xl bg-red-50 border border-red-100 text-red-700 text-xs font-black disabled:opacity-50"
+                    >
+                      {deletingVehicleId === vehicle.id ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
