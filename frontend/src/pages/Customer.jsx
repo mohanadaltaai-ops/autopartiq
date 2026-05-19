@@ -529,46 +529,6 @@ function RequestForm({ token, onDone }) {
     loadSavedVehicles();
   }, [token]);
 
-  async function loadSavedVehicles() {
-    try {
-      const result = await api('/vehicles/mine', { token });
-      const vehicles = result.vehicles || [];
-      setSavedVehicles(vehicles);
-
-      const defaultVehicle = vehicles.find(vehicle => vehicle.isDefault) || vehicles[0];
-      if (defaultVehicle && !form.origin && !form.make && !form.model && !form.year) {
-        setSelectedSavedVehicleId(defaultVehicle.id);
-        setForm(current => ({
-          ...current,
-          origin: defaultVehicle.origin,
-          make: defaultVehicle.make,
-          model: defaultVehicle.model,
-          year: String(defaultVehicle.year)
-        }));
-      }
-    } catch {
-      setSavedVehicles([]);
-    }
-  }
-
-  function applySavedVehicle(vehicleId) {
-    setSelectedSavedVehicleId(vehicleId);
-    const vehicle = savedVehicles.find(item => item.id === vehicleId);
-    if (!vehicle) return;
-
-    setForm(current => ({
-      ...current,
-      origin: vehicle.origin,
-      make: vehicle.make,
-      model: vehicle.model,
-      year: String(vehicle.year)
-    }));
-  }
-
-  useEffect(() => {
-    loadSavedVehicles();
-  }, [token]);
-
   async function analyzeLatestPhoto() {
     const photoUrl = form.photoUrls[0];
     if (!photoUrl) {
@@ -670,24 +630,6 @@ function RequestForm({ token, onDone }) {
         </div>
         <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black">🚗</div>
       </div>
-
-      {savedVehicles.length > 0 && (
-        <div className="rounded-[24px] bg-blue-50 border border-blue-100 p-3 space-y-2">
-          <div className="text-[10px] uppercase font-black text-blue-700">Saved cars</div>
-          <select
-            className="w-full p-3 rounded-2xl border bg-white text-sm font-bold"
-            value={selectedSavedVehicleId}
-            onChange={e => applySavedVehicle(e.target.value)}
-          >
-            <option value="">Choose another car manually</option>
-            {savedVehicles.map(vehicle => (
-              <option key={vehicle.id} value={vehicle.id}>
-                {vehicle.label || `${vehicle.year} ${vehicle.make} ${vehicle.model}`}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
 
       {savedVehicles.length > 0 && (
         <div className="rounded-[24px] bg-blue-50 border border-blue-100 p-3 space-y-2">

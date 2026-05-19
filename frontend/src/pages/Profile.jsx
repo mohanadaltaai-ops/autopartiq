@@ -40,6 +40,8 @@ export default function Profile() {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const [customerRequests, setCustomerRequests] = useState([]);
   const [customerOrders, setCustomerOrders] = useState([]);
+  const [savedVehicles, setSavedVehicles] = useState([]);
+  const [deletingVehicleId, setDeletingVehicleId] = useState('');
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -51,17 +53,32 @@ export default function Profile() {
 
     Promise.all([
       api('/requests/mine', { token }),
-      api('/orders/mine', { token })
+      api('/orders/mine', { token }),
+      api('/vehicles/mine', { token })
     ])
-      .then(([requestsResult, ordersResult]) => {
+      .then(([requestsResult, ordersResult, vehiclesResult]) => {
         setCustomerRequests(requestsResult.requests || []);
         setCustomerOrders(ordersResult.orders || []);
+        setSavedVehicles(vehiclesResult.vehicles || []);
       })
       .catch(() => {
         setCustomerRequests([]);
         setCustomerOrders([]);
+        setSavedVehicles([]);
       });
   }, [user?.role, token]);
+
+  async function deleteSavedVehicle(vehicleId) {
+    if (!vehicleId) return;
+
+    setDeletingVehicleId(vehicleId);
+    try {
+      await api(`/vehicles/${vehicleId}`, { method: 'DELETE', token });
+      setSavedVehicles(current => current.filter(vehicle => vehicle.id !== vehicleId));
+    } finally {
+      setDeletingVehicleId('');
+    }
+  }
 
   const roleLabel =
     user?.role === 'CUSTOMER' ? t('roleCustomer') :
@@ -134,6 +151,45 @@ Name: ${user?.name || '-'}`);
             <InfoCard label={t('completedOrders')} value={customerStats.completed} tone="green" />
             <InfoCard label={t('cancelled')} value={customerStats.cancelled} tone="red" />
           </div>
+        </Section>
+      )}
+
+      {user?.role === 'CUSTOMER' && (
+        <Section label="Saved cars" title="Saved car models">
+          {savedVehicles.length === 0 ? (
+            <div className="rounded-[22px] bg-slate-50 border border-dashed border-slate-200 p-5 text-sm font-bold text-slate-400 text-center">
+              No saved cars yet. Save a car from New Request to reuse it faster next time.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {savedVehicles.map(vehicle => (
+                <div key={vehicle.id} className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="font-black text-slate-950 leading-tight truncate">
+                      {vehicle.label || `${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+                    </div>
+                    <div className="text-[11px] font-bold text-slate-500 mt-1 truncate">
+                      {[vehicle.origin, vehicle.make, vehicle.model, vehicle.year].filter(Boolean).join(' • ')}
+                    </div>
+                    {vehicle.isDefault && (
+                      <div className="inline-flex mt-2 px-2 py-1 rounded-full bg-blue-50 border border-blue-100 text-[9px] uppercase font-black text-blue-700">
+                        Default
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={deletingVehicleId === vehicle.id}
+                    onClick={() => deleteSavedVehicle(vehicle.id)}
+                    className="shrink-0 px-3 py-2 rounded-2xl bg-red-50 border border-red-100 text-red-700 text-xs font-black disabled:opacity-50"
+                  >
+                    {deletingVehicleId === vehicle.id ? 'Deleting...' : 'Delete'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </Section>
       )}
 
