@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import SuperAdminAccess from './components/auth/SuperAdminAccess';
 import AuthConfirm from './pages/AuthConfirm';
 import AuthCallback from './pages/AuthCallback';
+import { PrivacyPolicy, TermsOfUse } from './pages/LegalPage';
 
 function AppInner() {
   const { user, loading } = useAuth();
@@ -25,6 +26,8 @@ function AppInner() {
     setTab(user?.role === 'ADMIN' && user?.adminPermission === 'ORDERS_ONLY' ? 'orders' : 'home');
   }, [user?.id, user?.role, user?.adminPermission]);
 
+  if (path === '/privacy-policy') return <PrivacyPolicy />;
+  if (path === '/terms-of-use') return <TermsOfUse />;
   if (path === '/auth/callback') return <AuthCallback />;
   if (path === '/auth/confirm') return <AuthConfirm />;
   if (loading) return <div className="min-h-screen bg-slate-600 text-white flex items-center justify-center">Loading...</div>;
