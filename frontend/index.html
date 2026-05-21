@@ -23,8 +23,8 @@
     <div id="root"></div>
     <script>
       (function () {
-        var market = '%VITE_MARKET%';
-        var normalizedMarket = String(market || 'IQ').trim().toUpperCase();
+        var mode = '%MODE%';
+        var normalizedMarket = String(mode || 'iq').trim().toLowerCase() === 'ae' ? 'AE' : 'IQ';
         var appName = normalizedMarket === 'AE' ? 'Auto Parts AE' : 'Auto Parts IQ';
         var manifestHref = normalizedMarket === 'AE' ? '/manifest-ae.webmanifest' : '/manifest-iq.webmanifest';
 
@@ -43,3 +43,4 @@
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
+
