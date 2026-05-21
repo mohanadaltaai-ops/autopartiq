@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../lib/api';
+import { getMarketAppName, getMarketCode, getMarketSupportEmail } from '../lib/market';
 
 function InfoCard({ label, value, tone = 'blue', dirClass = '' }) {
   const toneClass = tone === 'green'
@@ -37,6 +38,10 @@ function Section({ label, title, children }) {
 export default function Profile() {
   const { user, token, logout } = useAuth();
   const { t, language, toggleLanguage } = useLanguage();
+  const marketCode = getMarketCode();
+  const appName = getMarketAppName(language);
+  const supportEmail = getMarketSupportEmail();
+  const supportWhatsapp = marketCode === 'IQ' ? '07733664151' : '';
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const [customerRequests, setCustomerRequests] = useState([]);
   const [customerOrders, setCustomerOrders] = useState([]);
@@ -115,12 +120,8 @@ export default function Profile() {
     cancelled: customerRequests.filter(req => req.status === 'CANCELLED').length
   };
 
-  const deletionSubject = encodeURIComponent('AutoParts IQ account deletion request');
-  const deletionBody = encodeURIComponent(`Please delete my AutoParts IQ account and related personal data.
-
-Phone: ${user?.phone || '-'}
-Role: ${user?.role || '-'}
-Name: ${user?.name || '-'}`);
+  const deletionSubject = encodeURIComponent(`${appName} account deletion request`);
+  const deletionBody = encodeURIComponent(`Please delete my ${appName} account and related personal data.\n\nMarket: ${marketCode}\nPhone: ${user?.phone || '-'}\nEmail: ${user?.email || '-'}\nRole: ${user?.role || '-'}\nName: ${user?.name || '-'}`);
 
   const supplierMakes = (() => {
     try {
@@ -252,16 +253,18 @@ Name: ${user?.name || '-'}`);
         </div>
       </Section>
 
-      <Section label={t('support')} title="AutoParts IQ">
+      <Section label={t('support')} title={appName}>
         <div className="grid grid-cols-1 gap-2 text-sm">
-          <a href="https://wa.me/7733664151" target="_blank" rel="noreferrer" className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 block">
-            <div className="text-[10px] text-blue-600 font-black uppercase">{t('supportWhatsapp')}</div>
-            <div className="font-black text-slate-900 dir-ltr text-left mt-1">07733664151</div>
-          </a>
+          {supportWhatsapp && (
+            <a href={`https://wa.me/${supportWhatsapp.replace(/^0/, '964')}`} target="_blank" rel="noreferrer" className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 block">
+              <div className="text-[10px] text-blue-600 font-black uppercase">{t('supportWhatsapp')}</div>
+              <div className="font-black text-slate-900 dir-ltr text-left mt-1">{supportWhatsapp}</div>
+            </a>
+          )}
 
-          <a href="mailto:support@autopartiq.com" className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 block">
+          <a href={`mailto:${supportEmail}`} className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 block">
             <div className="text-[10px] text-blue-600 font-black uppercase">{t('supportEmail')}</div>
-            <div className="font-black text-slate-900 break-all dir-ltr text-left mt-1">support@autopartiq.com</div>
+            <div className="font-black text-slate-900 break-all dir-ltr text-left mt-1">{supportEmail}</div>
           </a>
         </div>
       </Section>
@@ -270,7 +273,7 @@ Name: ${user?.name || '-'}`);
         <div className="rounded-[22px] bg-red-50 border border-red-100 p-3 space-y-2">
           <div className="font-black text-red-700">{t('deleteAccountRequest')}</div>
           <div className="text-xs text-red-600 leading-relaxed font-semibold">{t('deleteAccountHelp')}</div>
-          <a href={`mailto:support@autopartiq.com?subject=${deletionSubject}&body=${deletionBody}`} className="block w-full text-center py-3 rounded-2xl bg-red-600 text-white text-sm font-black">
+          <a href={`mailto:${supportEmail}?subject=${deletionSubject}&body=${deletionBody}`} className="block w-full text-center py-3 rounded-2xl bg-red-600 text-white text-sm font-black">
             {t('requestAccountDeletion')}
           </a>
         </div>
