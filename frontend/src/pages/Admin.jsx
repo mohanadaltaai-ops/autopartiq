@@ -802,6 +802,57 @@ export default function Admin({ tab, setTab }) {
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('ALL');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [targetOrderId, setTargetOrderId] = useState('');
+
+  function openAdminNotificationTarget(metadata) {
+    if (!metadata?.orderId) return;
+
+    setTab('orders');
+    setStatusFilter('ALL');
+    setPaymentStatusFilter('ALL');
+    setOrderSearch('');
+    setDateFrom('');
+    setDateTo('');
+    setTargetOrderId(metadata.orderId);
+  }
+
+  useEffect(() => {
+    const storedTarget = localStorage.getItem('notificationTarget');
+
+    if (storedTarget) {
+      try {
+        openAdminNotificationTarget(JSON.parse(storedTarget));
+      } catch {}
+      localStorage.removeItem('notificationTarget');
+    }
+
+    function handleNotificationNavigation(event) {
+      openAdminNotificationTarget(event.detail);
+    }
+
+    window.addEventListener('autopartiq:navigate-notification', handleNotificationNavigation);
+    return () => window.removeEventListener('autopartiq:navigate-notification', handleNotificationNavigation);
+  }, []);
+
+  useEffect(() => {
+    if (tab !== 'orders' || !targetOrderId) return;
+
+    const timer = setTimeout(() => {
+      const card = document.querySelector(`[data-order-id="${targetOrderId}"]`);
+
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2', 'rounded-[30px]');
+
+        setTimeout(() => {
+          card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2', 'rounded-[30px]');
+          setTargetOrderId('');
+        }, 1400);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [tab, targetOrderId, data?.orders?.length]);
 
   async function load() {
     try {
@@ -1141,7 +1192,18 @@ export default function Admin({ tab, setTab }) {
         </div>
       )}
 
-      {filteredOrders.map(order => <AdminOrderCard key={order.id} order={order} user={user} updatingOrderId={updatingOrderId} changeOrderStatus={changeOrderStatus} token={token} reload={load} />)}
+      {filteredOrders.map(order => (
+        <div key={order.id} data-order-id={order.id}>
+          <AdminOrderCard
+            order={order}
+            user={user}
+            updatingOrderId={updatingOrderId}
+            changeOrderStatus={changeOrderStatus}
+            token={token}
+            reload={load}
+          />
+        </div>
+      ))}
     </div>;
   }
 
