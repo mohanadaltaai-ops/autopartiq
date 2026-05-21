@@ -3,11 +3,43 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#0f172a" />
-    <title>AutoParts IQ</title>
+    <meta name="theme-color" content="#27439C" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="A mobile-first spare parts marketplace for customers, suppliers, and operations teams." />
+
+    <meta name="application-name" content="Auto Parts" />
+    <meta name="apple-mobile-web-app-title" content="Auto Parts" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest-iq.webmanifest" id="app-manifest" />
+
+    <title>Auto Parts</title>
   </head>
   <body class="bg-slate-600">
     <div id="root"></div>
+    <script>
+      (function () {
+        var market = '%VITE_MARKET%';
+        var normalizedMarket = String(market || 'IQ').trim().toUpperCase();
+        var appName = normalizedMarket === 'AE' ? 'Auto Parts AE' : 'Auto Parts IQ';
+        var manifestHref = normalizedMarket === 'AE' ? '/manifest-ae.webmanifest' : '/manifest-iq.webmanifest';
+
+        document.title = appName;
+
+        var manifest = document.getElementById('app-manifest');
+        if (manifest) manifest.setAttribute('href', manifestHref);
+
+        var appNameMeta = document.querySelector('meta[name="application-name"]');
+        if (appNameMeta) appNameMeta.setAttribute('content', appName);
+
+        var appleTitleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+        if (appleTitleMeta) appleTitleMeta.setAttribute('content', appName);
+      })();
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

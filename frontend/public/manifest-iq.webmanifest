@@ -1,0 +1,32 @@
+{
+  "name": "Auto Parts IQ",
+  "short_name": "Auto Parts IQ",
+  "description": "A mobile-first spare parts marketplace for customers and suppliers in Iraq.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F9FD",
+  "theme_color": "#27439C",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": [
+    "business",
+    "shopping",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
