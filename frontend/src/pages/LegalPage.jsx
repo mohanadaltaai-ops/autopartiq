@@ -6,7 +6,7 @@ function LegalShell({ title, subtitle, children }) {
   const supportEmail = getMarketSupportEmail();
 
   return (
-    <div className="min-h-screen bg-[#F7F9FD] text-slate-950 px-5 py-6">
+    <div className="fixed inset-0 overflow-y-auto bg-[#F7F9FD] text-slate-950 px-5 py-6">
       <div className="max-w-3xl mx-auto">
         <div className="rounded-[30px] bg-white border border-slate-200 shadow-sm p-6 mb-5">
           <div className="inline-flex px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-[11px] font-black">
@@ -215,3 +215,4 @@ export function TermsOfUse() {
     </LegalShell>
   );
 }
+
