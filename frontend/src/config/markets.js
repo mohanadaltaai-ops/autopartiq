@@ -1,9 +1,9 @@
-export const MARKETS = {
+﻿export const MARKETS = {
   IQ: {
     code: 'IQ',
     appName: {
-      en: 'Auto Parts IQ',
-      ar: 'أوتو بارتس IQ'
+      en: 'PartLink IQ',
+      ar: 'بارت لينك العراق'
     },
     countryName: {
       en: 'Iraq',
@@ -23,8 +23,8 @@ export const MARKETS = {
   AE: {
     code: 'AE',
     appName: {
-      en: 'Auto Parts AE',
-      ar: 'أوتو بارتس AE'
+      en: 'PartLink AE',
+      ar: 'بارت لينك الإمارات'
     },
     countryName: {
       en: 'United Arab Emirates',
@@ -44,3 +44,4 @@ export const MARKETS = {
 };
 
 export const DEFAULT_MARKET = 'IQ';
+

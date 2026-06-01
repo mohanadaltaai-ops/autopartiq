@@ -23,7 +23,7 @@ const OTPIQ_FALLBACK_PROVIDER = process.env.OTPIQ_FALLBACK_PROVIDER || 'sms';
 const D7_API_TOKEN = process.env.D7_API_TOKEN || '';
 const D7_BASE_URL = process.env.D7_BASE_URL || 'https://api.d7networks.com';
 const D7_ORIGINATOR = process.env.D7_ORIGINATOR || 'SignOTP';
-const D7_CONTENT_TEMPLATE = process.env.D7_CONTENT_TEMPLATE || 'Your Auto Parts AE verification code is: {}';
+const D7_CONTENT_TEMPLATE = process.env.D7_CONTENT_TEMPLATE || 'Your PartLink AE verification code is: {}';
 const D7_EXPIRY_SECONDS = Number(process.env.D7_EXPIRY_SECONDS || OTP_EXPIRY_MINUTES * 60);
 
 function normalizePhoneForTestOtp(phone) {

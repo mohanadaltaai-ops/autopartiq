@@ -1,6 +1,6 @@
-# AutoPartIQ — Production-Ready MVP
+# PartLinkIQ — Production-Ready MVP
 
-AutoPartIQ is a 3-sided car spare parts marketplace for Iraq: Customers request parts, Suppliers submit offers, and Admins manage suppliers/orders/revenue.
+PartLinkIQ is a 3-sided car spare parts marketplace for Iraq: Customers request parts, Suppliers submit offers, and Admins manage suppliers/orders/revenue.
 
 This repository is a production-oriented MVP port of the Claude demo design into a real React + Backend + Database app.
 

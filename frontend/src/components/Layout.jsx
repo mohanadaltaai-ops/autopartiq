@@ -214,7 +214,7 @@ export default function Layout({ tab, setTab, children }) {
       <header className="shrink-0 bg-white/95 backdrop-blur border-b border-slate-200 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button onClick={() => setTab(user?.adminPermission === 'ORDERS_ONLY' ? 'orders' : 'home')} className="logo-surface w-12 h-12 rounded-[18px] overflow-hidden border border-slate-200 flex items-center justify-center p-1.5 shadow-sm">
-            <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain scale-95" />
+            <img src={logo} alt="PartLink IQ Logo" className="w-full h-full object-contain scale-95" />
           </button>
 
           <div>

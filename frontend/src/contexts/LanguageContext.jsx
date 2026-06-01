@@ -2,7 +2,7 @@ import React, { createContext, useContext, useMemo, useState } from 'react';
 
 const translations = {
   en: {
-    appName: 'AutoParts IQ',
+    appName: 'PartLink IQ',
     sendOffer: 'Send offer',
     requestVolume: 'Request volume',
     last30Days: 'Last 30 days',
@@ -210,7 +210,7 @@ const translations = {
     deliveryCancelled: 'Delivery cancelled. Admin or support should review this order.',
     deliveryWorkflow: 'Delivery workflow',
     deliveryWorkflowNote: 'Driver assignment, pickup time, delivery ETA, and proof of delivery are managed by Admin.',
-    adminDashboard: 'AutoPartIQ Admin',
+    adminDashboard: 'PartLinkIQ Admin',
     platformOverview: 'Platform overview',
     loadingDashboard: 'Loading dashboard...',
     ordersOnlyAdminAccess: 'Orders-only admin access.',

@@ -44,9 +44,9 @@ app.use(express.json({ limit: '5mb' }));
 app.use(morgan('dev'));
 app.use(rateLimit({ windowMs: 60_000, limit: 120 }));
 
-app.get('/', (_, res) => res.json({ ok: true, app: 'AutoPartIQ API', health: '/health' }));
-app.get('/api', (_, res) => res.json({ ok: true, app: 'AutoPartIQ API', routes: ['/api/auth/login', '/api/requests', '/api/orders'] }));
-app.get('/health', (_, res) => res.json({ ok: true, app: 'AutoPartIQ API' }));
+app.get('/', (_, res) => res.json({ ok: true, app: 'PartLinkIQ API', health: '/health' }));
+app.get('/api', (_, res) => res.json({ ok: true, app: 'PartLinkIQ API', routes: ['/api/auth/login', '/api/requests', '/api/orders'] }));
+app.get('/health', (_, res) => res.json({ ok: true, app: 'PartLinkIQ API' }));
 app.use('/legal', legalRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/requests', requestRoutes);
@@ -66,4 +66,4 @@ app.use((err, req, res, next) => {
 });
 
 const port = process.env.PORT || 4000;
-app.listen(port, () => console.log(`AutoPartIQ API running on http://localhost:${port}`));
+app.listen(port, () => console.log(`PartLinkIQ API running on http://localhost:${port}`));

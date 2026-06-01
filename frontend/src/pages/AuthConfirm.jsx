@@ -20,7 +20,7 @@ function getGlobalConfirmStore() {
   return globalThis.__AE_MAGIC_CONFIRM_PROMISES__;
 }
 
-async function createAutoPartsSession(accessToken) {
+async function createPartLinkSession(accessToken) {
   const res = await api('/auth/supabase-login', {
     method: 'POST',
     body: {
@@ -30,7 +30,7 @@ async function createAutoPartsSession(accessToken) {
   });
 
   if (!res?.token) {
-    throw new Error('Auto Parts AE session was not created. Please try again.');
+    throw new Error('PartLink AE session was not created. Please try again.');
   }
 
   localStorage.setItem('token', res.token);
@@ -85,13 +85,13 @@ export default function AuthConfirm() {
         throw new Error('Magic Link session was not created. Please request a new link.');
       }
 
-      setMessage('Creating Auto Parts AE session...');
+      setMessage('Creating PartLink AE session...');
       setDetails('Opening your account.');
 
       await withTimeout(
-        createAutoPartsSession(accessToken),
+        createPartLinkSession(accessToken),
         15000,
-        'Auto Parts AE session creation'
+        'PartLink AE session creation'
       );
 
       return { status: 'success' };
@@ -144,7 +144,7 @@ export default function AuthConfirm() {
       <div className="phone-frame rounded-[42px] border-[7px] border-slate-950 overflow-hidden shadow-2xl flex flex-col relative bg-[#F5F7FC]">
         <div className="flex-1 flex items-center justify-center p-8 text-center">
           <div className="bg-white rounded-[28px] border border-slate-200 shadow-sm p-6">
-            <div className="text-[#081B4B] font-black text-xl">Auto Parts AE</div>
+            <div className="text-[#081B4B] font-black text-xl">PartLink AE</div>
             <div className="text-slate-500 font-bold text-sm mt-3">{message}</div>
             {details && <div className="text-slate-400 font-bold text-xs mt-2">{details}</div>}
 

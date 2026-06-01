@@ -1,15 +1,15 @@
-# Terms of Use Draft - Auto Parts IQ / Auto Parts AE
+# Terms of Use Draft - PartLink IQ / PartLink AE
 
 Last updated: [Insert Date]
 
-These Terms of Use govern your use of Auto Parts IQ and Auto Parts AE.
+These Terms of Use govern your use of PartLink IQ and PartLink AE.
 
 ## 1. Service Overview
 
-Auto Parts is a spare parts marketplace platform that allows customers to submit spare parts requests and suppliers to submit offers.
+PartLink is a spare parts marketplace platform that allows customers to submit spare parts requests and suppliers to submit offers.
 
-Auto Parts IQ serves the Iraq market.  
-Auto Parts AE serves the United Arab Emirates market.
+PartLink IQ serves the Iraq market.  
+PartLink AE serves the United Arab Emirates market.
 
 ## 2. User Roles
 
@@ -61,7 +61,7 @@ Specific payment, refund, delivery, or cancellation rules may be provided separa
 
 ## 7. Marketplace Role
 
-Auto Parts provides a technology platform to connect customers and suppliers. Unless separately stated, Auto Parts is not the manufacturer of parts listed or supplied by suppliers.
+PartLink provides a technology platform to connect customers and suppliers. Unless separately stated, PartLink is not the manufacturer of parts listed or supplied by suppliers.
 
 ## 8. Account Suspension or Termination
 
@@ -69,7 +69,7 @@ We may suspend or restrict accounts that violate these Terms, misuse the app, su
 
 ## 9. Limitation of Liability
 
-To the maximum extent allowed by applicable law, Auto Parts is not liable for indirect, incidental, or consequential losses arising from use of the app.
+To the maximum extent allowed by applicable law, PartLink is not liable for indirect, incidental, or consequential losses arising from use of the app.
 
 ## 10. Changes to the Service
 
@@ -81,5 +81,5 @@ We may update these Terms from time to time. Continued use of the app after upda
 
 ## 12. Contact
 
-Auto Parts IQ: support@autopartiq.com  
-Auto Parts AE: support@autopartsae.com
+PartLink IQ: support@autopartiq.com  
+PartLink AE: support@autopartsae.com

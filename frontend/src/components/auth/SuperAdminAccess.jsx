@@ -30,7 +30,7 @@ export default function SuperAdminAccess({ onBack }) {
   return (
     <>
       <div className="logo-surface mx-auto w-28 h-28 rounded-3xl bg-white flex items-center justify-center p-2 shadow-lg">
-        <img src={logo} alt="AutoParts IQ Logo" className="w-full h-full object-contain scale-95" />
+        <img src={logo} alt="PartLink IQ Logo" className="w-full h-full object-contain scale-95" />
       </div>
 
       <h1 className="text-xl font-black text-slate-900">{t('adminAccess')}</h1>

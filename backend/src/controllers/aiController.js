@@ -157,7 +157,7 @@ function buildPrompt({ language, origin, make, model, year, problem }) {
   const responseLanguage = language === 'ar' ? 'Arabic' : 'English';
 
   return `
-You are an automotive spare parts identification assistant for Auto Parts IQ / Auto Parts AE.
+You are an automotive spare parts identification assistant for PartLink IQ / PartLink AE.
 
 Analyze the uploaded photo and identify the most likely car spare part.
 

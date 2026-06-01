@@ -170,7 +170,7 @@ export async function supabaseMagicLogin(req, res) {
   const market = normalizeMarketInput(req.body.market);
 
   if (market !== 'AE') {
-    return res.status(400).json({ message: 'Magic Link login is only enabled for Auto Parts AE' });
+    return res.status(400).json({ message: 'Magic Link login is only enabled for PartLink AE' });
   }
 
   if (!accessToken) {

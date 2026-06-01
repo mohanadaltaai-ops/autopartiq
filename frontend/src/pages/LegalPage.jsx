@@ -48,7 +48,7 @@ export function PrivacyPolicy() {
         <h2 className="text-xl font-black mb-2">1. Who We Are</h2>
         <p>
           {appName} is a spare parts marketplace application that connects customers, suppliers,
-          and operations teams. {marketCode === 'AE' ? 'Auto Parts AE serves the United Arab Emirates market.' : 'Auto Parts IQ serves the Iraq market.'}
+          and operations teams. {marketCode === 'AE' ? 'PartLink AE serves the United Arab Emirates market.' : 'PartLink IQ serves the Iraq market.'}
         </p>
       </section>
 
@@ -139,7 +139,7 @@ export function TermsOfUse() {
         <h2 className="text-xl font-black mb-2">1. Service Overview</h2>
         <p>
           {appName} is a spare parts marketplace platform that allows customers to submit spare
-          parts requests and suppliers to submit offers. {marketCode === 'AE' ? 'Auto Parts AE serves the United Arab Emirates market.' : 'Auto Parts IQ serves the Iraq market.'}
+          parts requests and suppliers to submit offers. {marketCode === 'AE' ? 'PartLink AE serves the United Arab Emirates market.' : 'PartLink IQ serves the Iraq market.'}
         </p>
       </section>
 
@@ -191,8 +191,8 @@ export function TermsOfUse() {
       <section>
         <h2 className="text-xl font-black mb-2">7. Marketplace Role</h2>
         <p>
-          Auto Parts provides a technology platform to connect customers and suppliers. Unless
-          separately stated, Auto Parts is not the manufacturer of parts listed or supplied by
+          PartLink provides a technology platform to connect customers and suppliers. Unless
+          separately stated, PartLink is not the manufacturer of parts listed or supplied by
           suppliers.
         </p>
       </section>

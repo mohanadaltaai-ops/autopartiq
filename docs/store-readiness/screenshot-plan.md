@@ -1,4 +1,4 @@
-# Auto Parts IQ / Auto Parts AE - Store Screenshot Plan
+# PartLink IQ / PartLink AE - Store Screenshot Plan
 
 Last updated: May 2026
 
@@ -8,8 +8,8 @@ This document defines the screenshots needed for Google Play and Apple App Store
 
 We need separate screenshot sets for:
 
-- Auto Parts IQ
-- Auto Parts AE
+- PartLink IQ
+- PartLink AE
 
 ## Recommended Screenshot Themes
 
@@ -129,8 +129,8 @@ or
 - Use clean demo data.
 - Avoid real customer/supplier private data.
 - Use market-specific names:
-  - Auto Parts IQ for Iraq
-  - Auto Parts AE for UAE
+  - PartLink IQ for Iraq
+  - PartLink AE for UAE
 - For AE screenshots, use AED currency and UAE wording.
 - For IQ screenshots, use IQD currency and Iraq wording.
 - Keep visual language consistent with the approved mockup.

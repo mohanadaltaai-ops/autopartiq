@@ -1,4 +1,4 @@
-# Auto Parts IQ / Auto Parts AE - Store Submission Checklist
+# PartLink IQ / PartLink AE - Store Submission Checklist
 
 Last updated: May 2026
 
@@ -10,8 +10,8 @@ Last updated: May 2026
 - Mobile metadata and PWA manifests added.
 - IQ and AE manifests are working.
 - App titles are market-aware:
-  - Auto Parts IQ
-  - Auto Parts AE
+  - PartLink IQ
+  - PartLink AE
 - Store icon and splash assets generated.
 - Store listing draft created.
 - Privacy Policy draft created.

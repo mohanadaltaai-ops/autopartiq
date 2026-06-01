@@ -8,10 +8,10 @@ export default defineConfig(({ mode }) => {
   const market = process.env.VITE_MARKET || fileEnv.VITE_MARKET || '';
 
   if (mode === 'ae') {
-    console.log(`[Auto Parts AE build] mode=${mode}`);
-    console.log(`[Auto Parts AE build] VITE_MARKET=${market || '(missing)'}`);
-    console.log(`[Auto Parts AE build] VITE_SUPABASE_URL=${supabaseUrl ? 'set' : 'MISSING'}`);
-    console.log(`[Auto Parts AE build] VITE_SUPABASE_ANON_KEY=${supabaseAnonKey ? 'set' : 'MISSING'}`);
+    console.log(`[PartLink AE build] mode=${mode}`);
+    console.log(`[PartLink AE build] VITE_MARKET=${market || '(missing)'}`);
+    console.log(`[PartLink AE build] VITE_SUPABASE_URL=${supabaseUrl ? 'set' : 'MISSING'}`);
+    console.log(`[PartLink AE build] VITE_SUPABASE_ANON_KEY=${supabaseAnonKey ? 'set' : 'MISSING'}`);
 
     if (!supabaseUrl || !supabaseAnonKey) {
       throw new Error(

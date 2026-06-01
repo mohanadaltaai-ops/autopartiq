@@ -7,8 +7,8 @@
     <meta name="color-scheme" content="light dark" />
     <meta name="description" content="A mobile-first spare parts marketplace for customers, suppliers, and operations teams." />
 
-    <meta name="application-name" content="Auto Parts" />
-    <meta name="apple-mobile-web-app-title" content="Auto Parts" />
+    <meta name="application-name" content="PartLink" />
+    <meta name="apple-mobile-web-app-title" content="PartLink" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -17,7 +17,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest-iq.webmanifest" id="app-manifest" />
 
-    <title>Auto Parts</title>
+    <title>PartLink</title>
   </head>
   <body class="bg-slate-600">
     <div id="root"></div>
@@ -25,7 +25,7 @@
       (function () {
         var mode = '%MODE%';
         var normalizedMarket = String(mode || 'iq').trim().toLowerCase() === 'ae' ? 'AE' : 'IQ';
-        var appName = normalizedMarket === 'AE' ? 'Auto Parts AE' : 'Auto Parts IQ';
+        var appName = normalizedMarket === 'AE' ? 'PartLink AE' : 'PartLink IQ';
         var manifestHref = normalizedMarket === 'AE' ? '/manifest-ae.webmanifest' : '/manifest-iq.webmanifest';
 
         document.title = appName;

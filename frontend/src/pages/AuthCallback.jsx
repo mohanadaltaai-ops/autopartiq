@@ -65,7 +65,7 @@ export default function AuthCallback() {
       <div className="phone-frame rounded-[42px] border-[7px] border-slate-950 overflow-hidden shadow-2xl flex flex-col relative bg-[#F5F7FC]">
         <div className="flex-1 flex items-center justify-center p-8 text-center">
           <div className="bg-white rounded-[28px] border border-slate-200 shadow-sm p-6">
-            <div className="text-[#081B4B] font-black text-xl">Auto Parts AE</div>
+            <div className="text-[#081B4B] font-black text-xl">PartLink AE</div>
             <div className="text-slate-500 font-bold text-sm mt-3">{message}</div>
           </div>
         </div>

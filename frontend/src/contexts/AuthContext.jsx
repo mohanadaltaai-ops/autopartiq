@@ -36,7 +36,7 @@ export function AuthProvider({ children }) {
     const market = getMarketCode();
 
     if (market !== 'AE') {
-      throw new Error('Magic Link is only available for Auto Parts AE');
+      throw new Error('Magic Link is only available for PartLink AE');
     }
 
     if (!supabase) {

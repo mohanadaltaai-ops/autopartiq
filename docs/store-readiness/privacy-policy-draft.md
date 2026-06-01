@@ -1,15 +1,15 @@
-# Privacy Policy Draft - Auto Parts IQ / Auto Parts AE
+# Privacy Policy Draft - PartLink IQ / PartLink AE
 
 Last updated: [Insert Date]
 
-This Privacy Policy explains how Auto Parts IQ and Auto Parts AE collect, use, store, and protect user information.
+This Privacy Policy explains how PartLink IQ and PartLink AE collect, use, store, and protect user information.
 
 ## 1. Who We Are
 
-Auto Parts IQ and Auto Parts AE are spare parts marketplace applications that connect customers, suppliers, and operations teams.
+PartLink IQ and PartLink AE are spare parts marketplace applications that connect customers, suppliers, and operations teams.
 
-Auto Parts IQ serves users in Iraq.  
-Auto Parts AE serves users in the United Arab Emirates.
+PartLink IQ serves users in Iraq.  
+PartLink AE serves users in the United Arab Emirates.
 
 ## 2. Information We Collect
 
@@ -82,7 +82,7 @@ The app is intended for business and general marketplace use and is not directed
 
 ## 9. International Use
 
-Because the app may use cloud service providers, user data may be processed or stored in countries other than the user’s country of residence.
+Because the app may use cloud service providers, user data may be processed or stored in countries other than the userï¿½s country of residence.
 
 ## 10. Changes to This Policy
 
@@ -92,5 +92,5 @@ We may update this Privacy Policy from time to time. Updated versions will be po
 
 For questions or privacy requests:
 
-Auto Parts IQ: support@autopartiq.com  
-Auto Parts AE: support@autopartsae.com
+PartLink IQ: support@autopartiq.com  
+PartLink AE: support@autopartsae.com

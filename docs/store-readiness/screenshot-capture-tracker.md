@@ -1,4 +1,4 @@
-# Auto Parts IQ / Auto Parts AE - Screenshot Capture Tracker
+# PartLink IQ / PartLink AE - Screenshot Capture Tracker
 
 Last updated: May 2026
 
@@ -13,8 +13,8 @@ This tracker will be used to capture and confirm the final screenshots needed fo
 - Avoid showing real customer, supplier, phone, or private business data.
 - Avoid showing temporary Vercel URLs in the screenshot.
 - Use market-specific screenshots:
-  - IQ screenshots should show Auto Parts IQ, IQD, Iraq context.
-  - AE screenshots should show Auto Parts AE, AED, UAE context.
+  - IQ screenshots should show PartLink IQ, IQD, Iraq context.
+  - AE screenshots should show PartLink AE, AED, UAE context.
 - Capture screenshots in portrait mobile view.
 - Recommended screenshot size:
   - 1242x2688, or

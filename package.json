@@ -2,7 +2,7 @@
   "name": "autopartiq-production",
   "private": true,
   "version": "1.0.0",
-  "description": "AutoPartIQ production-ready MVP monorepo",
+  "description": "PartLinkIQ production-ready MVP monorepo",
   "workspaces": [
     "frontend",
     "backend"

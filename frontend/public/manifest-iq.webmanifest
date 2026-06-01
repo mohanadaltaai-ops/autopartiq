@@ -1,6 +1,6 @@
 {
-  "name": "Auto Parts IQ",
-  "short_name": "Auto Parts IQ",
+  "name": "PartLink IQ",
+  "short_name": "PartLink IQ",
   "description": "A mobile-first spare parts marketplace for customers and suppliers in Iraq.",
   "start_url": "/",
   "scope": "/",

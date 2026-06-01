@@ -12,7 +12,7 @@ export function getMarketConfig() {
 
 export function getMarketAppName(language = 'en') {
   const market = getMarketConfig();
-  return market.appName?.[language] || market.appName?.en || 'Auto Parts IQ';
+  return market.appName?.[language] || market.appName?.en || 'PartLink IQ';
 }
 
 export function getMarketCountryName(language = 'en') {
