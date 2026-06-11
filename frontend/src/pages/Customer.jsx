@@ -20,26 +20,26 @@ function parseJsonArray(value) {
 
 function Empty({ text }) {
   return (
-    <div className="bg-white rounded-[28px] border border-dashed border-slate-200 p-6 text-center shadow-sm">
-      <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black mb-3">
+    <div className="bg-white rounded-[28px] border border-dashed border-slate-200 dark:border-slate-800 p-6 text-center shadow-sm">
+      <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 dark:text-blue-300 flex items-center justify-center font-black mb-3">
         —
       </div>
-      <div className="text-sm font-bold text-slate-500">{text}</div>
+      <div className="text-sm font-bold text-slate-500 dark:text-slate-300 dark:text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300">{text}</div>
     </div>
   );
 }
 
 function CustomerStatCard({ label, value, tone = 'blue' }) {
   const toneClass = tone === 'orange'
-    ? 'bg-orange-50 text-orange-700 border-orange-100'
-    : 'bg-blue-50 text-blue-700 border-blue-100';
+    ? 'bg-orange-50 dark:bg-orange-900/60 text-orange-700 dark:text-orange-100 border-orange-100 dark:border-orange-700/70'
+    : 'bg-blue-50 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-slate-700';
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 p-4 shadow-sm">
+    <div className="bg-white rounded-3xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
       <div className={`inline-flex px-2.5 py-1 rounded-full border text-[10px] font-black uppercase ${toneClass}`}>
         {label}
       </div>
-      <div className="text-2xl font-black text-slate-950 mt-3">{value}</div>
+      <div className="text-2xl font-black text-slate-950 dark:text-white mt-3">{value}</div>
     </div>
   );
 }
@@ -106,8 +106,8 @@ function OriginButton({ origin, data, selected, onClick }) {
 function SummaryRow({ label, value }) {
   return (
     <div className="flex justify-between gap-3">
-      <span className="text-slate-400">{label}</span>
-      <strong className="text-slate-700 text-right">{value || '-'}</strong>
+      <span className="text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300">{label}</span>
+      <strong className="text-slate-700 dark:text-slate-200 dark:text-slate-200 text-right">{value || '-'}</strong>
     </div>
   );
 }
@@ -204,7 +204,7 @@ export default function Customer({ tab }) {
   if (loading) {
     return (
       <div className="p-4">
-        <div className="bg-white rounded-[28px] border border-slate-200 p-5 shadow-sm text-sm font-bold text-slate-500">
+        <div className="bg-white dark:bg-slate-900 rounded-[28px] border border-slate-200 dark:border-slate-800 p-5 shadow-sm text-sm font-bold text-slate-500 dark:text-slate-300 dark:text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300">
           {t('loadingCustomer')}
         </div>
       </div>
@@ -247,16 +247,16 @@ export default function Customer({ tab }) {
       </div>
     </div>
 
-    <div className="grid grid-cols-2 gap-2 bg-white rounded-[24px] border border-slate-200 p-2 shadow-sm">
+    <div className="grid grid-cols-2 gap-2 bg-white dark:bg-slate-900 rounded-[24px] border border-slate-200 dark:border-slate-800 p-2 shadow-sm">
       <button
         onClick={() => setHomeTab('new')}
-        className={`py-3 rounded-[18px] text-sm font-black transition ${homeTab === 'new' ? 'bg-[#27439C] text-white shadow-sm' : 'text-slate-500'}`}
+        className={`py-3 rounded-[18px] text-sm font-black transition ${homeTab === 'new' ? 'bg-[#27439C] text-white shadow-sm' : 'text-slate-500 dark:text-slate-300 dark:text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300'}`}
       >
         {t('newRequest')}
       </button>
       <button
         onClick={() => setHomeTab('requests')}
-        className={`py-3 rounded-[18px] text-sm font-black transition ${homeTab === 'requests' ? 'bg-[#27439C] text-white shadow-sm' : 'text-slate-500'}`}
+        className={`py-3 rounded-[18px] text-sm font-black transition ${homeTab === 'requests' ? 'bg-[#27439C] text-white shadow-sm' : 'text-slate-500 dark:text-slate-300 dark:text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300'}`}
       >
         {t('myRequests')}
       </button>
@@ -269,13 +269,13 @@ export default function Customer({ tab }) {
           setHomeTab('requests');
         }} />
       : <div className="space-y-3">
-          <div className="flex items-center justify-between gap-3 bg-white rounded-[24px] border border-slate-200 p-3 shadow-sm">
+          <div className="flex items-center justify-between gap-3 bg-white dark:bg-slate-900 rounded-[24px] border border-slate-200 dark:border-slate-800 p-3 shadow-sm">
             <div>
-              <div className="text-[10px] uppercase font-black text-blue-600">{t('myRequests')}</div>
-              <h2 className="font-black text-slate-950 leading-tight">{t('myRequests')}</h2>
+              <div className="text-[10px] uppercase font-black text-blue-600 dark:text-blue-400">{t('myRequests')}</div>
+              <h2 className="font-black text-slate-950 dark:text-white leading-tight">{t('myRequests')}</h2>
             </div>
             <select
-              className="p-2 rounded-2xl border bg-slate-50 text-xs font-black"
+              className="p-2 rounded-2xl border border-slate-200 dark:border-slate-800 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-black"
               value={requestFilter}
               onChange={e => setRequestFilter(e.target.value)}
             >
@@ -334,13 +334,13 @@ function RequestCard({ req, token, reload, onToast, focus, onFocusHandled }) {
   }
 
   const statusTone = req.status === 'CANCELLED'
-    ? 'bg-red-50 text-red-700 border-red-100'
+    ? 'bg-red-50 dark:bg-red-900/60 text-red-700 dark:text-red-100 border-red-100 dark:border-red-700/70'
     : req.status === 'COMPLETED'
-      ? 'bg-green-50 text-green-700 border-green-100'
-      : 'bg-blue-50 text-blue-700 border-blue-100';
+      ? 'bg-green-50 dark:bg-green-900/60 text-green-700 dark:text-green-100 border-green-100 dark:border-green-700/70'
+      : 'bg-blue-50 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-slate-700';
 
   return (
-    <div ref={cardRef} className={`bg-white rounded-[28px] border border-slate-200 p-4 space-y-3 shadow-sm ${focus ? 'ring-2 ring-blue-500' : ''}`}>
+    <div ref={cardRef} className={`bg-white dark:bg-slate-900 rounded-[28px] border border-slate-200 dark:border-slate-800 p-4 space-y-3 shadow-sm ${focus ? 'ring-2 ring-blue-500' : ''}`}>
       <button
         type="button"
         onClick={() => setOpen(value => !value)}
@@ -351,29 +351,29 @@ function RequestCard({ req, token, reload, onToast, focus, onFocusHandled }) {
             {requestStatusLabel(req.status, t)}
           </div>
 
-          <div className="font-black text-slate-950 text-lg leading-tight">{req.partName}</div>
-          <div className="text-xs text-slate-500 font-bold mt-1">{req.make} {req.model} ({req.year})</div>
-          <div className="text-[11px] text-blue-600 font-black mt-2">{t('offers')}: {activeOffers.length} / {totalOffers}</div>
+          <div className="font-black text-slate-950 dark:text-white text-lg leading-tight">{req.partName}</div>
+          <div className="text-xs text-slate-500 dark:text-slate-300 dark:text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300 font-bold mt-1">{req.make} {req.model} ({req.year})</div>
+          <div className="text-[11px] text-blue-600 dark:text-blue-400 font-black mt-2">{t('offers')}: {activeOffers.length} / {totalOffers}</div>
 
           {(req.partNumber || req.vin) && (
-            <div className="text-[11px] text-slate-400 mt-1">
+            <div className="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300 mt-1">
               {req.partNumber && `${t('partNumber')}: ${req.partNumber}`} {req.vin && `${t('vinChassis')}: ${req.vin}`}
             </div>
           )}
         </div>
 
         <div className="text-right shrink-0">
-          <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 font-black">
+          <div className="w-10 h-10 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-300 dark:text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300 font-black">
             {open ? '−' : '+'}
           </div>
-          <div className="text-[10px] text-slate-400 font-black mt-2">{open ? t('hide') : t('details')}</div>
+          <div className="text-[10px] text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300 font-black mt-2">{open ? t('hide') : t('details')}</div>
         </div>
       </button>
 
       {open && (
         <div className="space-y-3">
-          <div className="rounded-[22px] bg-slate-50 border border-slate-100 p-3 space-y-1 text-xs">
-            <div className="text-[10px] uppercase font-black text-blue-600">{t('requestDetails')}</div>
+          <div className="rounded-[22px] bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 p-3 space-y-1 text-xs">
+            <div className="text-[10px] uppercase font-black text-blue-600 dark:text-blue-400">{t('requestDetails')}</div>
             <SummaryRow label={t('part')} value={req.partName} />
             <SummaryRow label={t('make')} value={`${req.make} ${req.model}`.trim()} />
             <SummaryRow label={t('year')} value={req.year} />
@@ -383,7 +383,7 @@ function RequestCard({ req, token, reload, onToast, focus, onFocusHandled }) {
           </div>
 
           {req.description && (
-            <div className="text-xs bg-slate-50 border border-slate-100 text-slate-600 rounded-[18px] p-3 font-semibold leading-relaxed">
+            <div className="text-xs bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-[18px] p-3 font-semibold leading-relaxed">
               {req.description}
             </div>
           )}
@@ -397,7 +397,7 @@ function RequestCard({ req, token, reload, onToast, focus, onFocusHandled }) {
           {requestPhotos.length > 0 && (
             <div className="flex gap-2 overflow-x-auto">
               {requestPhotos.map(url => (
-                <ImagePreview key={url} src={url} alt="Request" className="w-20 h-20 rounded-2xl object-cover border border-slate-200" />
+                <ImagePreview key={url} src={url} alt="Request" className="w-20 h-20 rounded-2xl object-cover border border-slate-200 dark:border-slate-800" />
               ))}
             </div>
           )}
@@ -409,7 +409,7 @@ function RequestCard({ req, token, reload, onToast, focus, onFocusHandled }) {
           )}
 
           {canCancel && (
-            <div className="border-t border-slate-100 pt-3 space-y-2">
+            <div className="border-t border-slate-100 dark:border-slate-800 pt-3 space-y-2">
               {!showCancel ? (
                 <button type="button" onClick={() => setShowCancel(true)} className="text-xs font-black text-red-600">
                   {t('cancelRequest')}
@@ -424,10 +424,10 @@ function RequestCard({ req, token, reload, onToast, focus, onFocusHandled }) {
                   />
                   {error && <div className="text-xs text-red-600">{error}</div>}
                   <div className="flex gap-2">
-                    <button type="button" onClick={cancel} disabled={!reason.trim()} className="flex-1 py-3 rounded-2xl bg-red-600 text-white text-sm font-black disabled:opacity-40">
+                    <button type="button" onClick={cancel} disabled={!reason.trim()} className="flex-1 py-3 rounded-2xl bg-red-600 text-white text-sm font-black disabled:opacity-40 disabled:dark:opacity-45">
                       {t('confirmCancel')}
                     </button>
-                    <button type="button" onClick={() => setShowCancel(false)} className="flex-1 py-3 rounded-2xl bg-slate-100 text-slate-600 text-sm font-black">
+                    <button type="button" onClick={() => setShowCancel(false)} className="flex-1 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 dark:text-slate-200 dark:text-slate-300 text-sm font-black">
                       {t('keepRequest')}
                     </button>
                   </div>
@@ -614,28 +614,28 @@ function RequestForm({ token, onDone }) {
   }
 
   return <div className="space-y-4">
-    <div className="rounded-[30px] bg-white border border-slate-200 p-5 shadow-sm">
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black border border-blue-100">
+    <div className="rounded-[30px] bg-white border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 dark:text-blue-300 text-[10px] font-black border border-blue-100 dark:border-slate-700">
         {t('newRequest')}
       </div>
-      <div className="text-2xl font-black leading-tight text-slate-950 mt-3">{t('findParts')}</div>
-      <div className="text-xs font-semibold text-slate-500 mt-2">{t('landingSubtitle')}</div>
+      <div className="text-2xl font-black leading-tight text-slate-950 dark:text-white mt-3">{t('findParts')}</div>
+      <div className="text-xs font-semibold text-slate-500 dark:text-slate-300 dark:text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300 mt-2">{t('landingSubtitle')}</div>
     </div>
 
-    <div className="bg-white rounded-[30px] border border-slate-200 p-4 space-y-4 shadow-sm">
+    <div className="bg-white dark:bg-slate-900 rounded-[30px] border border-slate-200 dark:border-slate-800 p-4 space-y-4 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[10px] text-blue-600 font-black uppercase">{t('step')} 1</div>
-          <h2 className="font-black text-slate-950">{t('vehicleDetails')}</h2>
+          <div className="text-[10px] text-blue-600 dark:text-blue-400 font-black uppercase">{t('step')} 1</div>
+          <h2 className="font-black text-slate-950 dark:text-white">{t('vehicleDetails')}</h2>
         </div>
-        <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black">🚗</div>
+        <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-300 flex items-center justify-center font-black">🚗</div>
       </div>
 
       {savedVehicles.length > 0 && (
-        <div className="rounded-[24px] bg-blue-50 border border-blue-100 p-3 space-y-2">
-          <div className="text-[10px] uppercase font-black text-blue-700">Saved cars</div>
+        <div className="rounded-[24px] bg-blue-50 dark:bg-slate-950 border border-blue-100 dark:border-slate-700 dark:border-slate-800 p-3 space-y-2">
+          <div className="text-[10px] uppercase font-black text-blue-700 dark:text-blue-300">Saved cars</div>
           <select
-            className="w-full p-3 rounded-2xl border bg-white text-sm font-bold"
+            className="w-full p-3 rounded-2xl border border-slate-200 dark:border-slate-800 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white text-sm font-bold"
             value={selectedSavedVehicleId}
             onChange={e => applySavedVehicle(e.target.value)}
           >
@@ -664,38 +664,38 @@ function RequestForm({ token, onDone }) {
         ))}
       </div>
 
-      <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.year} onChange={e => { setSelectedSavedVehicleId(''); setForm({ ...form, year: e.target.value }); }}>
+      <select className="w-full p-3 rounded-2xl border border-slate-200 dark:border-slate-800 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm font-bold" value={form.year} onChange={e => { setSelectedSavedVehicleId(''); setForm({ ...form, year: e.target.value }); }}>
         <option value="">{t('selectYear')}</option>
         {years.map(y => <option key={y} value={y}>{y}</option>)}
       </select>
 
-      <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.make} disabled={!form.origin} onChange={e => { setSelectedSavedVehicleId(''); setForm({ ...form, make: e.target.value, model: '' }); }}>
+      <select className="w-full p-3 rounded-2xl border border-slate-200 dark:border-slate-800 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm font-bold" value={form.make} disabled={!form.origin} onChange={e => { setSelectedSavedVehicleId(''); setForm({ ...form, make: e.target.value, model: '' }); }}>
         <option value="">{t('selectMake')}</option>
         {makes.map(m => <option key={m} value={m}>{m}</option>)}
       </select>
 
-      <select className="w-full p-3 rounded-2xl border bg-slate-50 text-sm font-bold" value={form.model} disabled={!form.make} onChange={e => { setSelectedSavedVehicleId(''); setForm({ ...form, model: e.target.value }); }}>
+      <select className="w-full p-3 rounded-2xl border border-slate-200 dark:border-slate-800 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm font-bold" value={form.model} disabled={!form.make} onChange={e => { setSelectedSavedVehicleId(''); setForm({ ...form, model: e.target.value }); }}>
         <option value="">{t('selectModel')}</option>
         {models.map(m => <option key={m} value={m}>{m}</option>)}
       </select>
     </div>
 
-    <div className="bg-white rounded-3xl border p-4 space-y-3 shadow-sm">
+    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-4 space-y-3 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[10px] text-blue-600 font-black uppercase">{t('step')} 2</div>
-          <h2 className="font-black text-slate-900">{t('partDetails')}</h2>
+          <div className="text-[10px] text-blue-600 dark:text-blue-400 font-black uppercase">{t('step')} 2</div>
+          <h2 className="font-black text-slate-900 dark:text-white">{t('partDetails')}</h2>
         </div>
-        <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black">🔧</div>
+        <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-300 flex items-center justify-center font-black">🔧</div>
       </div>
 
-      <div className="bg-blue-50 rounded-[24px] p-3 space-y-3 border border-blue-100">
+      <div className="bg-blue-50 dark:bg-slate-950 rounded-[24px] p-3 space-y-3 border border-blue-100 dark:border-slate-700 dark:border-slate-800">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="text-[10px] uppercase font-black text-blue-700">{t('scanPartPhoto')}</div>
-            <div className="text-xs font-bold text-slate-500 mt-1">{t('scanPartPhotoHelp')}</div>
+            <div className="text-[10px] uppercase font-black text-blue-700 dark:text-blue-300 dark:text-blue-400">{t('scanPartPhoto')}</div>
+            <div className="text-xs font-bold text-slate-500 dark:text-slate-300 dark:text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300 mt-1">{t('scanPartPhotoHelp')}</div>
           </div>
-          <div className="w-10 h-10 rounded-2xl bg-white border border-blue-100 text-blue-700 flex items-center justify-center font-black">📷</div>
+          <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-800 border border-blue-100 dark:border-slate-700 text-blue-700 dark:text-blue-300 flex items-center justify-center font-black">📷</div>
         </div>
 
         {form.photoUrls.length > 0 && (
@@ -709,7 +709,7 @@ function RequestForm({ token, onDone }) {
           </div>
         )}
 
-        <label className="block w-full py-3 rounded-2xl bg-white border border-blue-100 text-blue-700 text-center text-sm font-black cursor-pointer shadow-sm">
+        <label className="block w-full py-3 rounded-2xl bg-white dark:bg-slate-900 border border-blue-100 dark:border-slate-700 text-blue-700 dark:text-blue-300 dark:text-white text-center text-sm font-black cursor-pointer shadow-sm">
           {uploading ? t('uploading') : t('takePartPhoto')}
           <input
             type="file"
@@ -721,20 +721,20 @@ function RequestForm({ token, onDone }) {
           />
         </label>
 
-        <button onClick={analyzeLatestPhoto} disabled={loading || !form.photoUrls.length} className="w-full py-3 rounded-2xl bg-[#27439C] text-white font-black disabled:opacity-40 shadow-sm">
+        <button onClick={analyzeLatestPhoto} disabled={loading || !form.photoUrls.length} className="w-full py-3 rounded-2xl bg-[#27439C] text-white font-black disabled:opacity-40 disabled:dark:opacity-45 shadow-sm">
           {loading ? t('analyzing') : t('analyzePhotoWithAi')}
         </button>
 
         {aiResult && (
-          <div className="rounded-[22px] bg-white border border-blue-100 p-3 space-y-2">
+          <div className="rounded-[22px] bg-white dark:bg-slate-900 border border-blue-100 dark:border-slate-700 p-3 space-y-2">
             <div className="flex items-center justify-between gap-2">
-              <div className="text-[10px] uppercase font-black text-blue-700">{t('aiSuggestion')}</div>
-              <div className="text-[10px] font-black px-2 py-1 rounded-full bg-blue-50 text-blue-700">{aiResult.confidence || 'LOW'}</div>
+              <div className="text-[10px] uppercase font-black text-blue-700 dark:text-blue-300">{t('aiSuggestion')}</div>
+              <div className="text-[10px] font-black px-2 py-1 rounded-full bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-300">{aiResult.confidence || 'LOW'}</div>
             </div>
-            <div className="font-black text-slate-900">{aiResult.partName || t('aiUnableToIdentify')}</div>
-            {aiResult.category && <div className="text-xs font-bold text-slate-500">{aiResult.category}</div>}
+            <div className="font-black text-slate-900 dark:text-white">{aiResult.partName || t('aiUnableToIdentify')}</div>
+            {aiResult.category && <div className="text-xs font-bold text-slate-500 dark:text-slate-300 dark:text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300">{aiResult.category}</div>}
             {aiResult.followUpQuestions?.length > 0 && (
-              <div className="text-[11px] font-semibold text-slate-500 leading-relaxed">
+              <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 dark:text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300 leading-relaxed">
                 {aiResult.followUpQuestions.join(' • ')}
               </div>
             )}
@@ -743,30 +743,30 @@ function RequestForm({ token, onDone }) {
         )}
       </div>
 
-      <input className="w-full p-3 rounded-2xl border bg-slate-50" placeholder={t('partName')} value={form.partName} onChange={e => setForm({ ...form, partName: e.target.value })} />
+      <input className="w-full p-3 rounded-2xl border border-slate-200 dark:border-slate-800 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 dark:text-slate-500 dark:placeholder:text-slate-600 dark:text-slate-300" placeholder={t('partName')} value={form.partName} onChange={e => setForm({ ...form, partName: e.target.value })} />
 
       <div className="grid grid-cols-2 gap-2">
-        <input className="w-full p-3 rounded-2xl border bg-slate-50" placeholder={t('partNumber')} value={form.partNumber} onChange={e => setForm({ ...form, partNumber: e.target.value })} />
-        <input className="w-full p-3 rounded-2xl border bg-slate-50" placeholder={t('vinChassis')} value={form.vin} onChange={e => setForm({ ...form, vin: e.target.value })} />
+        <input className="w-full p-3 rounded-2xl border border-slate-200 dark:border-slate-800 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 dark:text-slate-500 dark:placeholder:text-slate-600 dark:text-slate-300" placeholder={t('partNumber')} value={form.partNumber} onChange={e => setForm({ ...form, partNumber: e.target.value })} />
+        <input className="w-full p-3 rounded-2xl border border-slate-200 dark:border-slate-800 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 dark:text-slate-500 dark:placeholder:text-slate-600 dark:text-slate-300" placeholder={t('vinChassis')} value={form.vin} onChange={e => setForm({ ...form, vin: e.target.value })} />
       </div>
 
-      <textarea className="w-full p-3 rounded-2xl border bg-slate-50 min-h-24" placeholder={t('description')} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+      <textarea className="w-full p-3 rounded-2xl border border-slate-200 dark:border-slate-800 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 dark:text-slate-500 dark:placeholder:text-slate-600 dark:text-slate-300 min-h-24" placeholder={t('description')} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
     </div>
 
-    <div className="bg-white rounded-3xl border p-4 space-y-3 shadow-sm">
+    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-4 space-y-3 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[10px] text-blue-600 font-black uppercase">{t('step')} 3</div>
-          <h2 className="font-black text-slate-900">{t('deliveryDetails')}</h2>
+          <div className="text-[10px] text-blue-600 dark:text-blue-400 font-black uppercase">{t('step')} 3</div>
+          <h2 className="font-black text-slate-900 dark:text-white">{t('deliveryDetails')}</h2>
         </div>
-        <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-black">📍</div>
+        <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-300 flex items-center justify-center font-black">📍</div>
       </div>
 
-      <input className="w-full p-3 rounded-2xl border bg-slate-50" placeholder={t('yourPhone')} value={form.customerPhone} onChange={e => setForm({ ...form, customerPhone: e.target.value })} />
-      <input className="w-full p-3 rounded-2xl border bg-slate-50" placeholder={t('detailedLocation')} value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} />
+      <input className="w-full p-3 rounded-2xl border border-slate-200 dark:border-slate-800 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 dark:text-slate-500 dark:placeholder:text-slate-600 dark:text-slate-300" placeholder={t('yourPhone')} value={form.customerPhone} onChange={e => setForm({ ...form, customerPhone: e.target.value })} />
+      <input className="w-full p-3 rounded-2xl border border-slate-200 dark:border-slate-800 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 dark:text-slate-500 dark:placeholder:text-slate-600 dark:text-slate-300" placeholder={t('detailedLocation')} value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} />
     </div>
 
-    <label className="flex items-center gap-3 bg-white rounded-[24px] border border-slate-200 p-4 shadow-sm">
+    <label className="flex items-center gap-3 bg-white dark:bg-slate-900 rounded-[24px] border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
       <input
         type="checkbox"
         checked={saveVehicle}
@@ -774,8 +774,8 @@ function RequestForm({ token, onDone }) {
         className="w-5 h-5"
       />
       <div>
-        <div className="text-sm font-black text-slate-900">Save this car model</div>
-        <div className="text-xs font-semibold text-slate-500">Use it faster next time you request a part.</div>
+        <div className="text-sm font-black text-slate-900 dark:text-white">Save this car model</div>
+        <div className="text-xs font-semibold text-slate-500 dark:text-slate-300 dark:text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300">Use it faster next time you request a part.</div>
       </div>
     </label>
 
@@ -784,7 +784,7 @@ function RequestForm({ token, onDone }) {
     <button
       onClick={submit}
       disabled={!form.origin || !form.make || !form.model || !form.year || !form.partName || !form.customerPhone || !form.location || saving}
-      className="w-full py-4 rounded-3xl bg-[#27439C] text-white font-black shadow-lg disabled:opacity-40"
+      className="w-full py-4 rounded-3xl bg-[#27439C] text-white font-black shadow-lg disabled:opacity-40 disabled:dark:opacity-45"
     >
       {saving ? t('uploading') : t('submitRequest')}
     </button>
@@ -807,27 +807,27 @@ function CustomerOrderCard({ order }) {
 
   const surfaceClass = isDarkMode
     ? 'bg-[#101A33] border-slate-700 text-slate-100'
-    : 'bg-white border-slate-200 text-slate-950';
+    : 'bg-white border-slate-200 dark:border-slate-800 text-slate-950 dark:text-white';
 
   const innerSurfaceClass = isDarkMode
     ? 'bg-[#0B1226] border-slate-700'
-    : 'bg-slate-50 border-slate-100';
+    : 'bg-slate-50 border-slate-100 dark:border-slate-800';
 
-  const titleTextClass = isDarkMode ? 'text-white' : 'text-slate-950';
-  const mutedTextClass = isDarkMode ? 'text-slate-300' : 'text-slate-500';
-  const softTextClass = isDarkMode ? 'text-slate-400' : 'text-slate-400';
+  const titleTextClass = isDarkMode ? 'text-white' : 'text-slate-950 dark:text-white';
+  const mutedTextClass = isDarkMode ? 'text-slate-300' : 'text-slate-500 dark:text-slate-300 dark:text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300';
+  const softTextClass = isDarkMode ? 'text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300';
 
   const statusTone = order.status === 'COMPLETED'
-    ? 'bg-green-50 text-green-700 border-green-100'
+    ? 'bg-green-50 dark:bg-green-900/60 text-green-700 dark:text-green-100 border-green-100 dark:border-green-700/70'
     : order.status === 'CANCELLED'
-      ? 'bg-red-50 text-red-700 border-red-100'
-      : 'bg-blue-50 text-blue-700 border-blue-100';
+      ? 'bg-red-50 dark:bg-red-900/60 text-red-700 dark:text-red-100 border-red-100 dark:border-red-700/70'
+      : 'bg-blue-50 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-slate-700';
 
   const paymentTone = order.paymentStatus === 'PAID'
-    ? 'bg-green-50 text-green-700 border-green-100'
+    ? 'bg-green-50 dark:bg-green-900/60 text-green-700 dark:text-green-100 border-green-100 dark:border-green-700/70'
     : order.paymentStatus === 'FAILED'
-      ? 'bg-red-50 text-red-700 border-red-100'
-      : 'bg-amber-50 text-amber-700 border-amber-100';
+      ? 'bg-red-50 dark:bg-red-900/60 text-red-700 dark:text-red-100 border-red-100 dark:border-red-700/70'
+      : 'bg-amber-50 dark:bg-amber-900/60 text-amber-700 dark:text-amber-100 border-amber-100 dark:border-amber-700/70';
 
   return (
     <div className={`rounded-[30px] border p-3 shadow-sm space-y-3 ${surfaceClass}`}>
@@ -837,12 +837,12 @@ function CustomerOrderCard({ order }) {
         className="w-full text-left"
       >
         <div className="flex items-start gap-3">
-          <div className={`w-[76px] h-[76px] shrink-0 rounded-[24px] border overflow-hidden flex items-center justify-center ${isDarkMode ? 'bg-[#0B1226] border-slate-700' : 'bg-blue-50 border-blue-100'}`}>
+          <div className={`w-[76px] h-[76px] shrink-0 rounded-[24px] border overflow-hidden flex items-center justify-center ${isDarkMode ? 'bg-[#0B1226] border-slate-700' : 'bg-blue-50 border-blue-100 dark:border-slate-700'}`}>
             {request.photoUrl || request.imageUrl ? (
               <img src={request.photoUrl || request.imageUrl} alt={partTitle} className="w-full h-full object-cover" />
             ) : (
               <div className="text-center px-2">
-                <div className="text-[10px] font-black text-blue-700 uppercase leading-tight">{request.origin || 'IQ'}</div>
+                <div className="text-[10px] font-black text-blue-700 dark:text-blue-300 uppercase leading-tight">{request.origin || 'IQ'}</div>
                 <div className={`text-[9px] font-bold mt-1 leading-tight ${softTextClass}`}>{request.make || t('partDetails')}</div>
               </div>
             )}
@@ -851,7 +851,7 @@ function CustomerOrderCard({ order }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <div className="text-[11px] font-black text-blue-600 truncate">{order.orderNumber}</div>
+                <div className="text-[11px] font-black text-blue-600 dark:text-blue-400 truncate">{order.orderNumber}</div>
                 <div className={`font-black text-lg leading-tight mt-1 truncate ${titleTextClass}`}>{partTitle}</div>
                 <div className={`text-xs font-bold mt-1 truncate ${mutedTextClass}`}>
                   {vehicleTitle || t('notAvailable')}
@@ -859,7 +859,7 @@ function CustomerOrderCard({ order }) {
               </div>
 
               <div className="shrink-0 text-right">
-                <div className={`w-10 h-10 rounded-2xl border flex items-center justify-center font-black ${isDarkMode ? 'bg-[#0B1226] border-slate-700 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-500'}`}>
+                <div className={`w-10 h-10 rounded-2xl border flex items-center justify-center font-black ${isDarkMode ? 'bg-[#0B1226] border-slate-700 text-slate-200' : 'bg-slate-50 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-300 dark:text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300'}`}>
                   {open ? '−' : '+'}
                 </div>
               </div>
@@ -878,15 +878,15 @@ function CustomerOrderCard({ order }) {
 
         <div className={`mt-3 rounded-[22px] border p-3 grid grid-cols-3 gap-2 ${innerSurfaceClass}`}>
           <div>
-            <div className="text-[9px] uppercase font-black text-blue-600">{t('date')}</div>
+            <div className="text-[9px] uppercase font-black text-blue-600 dark:text-blue-400">{t('date')}</div>
             <div className={`text-[11px] font-black mt-1 ${titleTextClass}`}>{orderDate}</div>
           </div>
           <div>
-            <div className="text-[9px] uppercase font-black text-blue-600">{t('deliveryFee')}</div>
+            <div className="text-[9px] uppercase font-black text-blue-600 dark:text-blue-400">{t('deliveryFee')}</div>
             <div className={`text-[11px] font-black mt-1 ${titleTextClass}`}>{formatIQD(deliveryFee)}</div>
           </div>
           <div className="text-right">
-            <div className="text-[9px] uppercase font-black text-blue-600">{t('total')}</div>
+            <div className="text-[9px] uppercase font-black text-blue-600 dark:text-blue-400">{t('total')}</div>
             <div className={`text-[11px] font-black mt-1 ${titleTextClass}`}>{formatIQD(total)}</div>
           </div>
         </div>
@@ -899,7 +899,7 @@ function CustomerOrderCard({ order }) {
       {open && (
         <div className="space-y-3">
           <div className={`rounded-[22px] border p-3 text-xs space-y-1 ${innerSurfaceClass}`}>
-            <div className="text-[10px] uppercase font-black text-blue-600">{t('priceBreakdown')}</div>
+            <div className="text-[10px] uppercase font-black text-blue-600 dark:text-blue-400">{t('priceBreakdown')}</div>
             <SummaryRow label={t('price')} value={formatIQD(partPrice)} />
             <SummaryRow label={t('deliveryFee')} value={formatIQD(deliveryFee)} />
             <SummaryRow label={t('total')} value={formatIQD(total)} />
@@ -918,12 +918,12 @@ function OrderList({ orders }) {
   const sortedOrders = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   return <div className="p-4 space-y-4 pb-6">
-    <div className="rounded-[30px] bg-white border border-slate-200 p-5 shadow-sm">
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black border border-blue-100">
+    <div className="rounded-[30px] bg-white border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 dark:text-blue-300 text-[10px] font-black border border-blue-100 dark:border-slate-700">
         {t('orders')}
       </div>
-      <h1 className="font-black text-2xl text-slate-950 mt-3">{t('orders')}</h1>
-      <div className="text-xs font-semibold text-slate-500 mt-1">
+      <h1 className="font-black text-2xl text-slate-950 dark:text-white mt-3">{t('orders')}</h1>
+      <div className="text-xs font-semibold text-slate-500 dark:text-slate-300 dark:text-slate-400 dark:text-slate-500 dark:text-slate-500 dark:text-slate-300 mt-1">
         {sortedOrders.length === 0 ? t('noOrders') : `${sortedOrders.length} ${t('orders')}`}
       </div>
     </div>

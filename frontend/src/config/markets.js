@@ -3,11 +3,11 @@
     code: 'IQ',
     appName: {
       en: 'PartLink IQ',
-      ar: 'بارت لينك العراق'
+      ar: '\u0628\u0627\u0631\u062a \u0644\u064a\u0646\u0643 \u0627\u0644\u0639\u0631\u0627\u0642'
     },
     countryName: {
       en: 'Iraq',
-      ar: 'العراق'
+      ar: '\u0627\u0644\u0639\u0631\u0627\u0642'
     },
     currency: 'IQD',
     phonePrefix: '+964',
@@ -24,11 +24,11 @@
     code: 'AE',
     appName: {
       en: 'PartLink AE',
-      ar: 'بارت لينك الإمارات'
+      ar: '\u0628\u0627\u0631\u062a \u0644\u064a\u0646\u0643 \u0627\u0644\u0625\u0645\u0627\u0631\u0627\u062a'
     },
     countryName: {
       en: 'United Arab Emirates',
-      ar: 'الإمارات العربية المتحدة'
+      ar: '\u0627\u0644\u0625\u0645\u0627\u0631\u0627\u062a \u0627\u0644\u0639\u0631\u0628\u064a\u0629 \u0627\u0644\u0645\u062a\u062d\u062f\u0629'
     },
     currency: 'AED',
     phonePrefix: '+971',

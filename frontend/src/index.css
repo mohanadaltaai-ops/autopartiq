@@ -426,3 +426,151 @@ select {
 select option {
   font-size: 0.875rem;
 }
+
+
+
+/* === PartLink global dark mode surface polish START === */
+
+/*
+  Global dark-mode cleanup for the mobile app shell.
+  This prevents remaining light-mode cards, pills, inputs, badges, and icon bubbles
+  from staying white inside dark mode.
+*/
+
+.dark .apiq-page,
+.dark .apiq-page main {
+  background: #020817;
+  color: #f8fafc;
+}
+
+.dark .apiq-page .bg-white {
+  background-color: #0f172a !important;
+}
+
+.dark .apiq-page .bg-slate-50,
+.dark .apiq-page .bg-slate-100 {
+  background-color: #020817 !important;
+}
+
+.dark .apiq-page .bg-blue-50 {
+  background-color: rgba(30, 64, 175, 0.45) !important;
+}
+
+.dark .apiq-page .bg-orange-50,
+.dark .apiq-page .bg-amber-50,
+.dark .apiq-page .bg-yellow-50 {
+  background-color: rgba(154, 52, 18, 0.42) !important;
+}
+
+.dark .apiq-page .bg-green-50 {
+  background-color: rgba(22, 101, 52, 0.42) !important;
+}
+
+.dark .apiq-page .bg-red-50 {
+  background-color: rgba(153, 27, 27, 0.42) !important;
+}
+
+.dark .apiq-page .border-slate-100,
+.dark .apiq-page .border-slate-200,
+.dark .apiq-page .border-blue-100,
+.dark .apiq-page .border-orange-100,
+.dark .apiq-page .border-amber-100,
+.dark .apiq-page .border-yellow-100,
+.dark .apiq-page .border-green-100,
+.dark .apiq-page .border-red-100 {
+  border-color: #1e293b !important;
+}
+
+.dark .apiq-page .text-slate-950,
+.dark .apiq-page .text-slate-900,
+.dark .apiq-page .text-slate-800 {
+  color: #ffffff !important;
+}
+
+.dark .apiq-page .text-slate-700,
+.dark .apiq-page .text-slate-600 {
+  color: #e2e8f0 !important;
+}
+
+.dark .apiq-page .text-slate-500,
+.dark .apiq-page .text-slate-400 {
+  color: #cbd5e1 !important;
+}
+
+.dark .apiq-page .text-blue-700,
+.dark .apiq-page .text-blue-600 {
+  color: #bfdbfe !important;
+}
+
+.dark .apiq-page .text-orange-700,
+.dark .apiq-page .text-amber-700,
+.dark .apiq-page .text-yellow-700 {
+  color: #fed7aa !important;
+}
+
+.dark .apiq-page .text-green-700 {
+  color: #bbf7d0 !important;
+}
+
+.dark .apiq-page .text-red-700 {
+  color: #fecaca !important;
+}
+
+.dark .apiq-page input,
+.dark .apiq-page select,
+.dark .apiq-page textarea {
+  background-color: #020817 !important;
+  color: #ffffff !important;
+  border-color: #334155 !important;
+}
+
+.dark .apiq-page input::placeholder,
+.dark .apiq-page textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.dark .apiq-page option {
+  background-color: #020817;
+  color: #ffffff;
+}
+
+/* Small pills and badges should look like dark-mode pills, not white stickers */
+.dark .apiq-page .rounded-full.bg-white,
+.dark .apiq-page .rounded-2xl.bg-white,
+.dark .apiq-page .rounded-\[18px\].bg-white,
+.dark .apiq-page .rounded-\[24px\].bg-white {
+  background-color: #1e293b !important;
+  color: #dbeafe !important;
+  border-color: #334155 !important;
+}
+
+/* Keep primary dark/blue actions strong */
+.dark .apiq-page .bg-\[\#27439C\] {
+  background-color: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+.dark .apiq-page .bg-\[\#0F172A\] {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+/* Disabled buttons in dark mode should not look like white pills */
+.dark .apiq-page button:disabled,
+.dark .apiq-page label:has(input:disabled) {
+  opacity: 0.55;
+}
+
+/* Scrollbar track should not stay light */
+.dark .apiq-page ::-webkit-scrollbar-track {
+  background: #020817;
+}
+
+.dark .apiq-page ::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 999px;
+}
+
+/* === PartLink global dark mode surface polish END === */
+
+
